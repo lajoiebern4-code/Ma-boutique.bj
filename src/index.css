@@ -1,0 +1,114 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  font-family: Inter, Poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #0B1E3D;
+  background: #F7F5F1;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===============================
+   THÈME CHINASHOP
+   =============================== */
+
+:root {
+  --cs-bg: #F7F5F1;
+  --cs-surface: #FFFFFF;
+  --cs-text: #0B1E3D;
+  --cs-muted: #64748B;
+  --cs-border: #E2E8F0;
+}
+
+html.dark {
+  --cs-bg: #0B1220;
+  --cs-surface: #111827;
+  --cs-text: #F8FAFC;
+  --cs-muted: #94A3B8;
+  --cs-border: #334155;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--cs-bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--cs-bg);
+  color: var(--cs-text);
+  overflow-x: hidden;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+textarea,
+select {
+  min-width: 0;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+::selection {
+  background: #0B1E3D;
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(234, 88, 12, 0.45);
+  outline-offset: 2px;
+}
+
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[marquee_18s_linear_infinite\] {
+    animation: none !important;
+  }
+}
