@@ -40,3 +40,10 @@ backups-*/
 backups/
 backups-*/
 backup-*.tar.gz
+
+# Sauvegardes locales
+*-backup.txt
+*.backup
+*.backup-*
+*.bak
+*.before-*
