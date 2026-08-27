@@ -41,7 +41,7 @@ const fonctionnement = [
   {
     numero: '03',
     icon: FileText,
-    titre: 'Je renseigne mes coordonnées',
+    titre: 'Je renseigne',
     texte:
       'Indiquez vos coordonnées puis choisissez votre mode de réception : retrait ou livraison lorsque celle-ci est disponible.',
   },
@@ -57,7 +57,7 @@ const fonctionnement = [
     icon: PackageCheck,
     titre: 'La commande est traitée',
     texte:
-      'Après validation, votre commande reçoit un numéro unique et un code permettant d’identifier et de suivre son traitement.',
+      'Après validation, votre commande reçoit un numéro et un code permettant d’identifier et de suivre son traitement.',
   },
   {
     numero: '06',

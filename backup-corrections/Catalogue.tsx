@@ -82,7 +82,7 @@ function CarteProduit({
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs font-semibold text-slate-400">
-              Image non disponible
+              Image indisponible
             </div>
           )}
 
@@ -103,7 +103,7 @@ function CarteProduit({
 
             {enStock && (
               <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-black text-emerald-700 shadow-sm backdrop-blur">
-                Disponible
+                En stock
               </span>
             )}
           </div>
@@ -113,7 +113,7 @@ function CarteProduit({
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-orange-600">
-            {produit.categorie || 'Sélection ChinaShop-Bénin'}
+            {produit.categorie || 'Sélection'}
           </p>
 
           {produit.promo > 0 && (
@@ -162,7 +162,7 @@ function CarteProduit({
               }`}
             />
             {enStock
-              ? 'En stock'
+              ? 'Disponible maintenant'
               : surCommande
                 ? 'Disponible sur commande'
                 : 'Indisponible'}
@@ -536,7 +536,7 @@ export default function Catalogue() {
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0B1E3D] outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
                 >
                   <option value="tous">Toutes les disponibilités</option>
-                  <option value="disponible">En stock</option>
+                  <option value="disponible">Disponible maintenant</option>
                   <option value="sur_commande">Sur commande</option>
                 </select>
               </label>

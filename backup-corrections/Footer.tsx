@@ -37,8 +37,8 @@ export default function Footer() {
             </Link>
 
             <p className="mt-3 max-w-sm text-sm leading-6 text-slate-500">
-              Des produits soigneusement sélectionnés en Chine et proposés aux clients au
-              Bénin, avec un parcours de commande simple et un suivi transparent.
+              Des produits sélectionnés en Chine et proposés aux clients au
+              Bénin, avec un parcours de commande simple et un suivi clair.
             </p>
           </div>
 

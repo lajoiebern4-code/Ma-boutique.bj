@@ -79,7 +79,7 @@ export default function Commande() {
     }
   }, [])
 
-  const fraisLivraison = useMemo(() => {
+  const tarifLivraison = useMemo(() => {
     if (modeReception !== 'livraison') return 0
 
     const tarif = tarifsLivraison.find(
@@ -96,8 +96,8 @@ export default function Commande() {
   }, [tarifsLivraison, zoneLivraisonId])
 
   const total = useMemo(() => {
-    return totalAvecReduction + fraisLivraison
-  }, [totalAvecReduction, fraisLivraison])
+    return totalAvecReduction + tarifLivraison
+  }, [totalAvecReduction, tarifLivraison])
 
   const articlesStock = useMemo(
     () =>
@@ -1030,7 +1030,7 @@ export default function Commande() {
                         </span>
 
                         <span className="font-bold">
-                          {formatPrix(fraisLivraison)}
+                          {formatPrix(tarifLivraison)}
                         </span>
                       </div>
                     )}

@@ -51,7 +51,7 @@ function CarteProduit({
           ) : (
             <div className="flex h-full flex-col items-center justify-center text-slate-400">
               <Package size={30} strokeWidth={1.5} />
-              <span className="mt-2 text-xs">Image non disponible</span>
+              <span className="mt-2 text-xs">Image indisponible</span>
             </div>
           )}
 
@@ -73,7 +73,7 @@ function CarteProduit({
 
       <div className="p-4 sm:p-5">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
-          {produit.categorie || 'Sélection ChinaShop-Bénin'}
+          {produit.categorie || 'Sélection ChinaShop'}
         </p>
 
         <Link to={`/produit/${produit.id}`}>
@@ -117,7 +117,7 @@ function CarteProduit({
               ? 'Disponible'
               : surCommande
                 ? 'Sur commande'
-                : 'Non disponible'}
+                : 'Indisponible'}
           </span>
 
           <Link
@@ -370,7 +370,7 @@ export default function Accueil() {
                 <div className="absolute inset-x-4 bottom-4">
                   <div className="rounded-2xl border border-white/50 bg-white/90 p-4 shadow-xl backdrop-blur-md">
                     <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-orange-600">
-                      Sélection ChinaShop-Bénin
+                      Sélection ChinaShop
                     </p>
                     <p className="mt-1 text-sm font-black text-[#0B1E3D]">
                       {produitHero?.nom || 'Une sélection pensée pour vous'}
@@ -537,78 +537,7 @@ export default function Accueil() {
         </div>
       </section>
 
-      {nouveautes.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-          <div className="flex items-end justify-between gap-5">
-            <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-                À découvrir
-              </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
-                Les nouveautés
-              </h2>
-            </div>
 
-            <Link
-              to="/nouveautes"
-              className="hidden items-center gap-1 text-xs font-extrabold text-[#0B1E3D] hover:text-orange-600 sm:flex"
-            >
-              Toutes les nouveautés
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {nouveautes.map((produit) => (
-              <CarteProduit
-                key={produit.id}
-                produit={produit}
-                onAjouter={ajouter}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {promotions.length > 0 && (
-        <section className="bg-[#0284C7]">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-400">
-                  Offres en cours
-                </p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white sm:text-4xl">
-                  Les produits actuellement proposés à prix réduit.
-                </h2>
-                <p className="mt-4 text-sm leading-6 text-slate-300">
-                  Certaines offres peuvent être limitées dans le temps.
-                  Consultez la fiche du produit pour connaître les conditions
-                  applicables.
-                </p>
-              </div>
-
-              <Link
-                to="/promotions"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-5 text-xs font-extrabold text-white transition hover:bg-[#0369A1]"
-              >
-                Voir les promotions
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {promotions.map((produit) => (
-                <CarteProduit
-                  key={produit.id}
-                  produit={produit}
-                  onAjouter={ajouter}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
@@ -687,113 +616,181 @@ export default function Accueil() {
 
       <section className="border-y border-slate-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8 lg:py-20">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-              Sur commande
-            </p>
-            <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
-              Un produit qui n'est pas disponible en stock ?
-            </h2>
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-600">
+                  Simplement
+                </p>
+
+                <h2 className="mt-2 max-w-md text-3xl font-black leading-tight tracking-[-0.035em] text-[#0B1E3D] sm:text-4xl">
+                  De la sélection à la réception.
+                </h2>
+
+                <p className="mt-4 max-w-md text-sm leading-6 text-slate-500">
+                  Vous choisissez votre produit. Nous nous occupons du reste.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    numero: '01',
+                    titre: 'Choisir',
+                    texte: 'Parcourez le catalogue et sélectionnez le produit qui vous convient.',
+                  },
+                  {
+                    numero: '02',
+                    titre: 'Commander',
+                    texte: 'Validez votre commande et choisissez la réception qui vous convient.',
+                  },
+                  {
+                    numero: '03',
+                    titre: 'Recevoir',
+                    texte: 'Suivez votre commande jusqu’à sa livraison ou son retrait au Bénin.',
+                  },
+                ].map((etape) => (
+                  <div
+                    key={etape.numero}
+                    className="rounded-2xl border border-slate-200 bg-[#F7F5F1] p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                  >
+                    <span className="text-[10px] font-black tracking-[0.14em] text-orange-600">
+                      {etape.numero}
+                    </span>
+
+                    <h3 className="mt-5 text-sm font-black text-[#0B1E3D]">
+                      {etape.titre}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                      {etape.texte}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
+        </section>
 
-          <div>
-            <p className="text-sm leading-7 text-slate-600">
-              Certains articles sont proposés sur commande. Nous les
-              approvisionnons spécialement pour nos clients depuis la Chine.
-              Leur délai d'acheminement peut donc être différent d'un produit
-              disponible immédiatement.
-            </p>
+        <section className="border-y border-slate-200 bg-[#F7F5F1]">
+          <style>{`
+            @keyframes temoignageChinaShop {
+              0%, 18% {
+                opacity: 1;
+                transform: translateY(0);
+              }
+              20%, 100% {
+                opacity: 0;
+                transform: translateY(8px);
+              }
+            }
+          `}</style>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <div className="text-center">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
+                Ils nous font confiance
+              </p>
+
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
+                Ce que nos clients pensent de ChinaShop-Benin
+              </h2>
+
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-500">
+                Une expérience simple, de la commande jusqu’à la réception.
+              </p>
+            </div>
+
+            <div className="relative mx-auto mt-10 min-h-[250px] max-w-xl">
               {[
-                'Disponibilité clairement indiquée',
-                'Conditions présentées avant validation',
-                'Commande suivie',
-                'Accompagnement jusqu’à la réception',
-              ].map((texte) => (
+                {
+                  nom: 'Aïcha',
+                  ville: 'Cotonou',
+                  texte: 'Commande simple et livraison rapide. Je suis satisfaite de mon achat.',
+                },
+                {
+                  nom: 'Kevin',
+                  ville: 'Abomey-Calavi',
+                  texte: 'J’ai apprécié le suivi de ma commande. Tout était clair jusqu’à la réception.',
+                },
+                {
+                  nom: 'Mariam',
+                  ville: 'Porto-Novo',
+                  texte: 'Le produit correspondait à mes attentes. Je commanderai encore.',
+                },
+                {
+                  nom: 'David',
+                  ville: 'Cotonou',
+                  texte: 'Très pratique pour commander des produits depuis la Chine sans complication.',
+                },
+                {
+                  nom: 'Grâce',
+                  ville: 'Abomey-Calavi',
+                  texte: 'Bonne expérience du début à la fin. Le processus est vraiment simple.',
+                },
+              ].map((temoignage, index) => (
                 <div
-                  key={texte}
-                  className="flex items-start gap-2.5 rounded-xl bg-[#F7F5F1] p-3.5"
+                  key={temoignage.nom}
+                  className="absolute inset-0 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm"
+                  style={{
+                    animation: 'temoignageChinaShop 10s infinite',
+                    animationDelay: `${index * -2}s`,
+                  }}
                 >
-                  <Check
-                    size={16}
-                    className="mt-0.5 shrink-0 text-orange-600"
-                  />
-                  <span className="text-xs font-bold text-[#0B1E3D]">
-                    {texte}
-                  </span>
+                  <div
+                    className="flex justify-center gap-1 text-orange-500"
+                    aria-label="5 étoiles"
+                  >
+                    {'★★★★★'}
+                  </div>
+
+                  <p className="mt-4 text-sm leading-6 text-slate-600">
+                    “{temoignage.texte}”
+                  </p>
+
+                  <div className="mt-5 border-t border-slate-100 pt-4">
+                    <p className="text-sm font-black text-[#0B1E3D]">
+                      {temoignage.nom}
+                    </p>
+
+                    <p className="mt-1 text-[11px] font-medium text-slate-400">
+                      {temoignage.ville}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <div className="overflow-hidden rounded-[26px] bg-[#0B1E3D]">
+            <div className="flex flex-col gap-7 px-6 py-10 sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-12">
+              <div className="max-w-xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-400">
+                  ChinaShop-Benin
+                </p>
+
+                <h2 className="mt-3 text-2xl font-black tracking-[-0.03em] text-white sm:text-3xl">
+                  Vous cherchez quelque chose ?
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  Découvrez les produits disponibles et les articles proposés sur commande.
+                </p>
+              </div>
+
+              <Link
+                to="/catalogue"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-xs font-black text-white transition hover:bg-orange-600"
+              >
+                Explorer le catalogue
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          </div>
+        </section>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="overflow-hidden rounded-[30px] bg-[#0284C7]">
-          <div className="grid gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[1fr_auto] lg:items-center lg:px-14 lg:py-14">
-            <div className="max-w-2xl">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-400">
-                ChinaShop-Benin
-              </p>
-              <h2 className="mt-3 text-3xl font-black leading-tight tracking-[-0.035em] text-white sm:text-4xl">
-                Vous savez déjà ce que vous recherchez ?
-              </h2>
-              <p className="mt-4 text-sm leading-6 text-slate-300">
-                Parcourez notre sélection et trouvez votre prochain produit.
-              </p>
-            </div>
-
-            <Link
-              to="/catalogue"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-6 text-sm font-extrabold text-white transition hover:bg-[#0369A1]"
-            >
-              Accéder au catalogue
-              <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:px-8">
-          <div className="flex gap-3">
-            <Clock3 className="mt-0.5 shrink-0 text-orange-600" size={19} />
-            <div>
-              <p className="text-xs font-extrabold text-[#0B1E3D]">
-                Un parcours lisible
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                Chaque étape importante de votre commande est identifiable.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <ShieldCheck className="mt-0.5 shrink-0 text-orange-600" size={19} />
-            <div>
-              <p className="text-xs font-extrabold text-[#0B1E3D]">
-                Des informations essentielles
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                Nous privilégions la clarté avant la validation de la commande.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <PackageCheck className="mt-0.5 shrink-0 text-orange-600" size={19} />
-            <div>
-              <p className="text-xs font-extrabold text-[#0B1E3D]">
-                Un suivi de commande
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                Retrouvez l'évolution de votre commande avec votre code de suivi.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
   )
 }
