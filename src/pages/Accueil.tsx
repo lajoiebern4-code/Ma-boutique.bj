@@ -1,799 +1,437 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   ArrowRight,
-  Check,
-  ChevronRight,
-  Clock3,
   Package,
-  PackageCheck,
-  Search,
-  ShieldCheck,
   ShoppingBag,
+  Sparkles,
+  Zap,
+  ShieldCheck,
   Truck,
+  Clock,
+  Star,
+  Users,
+  Globe,
+  Quote,
+  BadgeCheck
 } from 'lucide-react'
 import { obtenirProduits, type Produit } from '../services/produits'
-import { useCart, type CartProduct } from '../context/CartContext'
-import { recupererAnnoncesActives, type Annonce } from '../services/supabase'
+import { useCart } from '../context/CartContext'
 
 function formatPrix(prix: number) {
   return `${Number(prix || 0).toLocaleString('fr-FR')} FCFA`
 }
 
-function libelleCategorie(categorie: string) {
-  return categorie
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, (lettre) => lettre.toUpperCase())
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 }
 
-function CarteProduit({
-  produit,
-  onAjouter,
-}: {
-  produit: Produit
-  onAjouter: (produit: CartProduct) => void
-}) {
-  const disponible = produit.stock > 0
-  const surCommande = produit.disponibilite === 'sur_commande'
-  const commandePossible = disponible || surCommande
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.6 } }
+}
+
+const stagger = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+}
+
+function Hero() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#001433] via-[#003D99] to-[#0052CC] py-20 sm:py-28">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-white blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-[#FF7A1A] blur-3xl" />
+      </div>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      >
+        <div className="text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm"
+          >
+            <Sparkles size={16} className="text-[#FF7A1A]" />
+            Chine · Bénin
+            <Zap size={16} className="text-[#FF7A1A]" />
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl"
+          >
+            L'Afrique s'approvisionne
+            <span className="block text-[#FF7A1A]">à la source chinoise</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-blue-100 sm:text-xl"
+          >
+            Des produits soigneusement sélectionnés en Chine, livrés directement au Bénin.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mt-8 flex flex-wrap justify-center gap-4"
+          >
+            <Link to="/catalogue">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="rounded-xl bg-gradient-to-r from-[#FF7A1A] to-[#FF9C4D] px-8 py-3 font-bold text-white shadow-lg"
+              >
+                Explorer le catalogue <ArrowRight size={18} className="ml-2 inline" />
+              </motion.button>
+            </Link>
+            <Link to="/infos">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="rounded-xl border-2 border-white px-8 py-3 font-bold text-white transition hover:bg-white hover:text-[#0052CC]"
+              >
+                En savoir plus
+              </motion.button>
+            </Link>
+          </motion.div>
+        </div>
+      </motion.div>
+    </section>
+  )
+}
+
+function Stats() {
+  const stats = [
+    { icon: Users, value: '500+', label: 'Clients satisfaits' },
+    { icon: Package, value: '1200+', label: 'Produits livrés' },
+    { icon: Star, value: '4.8/5', label: 'Note moyenne' },
+    { icon: Globe, value: '12', label: 'Villes desservies' },
+  ]
 
   return (
-    <article className="group overflow-hidden rounded-[22px] border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_18px_50px_rgba(11,30,61,0.10)]">
-      <Link to={`/produit/${produit.id}`} className="block">
-        <div className="relative aspect-[1/1.05] overflow-hidden bg-[#F3F1EC]">
-          {produit.image_url ? (
-            <img
-              src={produit.image_url}
-              alt={produit.nom}
-              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center text-slate-400">
-              <Package size={30} strokeWidth={1.5} />
-              <span className="mt-2 text-xs">Image non disponible</span>
-            </div>
-          )}
-
-          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-            {produit.nouveau && (
-              <span className="rounded-full bg-[#0284C7] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
-                Nouveau
-              </span>
-            )}
-
-            {produit.promo > 0 && (
-              <span className="rounded-full bg-orange-500 px-3 py-1.5 text-[10px] font-extrabold text-white">
-                -{produit.promo}%
-              </span>
-            )}
-          </div>
+    <section className="bg-gradient-to-br from-[#001433] to-[#003D99] py-16">
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={stagger}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      >
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              variants={fadeInUp}
+              whileHover={{ scale: 1.05 }}
+              className="rounded-2xl bg-white/10 p-6 text-center backdrop-blur-sm"
+            >
+              <stat.icon className="mx-auto h-8 w-8 text-[#FF7A1A]" />
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="mt-3 text-3xl font-black text-white"
+              >
+                {stat.value}
+              </motion.p>
+              <p className="text-sm text-blue-200">{stat.label}</p>
+            </motion.div>
+          ))}
         </div>
-      </Link>
+      </motion.div>
+    </section>
+  )
+}
 
-      <div className="p-4 sm:p-5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
-          {produit.categorie || 'Sélection ChinaShop-Bénin'}
-        </p>
+function Features() {
+  const features = [
+    { icon: ShieldCheck, title: 'Commande sécurisée', description: 'Vos paiements et données sont protégés.' },
+    { icon: Truck, title: 'Livraison au Bénin', description: 'Nous livrons dans tout le Bénin.' },
+    { icon: Clock, title: 'Suivi en temps réel', description: 'Suivez votre commande étape par étape.' },
+    { icon: Star, title: 'Qualité garantie', description: 'Des produits sélectionnés avec soin.' }
+  ]
 
-        <Link to={`/produit/${produit.id}`}>
-          <h3 className="mt-2 line-clamp-2 min-h-11 text-[15px] font-extrabold leading-5 text-[#0B1E3D] transition hover:text-orange-600">
-            {produit.nom}
-          </h3>
-        </Link>
+  return (
+    <section className="bg-white py-16">
+      <div className="mx-auto max-w-7xl px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center text-3xl font-black text-[#001433]"
+        >
+          Pourquoi choisir <span className="text-[#0052CC]">ChinaShop-Bénin</span> ?
+        </motion.h2>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              variants={fadeInUp}
+              whileHover={{ y: -8 }}
+              className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition hover:shadow-xl"
+            >
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EBF5FF] text-[#0052CC]"
+              >
+                <feature.icon size={28} />
+              </motion.div>
+              <h3 className="mt-4 text-lg font-bold text-[#001433]">{feature.title}</h3>
+              <p className="mt-2 text-sm text-gray-500">{feature.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  )
+}
 
-        <div className="mt-3 flex items-end gap-2">
-          <span className="text-[17px] font-black text-[#0B1E3D]">
-            {formatPrix(produit.prix)}
-          </span>
+function ProductGrid() {
+  const { ajouter } = useCart()
+  const [produits, setProduits] = useState<Produit[]>([])
+  const [chargement, setChargement] = useState(true)
 
-          {produit.prixOriginal && produit.prixOriginal > produit.prix && (
-            <span className="pb-0.5 text-xs text-slate-400 line-through">
-              {formatPrix(produit.prixOriginal)}
-            </span>
-          )}
-        </div>
+  useEffect(() => {
+    let actif = true
+    async function charger() {
+      try {
+        const resultat = await obtenirProduits()
+        if (actif) setProduits(resultat.slice(0, 8))
+      } catch (error) {
+        console.error('Erreur:', error)
+      } finally {
+        if (actif) setChargement(false)
+      }
+    }
+    charger()
+    return () => { actif = false }
+  }, [])
 
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[10px] font-extrabold ${
-              disponible
-                ? 'bg-emerald-50 text-emerald-700'
-                : surCommande
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'bg-slate-100 text-slate-500'
-            }`}
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                disponible
-                  ? 'bg-emerald-500'
-                  : surCommande
-                    ? 'bg-blue-500'
-                    : 'bg-slate-400'
-              }`}
-            />
-            {disponible
-              ? 'Disponible'
-              : surCommande
-                ? 'Sur commande'
-                : 'Non disponible'}
-          </span>
-
-          <Link
-            to={`/produit/${produit.id}`}
-            className="inline-flex items-center gap-1 text-xs font-extrabold text-[#0B1E3D] transition hover:text-orange-600"
-          >
-            Détails
-            <ChevronRight size={14} />
+  return (
+    <section className="bg-[#F8FAFC] py-16">
+      <div className="mx-auto max-w-7xl px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex items-center justify-between"
+        >
+          <h2 className="text-3xl font-black text-[#001433]">
+            Nos <span className="text-[#0052CC]">meilleurs produits</span>
+          </h2>
+          <Link to="/catalogue">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="rounded-xl border-2 border-[#0052CC] px-4 py-2 font-bold text-[#0052CC] transition hover:bg-[#0052CC] hover:text-white"
+            >
+              Voir tout
+            </motion.button>
           </Link>
-        </div>
-
-        {commandePossible && (
-          <button
-            type="button"
-            onClick={() =>
-              onAjouter({
-                id: produit.id,
-                nom: produit.nom,
-                prix: produit.prix,
-                image_url: produit.image_url || null,
-                stock: produit.stock,
-                surCommande,
-              })
-            }
-            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-4 text-xs font-extrabold text-white transition hover:bg-[#0369A1] active:scale-[0.99]"
+        </motion.div>
+        {chargement ? (
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <div key={i} className="h-80 animate-pulse rounded-2xl bg-gray-200" />)}
+          </div>
+        ) : (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
           >
-            <ShoppingBag size={15} />
-            Ajouter au panier
-          </button>
+            {produits.map((produit) => (
+              <motion.div
+                key={produit.id}
+                variants={fadeInUp}
+                whileHover={{ y: -8 }}
+                className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-xl"
+              >
+                <Link to={`/produit/${produit.id}`}>
+                  <div className="relative aspect-square overflow-hidden bg-gray-100">
+                    {produit.image_url ? (
+                      <motion.img
+                        whileHover={{ scale: 1.1 }}
+                        src={produit.image_url}
+                        alt={produit.nom}
+                        className="h-full w-full object-cover transition"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-gray-400">
+                        <Package size={40} />
+                      </div>
+                    )}
+                    {produit.nouveau && (
+                      <span className="absolute left-3 top-3 rounded-full bg-[#0052CC] px-3 py-1 text-xs font-bold text-white">Nouveau</span>
+                    )}
+                    {produit.promo > 0 && (
+                      <span className="absolute right-3 top-3 rounded-full bg-[#FF7A1A] px-3 py-1 text-xs font-bold text-white">-{produit.promo}%</span>
+                    )}
+                  </div>
+                </Link>
+                <div className="p-4">
+                  <p className="text-xs font-bold uppercase text-[#0052CC]">{produit.categorie || 'Sélection'}</p>
+                  <h3 className="mt-1 line-clamp-2 text-sm font-bold text-[#001433]">{produit.nom}</h3>
+                  <p className="mt-2 text-lg font-black text-[#001433]">{formatPrix(produit.prix)}</p>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => ajouter({
+                      id: produit.id,
+                      nom: produit.nom,
+                      prix: produit.prix,
+                      image_url: produit.image_url || null,
+                      stock: produit.stock,
+                      surCommande: produit.stock <= 0 && produit.disponibilite === 'sur_commande'
+                    })}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0052CC] py-2.5 text-sm font-bold text-white transition hover:bg-[#003D99]"
+                  >
+                    <ShoppingBag size={16} /> Ajouter au panier
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         )}
       </div>
-    </article>
+    </section>
+  )
+}
+
+function Testimonials() {
+  const testimonials = [
+    {
+      name: 'Mamadou Diallo',
+      role: 'Commerçant - Cotonou',
+      text: 'ChinaShop-Bénin a changé ma façon de m\'approvisionner. Je recommande !'
+    },
+    {
+      name: 'Fatima Traoré',
+      role: 'Gérante - Porto-Novo',
+      text: 'Le suivi des commandes est transparent, et le service client est réactif.'
+    },
+    {
+      name: 'Jean-Baptiste Koffi',
+      role: 'Entrepreneur - Parakou',
+      text: 'Très satisfait des produits reçus. La qualité est au rendez-vous.'
+    }
+  ]
+
+  return (
+    <section className="bg-white py-16">
+      <div className="mx-auto max-w-7xl px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center text-3xl font-black text-[#001433]"
+        >
+          Ce que disent nos <span className="text-[#FF7A1A]">clients</span>
+        </motion.h2>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="mt-12 grid gap-6 md:grid-cols-3"
+        >
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-[#F8FAFC] p-8 shadow-sm transition hover:shadow-xl"
+            >
+              <Quote className="h-8 w-8 text-[#FF7A1A] opacity-50" />
+              <p className="mt-4 italic text-gray-600">"{testimonial.text}"</p>
+              <div className="mt-4 flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0052CC] text-lg font-bold text-white">
+                  {testimonial.name.charAt(0)}
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#001433]">{testimonial.name}</h4>
+                  <p className="text-sm text-gray-500">{testimonial.role}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+function CTA() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#001433] to-[#003D99] py-16">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-white blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-[#FF7A1A] blur-3xl" />
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="relative mx-auto max-w-4xl px-4 text-center"
+      >
+        <h2 className="text-3xl font-black text-white sm:text-4xl">Prêt à passer commande ?</h2>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-200">
+          Parcourez notre catalogue et trouvez les produits qu'il vous faut.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <Link to="/catalogue">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="rounded-xl bg-gradient-to-r from-[#FF7A1A] to-[#FF9C4D] px-8 py-3 font-bold text-white shadow-lg"
+            >
+              Découvrir le catalogue <ArrowRight size={18} className="ml-2 inline" />
+            </motion.button>
+          </Link>
+          <Link to="/infos">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="rounded-xl border-2 border-white px-8 py-3 font-bold text-white transition hover:bg-white hover:text-[#0052CC]"
+            >
+              Comment commander ?
+            </motion.button>
+          </Link>
+        </div>
+      </motion.div>
+    </section>
   )
 }
 
 export default function Accueil() {
-  const { ajouter } = useCart()
-  const [produits, setProduits] = useState<Produit[]>([])
-  const [chargement, setChargement] = useState(true)
-  const [annonces, setAnnonces] = useState<Annonce[]>([])
-
-  useEffect(() => {
-    let actif = true
-
-    async function charger() {
-      try {
-        const resultat = await obtenirProduits()
-
-        if (actif) {
-          setProduits(resultat)
-        }
-      } catch (error) {
-        console.error('Erreur chargement produits accueil:', error)
-      } finally {
-        if (actif) {
-          setChargement(false)
-        }
-      }
-    }
-
-    charger()
-
-    return () => {
-      actif = false
-    }
-  }, [])
-
-  useEffect(() => {
-    let actif = true
-
-    async function chargerAnnonces() {
-      try {
-        const resultat = await recupererAnnoncesActives()
-
-        if (actif && resultat.success) {
-          setAnnonces(resultat.data || [])
-        }
-      } catch (error) {
-        console.error('Erreur chargement annonces accueil:', error)
-      }
-    }
-
-    chargerAnnonces()
-
-    return () => {
-      actif = false
-    }
-  }, [])
-
-  const produitsVisibles = useMemo(
-    () =>
-      produits.filter(
-        (produit) =>
-          produit.stock > 0 ||
-          produit.disponibilite === 'sur_commande',
-      ),
-    [produits],
-  )
-
-  const categories = useMemo(() => {
-    const valeurs = produitsVisibles
-      .map((produit) => produit.categorie)
-      .filter((categorie): categorie is string => Boolean(categorie))
-
-    return [...new Set(valeurs)].slice(0, 6)
-  }, [produitsVisibles])
-
-  const nouveautes = produitsVisibles
-    .filter((produit) => produit.nouveau)
-    .slice(0, 4)
-
-  const promotions = produitsVisibles
-    .filter((produit) => produit.promo > 0)
-    .slice(0, 4)
-
-  const selection = produitsVisibles.slice(0, 8)
-
-  const produitHero =
-    produitsVisibles.find((produit) => produit.image_url) || produitsVisibles[0]
-
   return (
-    <div className="overflow-hidden bg-[#F7F5F1]">
-      <section className="relative border-b border-slate-200/70 bg-[#F7F5F1]">
-        <div className="mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
-          <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0B1E3D] shadow-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-              ChinaShop-Benin
-            </div>
-
-            <h1 className="mt-7 max-w-2xl text-[42px] font-black leading-[0.98] tracking-[-0.045em] text-[#0B1E3D] sm:text-5xl lg:text-[64px]">
-              Sourcer en Chine.
-              <span className="mt-2 block text-orange-600">
-                Vous livrer au Bénin.
-              </span>
-            </h1>
-
-            <p className="mt-7 max-w-xl text-[15px] leading-7 text-slate-600 sm:text-[17px]">
-              ChinaShop-Benin sélectionne et fait acheminer des produits
-              depuis la Chine pour vous offrir une manière plus simple et plus
-              transparente de commander à distance.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/catalogue"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-6 text-sm font-extrabold text-white shadow-[0_8px_24px_rgba(11,30,61,0.18)] transition hover:bg-[#0369A1]"
-              >
-                Découvrir le catalogue
-                <ArrowRight size={17} />
-              </Link>
-
-              <Link
-                to="/infos"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 text-sm font-extrabold text-[#0B1E3D] transition hover:border-slate-400 hover:bg-slate-50"
-              >
-                Comprendre notre fonctionnement
-              </Link>
-            </div>
-
-            <div className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white/70">
-              <div className="flex w-max animate-[marquee_18s_linear_infinite] items-center gap-6 px-4 py-3 text-[11px] font-bold text-slate-500">
-                {(annonces.length > 0 ? annonces : [
-                  {
-                    id: 'fallback-1',
-                    titre: null,
-                    message: 'Produits disponibles',
-                    type: 'information',
-                    actif: true,
-                    ordre: 1,
-                    date_debut: null,
-                    date_fin: null,
-                  },
-                  {
-                    id: 'fallback-2',
-                    titre: null,
-                    message: 'Commandes sur demande',
-                    type: 'information',
-                    actif: true,
-                    ordre: 2,
-                    date_debut: null,
-                    date_fin: null,
-                  },
-                  {
-                    id: 'fallback-3',
-                    titre: null,
-                    message: 'Suivi de commande',
-                    type: 'information',
-                    actif: true,
-                    ordre: 3,
-                    date_debut: null,
-                    date_fin: null,
-                  },
-                  {
-                    id: 'fallback-4',
-                    titre: null,
-                    message: 'Livraison ou retrait au Bénin',
-                    type: 'information',
-                    actif: true,
-                    ordre: 4,
-                    date_debut: null,
-                    date_fin: null,
-                  },
-                ]).map((annonce, index) => (
-                  <span
-                    key={`${annonce.id}-${index}`}
-                    className="inline-flex items-center gap-2"
-                  >
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        annonce.type === 'important'
-                          ? 'bg-red-500'
-                          : annonce.type === 'promotion'
-                            ? 'bg-orange-500'
-                            : annonce.type === 'nouveaute'
-                              ? 'bg-[#0284C7]'
-                              : 'bg-slate-400'
-                      }`}
-                    />
-                    {annonce.titre ? `${annonce.titre} — ` : ''}
-                    {annonce.message}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-[520px]">
-            <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-orange-200/50 blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-blue-100/60 blur-3xl" />
-
-            <div className="relative overflow-hidden rounded-[34px] border border-white bg-white p-3 shadow-[0_28px_80px_rgba(11,30,61,0.14)]">
-              <div className="relative aspect-[0.92] overflow-hidden rounded-[26px] bg-[#ECE9E2]">
-                {produitHero?.image_url ? (
-                  <img
-                    src={produitHero.image_url}
-                    alt={produitHero.nom}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <PackageCheck
-                      size={70}
-                      strokeWidth={1.2}
-                      className="text-slate-300"
-                    />
-                  </div>
-                )}
-
-                <div className="absolute inset-x-4 bottom-4">
-                  <div className="rounded-2xl border border-white/50 bg-white/90 p-4 shadow-xl backdrop-blur-md">
-                    <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-orange-600">
-                      Sélection ChinaShop-Bénin
-                    </p>
-                    <p className="mt-1 text-sm font-black text-[#0B1E3D]">
-                      {produitHero?.nom || 'Une sélection pensée pour vous'}
-                    </p>
-                    {produitHero && (
-                      <p className="mt-1 text-xs font-bold text-slate-500">
-                        {formatPrix(produitHero.prix)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-5 -left-5 hidden rounded-2xl border border-white bg-[#0284C7] px-4 py-3 text-white shadow-xl sm:block">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
-                  <Truck size={18} className="text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                    Acheminement
-                  </p>
-                  <p className="mt-0.5 text-xs font-extrabold">
-                    Jusqu'au Bénin
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl divide-y divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          {[
-            {
-              icon: ShieldCheck,
-              titre: 'Une commande claire',
-              texte: 'Les informations essentielles sont présentées avant validation.',
-            },
-            {
-              icon: PackageCheck,
-              titre: 'Un suivi à chaque étape',
-              texte: 'Retrouvez votre commande grâce à son code de suivi.',
-            },
-            {
-              icon: Truck,
-              titre: 'Des solutions au Bénin',
-              texte: 'Livraison ou retrait selon les options proposées.',
-            },
-          ].map(({ icon: Icon, titre, texte }) => (
-            <div key={titre} className="flex gap-4 px-5 py-6 sm:px-7">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-                <Icon size={20} />
-              </div>
-              <div>
-                <h2 className="text-sm font-extrabold text-[#0B1E3D]">
-                  {titre}
-                </h2>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {texte}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-        <div className="max-w-2xl">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-            Explorer
-          </p>
-          <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
-            Des produits sélectionnés pour vous
-          </h2>
-          <p className="mt-4 text-sm leading-6 text-slate-500">
-            Parcourez les principales catégories disponibles sur ChinaShop-Benin
-            et trouvez plus rapidement ce que vous recherchez.
-          </p>
-        </div>
-
-        {categories.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {categories.map((categorie) => (
-              <Link
-                key={categorie}
-                to="/catalogue"
-                className="group rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg"
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0284C7] text-white transition group-hover:bg-orange-500">
-                  <Search size={16} />
-                </div>
-                <p className="mt-4 text-xs font-extrabold text-[#0B1E3D]">
-                  {libelleCategorie(categorie)}
-                </p>
-                <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-orange-600">
-                  Explorer
-                  <ArrowRight size={12} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="border-y border-slate-200/70 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-          <div className="flex items-end justify-between gap-5">
-            <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-                La sélection
-              </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
-                Nos produits
-              </h2>
-            </div>
-
-            <Link
-              to="/catalogue"
-              className="hidden items-center gap-1 text-xs font-extrabold text-[#0B1E3D] transition hover:text-orange-600 sm:flex"
-            >
-              Voir tout le catalogue
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-
-          {chargement ? (
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="aspect-[0.8] animate-pulse rounded-[22px] bg-slate-200"
-                />
-              ))}
-            </div>
-          ) : selection.length > 0 ? (
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {selection.map((produit) => (
-                <CarteProduit
-                  key={produit.id}
-                  produit={produit}
-                  onAjouter={ajouter}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-[#F7F5F1] p-10 text-center">
-              <Package size={34} className="mx-auto text-slate-300" />
-              <p className="mt-3 text-sm font-bold text-slate-500">
-                Aucun produit n'est actuellement disponible.
-              </p>
-            </div>
-          )}
-
-          <Link
-            to="/catalogue"
-            className="mt-7 flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-xs font-extrabold text-[#0B1E3D] sm:hidden"
-          >
-            Voir tout le catalogue
-            <ArrowRight size={15} />
-          </Link>
-        </div>
-      </section>
-
-      {nouveautes.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-          <div className="flex items-end justify-between gap-5">
-            <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-                À découvrir
-              </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
-                Les nouveautés
-              </h2>
-            </div>
-
-            <Link
-              to="/nouveautes"
-              className="hidden items-center gap-1 text-xs font-extrabold text-[#0B1E3D] hover:text-orange-600 sm:flex"
-            >
-              Toutes les nouveautés
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {nouveautes.map((produit) => (
-              <CarteProduit
-                key={produit.id}
-                produit={produit}
-                onAjouter={ajouter}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {promotions.length > 0 && (
-        <section className="bg-[#0284C7]">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-400">
-                  Offres en cours
-                </p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-white sm:text-4xl">
-                  Les produits actuellement proposés à prix réduit.
-                </h2>
-                <p className="mt-4 text-sm leading-6 text-slate-300">
-                  Certaines offres peuvent être limitées dans le temps.
-                  Consultez la fiche du produit pour connaître les conditions
-                  applicables.
-                </p>
-              </div>
-
-              <Link
-                to="/promotions"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-5 text-xs font-extrabold text-white transition hover:bg-[#0369A1]"
-              >
-                Voir les promotions
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {promotions.map((produit) => (
-                <CarteProduit
-                  key={produit.id}
-                  produit={produit}
-                  onAjouter={ajouter}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-              Notre fonctionnement
-            </p>
-            <h2 className="mt-2 text-3xl font-black leading-tight tracking-[-0.035em] text-[#0B1E3D] sm:text-4xl">
-              De votre recherche à la réception.
-            </h2>
-            <p className="mt-5 text-sm leading-7 text-slate-500">
-              Acheter depuis la Chine ne devrait pas nécessiter de maîtriser
-              les plateformes, les fournisseurs ou les différentes étapes
-              logistiques. Nous avons conçu un parcours plus simple pour nos
-              clients au Bénin.
-            </p>
-
-            <Link
-              to="/infos"
-              className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold text-[#0B1E3D] hover:text-orange-600"
-            >
-              En savoir plus sur notre fonctionnement
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-
-          <div className="grid gap-3">
-            {[
-              {
-                numero: '01',
-                titre: 'Sélectionnez',
-                texte: 'Trouvez le produit qui correspond à votre besoin.',
-              },
-              {
-                numero: '02',
-                titre: 'Commandez',
-                texte: 'Renseignez vos informations et choisissez votre mode de réception.',
-              },
-              {
-                numero: '03',
-                titre: 'Approvisionnement',
-                texte: 'Nous préparons ou lançons l’approvisionnement selon la disponibilité du produit.',
-              },
-              {
-                numero: '04',
-                titre: 'Acheminement',
-                texte: 'Votre commande suit son parcours jusqu’à son arrivée au Bénin.',
-              },
-              {
-                numero: '05',
-                titre: 'Réception',
-                texte: 'Recevez votre commande à l’adresse indiquée ou retirez-la selon l’option choisie.',
-              },
-            ].map((etape) => (
-              <div
-                key={etape.numero}
-                className="group flex gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-lg"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F7F5F1] text-xs font-black text-[#0B1E3D] transition group-hover:bg-orange-500 group-hover:text-white">
-                  {etape.numero}
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-extrabold text-[#0B1E3D]">
-                    {etape.titre}
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    {etape.texte}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8 lg:py-20">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-600">
-              Sur commande
-            </p>
-            <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
-              Un produit qui n'est pas disponible en stock ?
-            </h2>
-          </div>
-
-          <div>
-            <p className="text-sm leading-7 text-slate-600">
-              Certains articles sont proposés sur commande. Nous les
-              approvisionnons spécialement pour nos clients depuis la Chine.
-              Leur délai d'acheminement peut donc être différent d'un produit
-              disponible immédiatement.
-            </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {[
-                'Disponibilité clairement indiquée',
-                'Conditions présentées avant validation',
-                'Commande suivie',
-                'Accompagnement jusqu’à la réception',
-              ].map((texte) => (
-                <div
-                  key={texte}
-                  className="flex items-start gap-2.5 rounded-xl bg-[#F7F5F1] p-3.5"
-                >
-                  <Check
-                    size={16}
-                    className="mt-0.5 shrink-0 text-orange-600"
-                  />
-                  <span className="text-xs font-bold text-[#0B1E3D]">
-                    {texte}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="overflow-hidden rounded-[30px] bg-[#0284C7]">
-          <div className="grid gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[1fr_auto] lg:items-center lg:px-14 lg:py-14">
-            <div className="max-w-2xl">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-400">
-                ChinaShop-Benin
-              </p>
-              <h2 className="mt-3 text-3xl font-black leading-tight tracking-[-0.035em] text-white sm:text-4xl">
-                Vous savez déjà ce que vous recherchez ?
-              </h2>
-              <p className="mt-4 text-sm leading-6 text-slate-300">
-                Parcourez notre sélection et trouvez votre prochain produit.
-              </p>
-            </div>
-
-            <Link
-              to="/catalogue"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-6 text-sm font-extrabold text-white transition hover:bg-[#0369A1]"
-            >
-              Accéder au catalogue
-              <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:px-8">
-          <div className="flex gap-3">
-            <Clock3 className="mt-0.5 shrink-0 text-orange-600" size={19} />
-            <div>
-              <p className="text-xs font-extrabold text-[#0B1E3D]">
-                Un parcours lisible
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                Chaque étape importante de votre commande est identifiable.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <ShieldCheck className="mt-0.5 shrink-0 text-orange-600" size={19} />
-            <div>
-              <p className="text-xs font-extrabold text-[#0B1E3D]">
-                Des informations essentielles
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                Nous privilégions la clarté avant la validation de la commande.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <PackageCheck className="mt-0.5 shrink-0 text-orange-600" size={19} />
-            <div>
-              <p className="text-xs font-extrabold text-[#0B1E3D]">
-                Un suivi de commande
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                Retrouvez l'évolution de votre commande avec votre code de suivi.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen">
+      <Hero />
+      <Stats />
+      <Features />
+      <ProductGrid />
+      <Testimonials />
+      <CTA />
     </div>
   )
 }
