@@ -1,8 +1,5 @@
-import { motion } from 'framer-motion'
-import { ReactNode } from 'react'
-
 interface ButtonProps {
-  children: ReactNode
+  children: React.ReactNode
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
   onClick?: () => void
@@ -21,8 +18,8 @@ export default function Button({
   type = 'button'
 }: ButtonProps) {
   const variants = {
-    primary: 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white hover:shadow-lg hover:shadow-blue-500/25',
-    secondary: 'bg-gradient-to-r from-[#FF7A1A] to-[#FF9C4D] text-white hover:shadow-lg hover:shadow-orange-500/25',
+    primary: 'bg-[#0052CC] text-white hover:bg-[#003D99] shadow-lg shadow-blue-500/25',
+    secondary: 'bg-[#FF7A1A] text-white hover:bg-[#CC5C00] shadow-lg shadow-orange-500/25',
     outline: 'border-2 border-[#0052CC] text-[#0052CC] hover:bg-[#0052CC] hover:text-white',
     ghost: 'text-[#0052CC] hover:bg-[#EBF5FF]'
   }
@@ -34,15 +31,13 @@ export default function Button({
   }
 
   return (
-    <motion.button
+    <button
       type={type}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
       onClick={onClick}
       disabled={disabled}
       className={`rounded-xl font-bold transition-all duration-300 ${variants[variant]} ${sizes[size]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
     >
       {children}
-    </motion.button>
+    </button>
   )
 }

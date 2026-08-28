@@ -69,7 +69,7 @@ function BadgeDisponibilite({ produit }: { produit: Produit }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#081A33]/95 px-3 py-1.5 text-[10px] font-black text-white">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/90 px-3 py-1.5 text-[10px] font-black text-white">
       Indisponible
     </span>
   )
@@ -104,7 +104,7 @@ function CarteProduit({
   }
 
   return (
-    <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-[1.6rem] border border-[#DCE3EB]/80 bg-white shadow-[0_8px_35px_rgba(15,23,42,0.05)] transition-all duration-500 hover:-translate-y-1 hover:border-[#0052CC]/20 hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)]">
+    <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white shadow-[0_8px_35px_rgba(15,23,42,0.05)] transition-all duration-500 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)]">
       <div className="absolute right-3 top-3 z-10">
         <button
           type="button"
@@ -113,7 +113,7 @@ function CarteProduit({
           className={`flex h-9 w-9 items-center justify-center rounded-full border shadow-sm backdrop-blur transition ${
             favori
               ? 'border-red-100 bg-red-50 text-red-500'
-              : 'border-white/70 bg-white/90 text-[#64748B] hover:text-red-500'
+              : 'border-white/70 bg-white/90 text-slate-500 hover:text-red-500'
           }`}
         >
           <Heart size={16} fill={favori ? 'currentColor' : 'none'} />
@@ -125,7 +125,7 @@ function CarteProduit({
         className="block"
         aria-label={`Voir ${produit.nom}`}
       >
-        <div className="relative aspect-square overflow-hidden bg-[#F3F6FA]">
+        <div className="relative aspect-square overflow-hidden bg-slate-100">
           {produit.image_url ? (
             <img
               src={produit.image_url}
@@ -136,7 +136,7 @@ function CarteProduit({
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-[#CBD5E1]">
+            <div className="flex h-full items-center justify-center text-slate-300">
               <Package size={48} strokeWidth={1.2} />
             </div>
           )}
@@ -160,7 +160,7 @@ function CarteProduit({
             <BadgeDisponibilite produit={produit} />
           </div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-[#081A33]/15 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/15 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
         </div>
       </Link>
 
@@ -183,14 +183,14 @@ function CarteProduit({
               </p>
 
               {produit.promo > 0 && (
-                <p className="mt-0.5 text-[11px] font-semibold text-[#94A3B8] line-through">
+                <p className="mt-0.5 text-[11px] font-semibold text-slate-400 line-through">
                   Prix habituel
                 </p>
               )}
             </div>
 
             {enStock && (
-              <span className="text-[10px] font-bold text-[#94A3B8]">
+              <span className="text-[10px] font-bold text-slate-400">
                 {produit.stock} disponible{produit.stock > 1 ? 's' : ''}
               </span>
             )}
@@ -201,7 +201,7 @@ function CarteProduit({
               type="button"
               onClick={ajouterAuPanier}
               disabled={indisponible}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-3 text-xs font-black text-white transition-all hover:bg-[#003D99] hover:shadow-lg hover:shadow-[#0052CC]/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E8EDF3] disabled:text-[#94A3B8]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-3 text-xs font-black text-white transition-all hover:bg-[#003D99] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
             >
               <ShoppingCart size={16} />
               Ajouter
@@ -211,7 +211,7 @@ function CarteProduit({
               <button
                 type="button"
                 onClick={commander}
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#DCE3EB] bg-white text-[#0B1E3D] transition hover:border-[#0052CC] hover:text-[#0052CC]"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#0B1E3D] transition hover:border-[#0052CC] hover:text-[#0052CC]"
                 aria-label="Commander maintenant"
               >
                 <ArrowRight size={17} />
@@ -226,16 +226,16 @@ function CarteProduit({
 
 function SkeletonCarte() {
   return (
-    <div className="overflow-hidden rounded-[1.6rem] border border-[#E8EDF3] bg-white">
-      <div className="aspect-square animate-pulse bg-[#E8EDF3]" />
+    <div className="overflow-hidden rounded-[1.6rem] border border-slate-100 bg-white">
+      <div className="aspect-square animate-pulse bg-slate-200" />
       <div className="space-y-3 p-5">
-        <div className="h-2.5 w-24 animate-pulse rounded-full bg-[#E8EDF3]" />
-        <div className="h-4 w-full animate-pulse rounded-full bg-[#E8EDF3]" />
-        <div className="h-4 w-2/3 animate-pulse rounded-full bg-[#E8EDF3]" />
+        <div className="h-2.5 w-24 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-4 w-full animate-pulse rounded-full bg-slate-200" />
+        <div className="h-4 w-2/3 animate-pulse rounded-full bg-slate-200" />
         <div className="pt-3">
-          <div className="h-6 w-32 animate-pulse rounded-full bg-[#E8EDF3]" />
+          <div className="h-6 w-32 animate-pulse rounded-full bg-slate-200" />
         </div>
-        <div className="h-11 animate-pulse rounded-xl bg-[#E8EDF3]" />
+        <div className="h-11 animate-pulse rounded-xl bg-slate-200" />
       </div>
     </div>
   )
@@ -386,7 +386,7 @@ export default function Catalogue() {
       {/* TOP BAR */}
       <div className="bg-[#071428] px-4 py-2.5 text-center text-[11px] font-bold text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-2">
-          <Zap size={13} className="text-[#FF8A3D]" />
+          <Zap size={13} className="text-orange-400" />
           <span>
             Produits disponibles au Bénin · Livraison ou retrait · Commande
             simple et sécurisée
@@ -397,12 +397,12 @@ export default function Catalogue() {
       {/* HERO CATALOGUE */}
       <section className="relative overflow-hidden bg-white">
         <div className="absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-blue-100/60 blur-3xl" />
-        <div className="absolute -bottom-48 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#FFE8D6]/50 blur-3xl" />
+        <div className="absolute -bottom-48 -left-40 h-[30rem] w-[30rem] rounded-full bg-orange-100/50 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-14 lg:px-8 lg:pt-16">
           <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-[#F0F6FF] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#0052CC]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#0052CC]">
                 <Sparkles size={13} />
                 Catalogue ChinaShop-Bénin
               </div>
@@ -414,23 +414,23 @@ export default function Catalogue() {
                 </span>
               </h1>
 
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#64748B] sm:text-base">
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base">
                 Explorez notre sélection de produits disponibles au Bénin ou
                 accessibles sur commande. Recherchez, comparez et ajoutez
                 directement vos articles au panier.
               </p>
             </div>
 
-            <div className="hidden rounded-2xl border border-[#DCE3EB] bg-white p-4 shadow-sm lg:block">
+            <div className="hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:block">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#ECFDF5] text-emerald-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                   <CheckCircle2 size={21} />
                 </div>
                 <div>
                   <p className="text-xs font-black text-[#0B1E3D]">
                     Sélection active
                   </p>
-                  <p className="mt-0.5 text-[11px] text-[#64748B]">
+                  <p className="mt-0.5 text-[11px] text-slate-500">
                     Produits vérifiés pour commander
                   </p>
                 </div>
@@ -439,26 +439,26 @@ export default function Catalogue() {
           </div>
 
           {/* SEARCH */}
-          <div className="mt-10 rounded-[1.5rem] border border-[#DCE3EB] bg-white p-2 shadow-[0_15px_50px_rgba(11,30,61,0.08)]">
+          <div className="mt-10 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-[0_15px_50px_rgba(11,30,61,0.08)]">
             <div className="flex flex-col gap-2 sm:flex-row">
               <div className="relative flex-1">
                 <Search
                   size={20}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
                 />
                 <input
                   type="search"
                   value={recherche}
                   onChange={(event) => setRecherche(event.target.value)}
                   placeholder="Rechercher un produit, une catégorie..."
-                  className="h-14 w-full rounded-xl bg-[#F7F9FC] pl-12 pr-11 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-[#94A3B8] focus:bg-white focus:ring-4 focus:ring-[#0052CC]/10"
+                  className="h-14 w-full rounded-xl bg-slate-50 pl-12 pr-11 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
                 />
 
                 {recherche && (
                   <button
                     type="button"
                     onClick={() => setRecherche('')}
-                    className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-[#F3F6FA] hover:text-[#334155]"
+                    className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                     aria-label="Effacer la recherche"
                   >
                     <X size={16} />
@@ -472,7 +472,7 @@ export default function Catalogue() {
                 className={`inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black transition ${
                   filtresOuverts || nombreFiltresActifs > 0
                     ? 'bg-[#0B1E3D] text-white'
-                    : 'bg-[#F7F9FC] text-[#0B1E3D] hover:bg-[#F3F6FA]'
+                    : 'bg-slate-50 text-[#0B1E3D] hover:bg-slate-100'
                 }`}
               >
                 <Filter size={17} />
@@ -487,12 +487,12 @@ export default function Catalogue() {
               <div className="relative">
                 <ArrowDownUp
                   size={16}
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
                 />
                 <select
                   value={tri}
                   onChange={(event) => setTri(event.target.value as Tri)}
-                  className="h-14 w-full min-w-[190px] appearance-none rounded-xl bg-[#F7F9FC] pl-10 pr-10 text-xs font-black text-[#0B1E3D] outline-none transition hover:bg-[#F3F6FA] focus:ring-4 focus:ring-[#0052CC]/10"
+                  className="h-14 w-full min-w-[190px] appearance-none rounded-xl bg-slate-50 pl-10 pr-10 text-xs font-black text-[#0B1E3D] outline-none transition hover:bg-slate-100 focus:ring-4 focus:ring-blue-500/10"
                 >
                   <option value="pertinence">Pertinence</option>
                   <option value="nouveautes">Nouveautés</option>
@@ -501,7 +501,7 @@ export default function Catalogue() {
                 </select>
                 <ChevronDown
                   size={15}
-                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
                 />
               </div>
             </div>
@@ -514,7 +514,7 @@ export default function Catalogue() {
         <section className="-mt-1">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#F06D0A]">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-600">
                 Explorer
               </p>
               <h2 className="mt-1 text-xl font-black tracking-tight text-[#0B1E3D]">
@@ -522,7 +522,7 @@ export default function Catalogue() {
               </h2>
             </div>
 
-            <span className="hidden text-xs font-semibold text-[#94A3B8] sm:block">
+            <span className="hidden text-xs font-semibold text-slate-400 sm:block">
               {produitsVisibles.length} référence
               {produitsVisibles.length > 1 ? 's' : ''}
             </span>
@@ -534,8 +534,8 @@ export default function Catalogue() {
               onClick={() => changerCategorie('tous')}
               className={`shrink-0 rounded-full px-5 py-3 text-xs font-black transition ${
                 categorie === 'tous'
-                  ? 'bg-[#0052CC] text-white shadow-lg shadow-[#0052CC]/20'
-                  : 'border border-[#DCE3EB] bg-white text-[#475569] hover:border-[#0052CC]/20 hover:text-[#0052CC]'
+                  ? 'bg-[#0052CC] text-white shadow-lg shadow-blue-500/20'
+                  : 'border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-[#0052CC]'
               }`}
             >
               Tout
@@ -548,8 +548,8 @@ export default function Catalogue() {
                 onClick={() => changerCategorie(item.id)}
                 className={`shrink-0 rounded-full px-5 py-3 text-xs font-black transition ${
                   categorie === item.id
-                    ? 'bg-[#0052CC] text-white shadow-lg shadow-[#0052CC]/20'
-                    : 'border border-[#DCE3EB] bg-white text-[#475569] hover:border-[#0052CC]/20 hover:text-[#0052CC]'
+                    ? 'bg-[#0052CC] text-white shadow-lg shadow-blue-500/20'
+                    : 'border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-[#0052CC]'
                 }`}
               >
                 {item.label}
@@ -566,10 +566,10 @@ export default function Catalogue() {
               : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="rounded-[1.5rem] border border-[#DCE3EB] bg-white p-5 shadow-sm sm:p-6">
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="grid gap-5 md:grid-cols-2">
               <label>
-                <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-[#64748B]">
+                <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-slate-500">
                   Sous-catégorie
                 </span>
                 <select
@@ -577,7 +577,7 @@ export default function Catalogue() {
                   onChange={(event) =>
                     setSousCategorie(event.target.value)
                   }
-                  className="h-12 w-full rounded-xl border border-[#DCE3EB] bg-white px-4 text-sm font-bold text-[#0B1E3D] outline-none focus:border-blue-400 focus:ring-4 focus:ring-[#0052CC]/10"
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#0B1E3D] outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
                 >
                   <option value="tous">Toutes les sous-catégories</option>
                   {categorieActive?.sousCategories?.map((item) => (
@@ -589,7 +589,7 @@ export default function Catalogue() {
               </label>
 
               <label>
-                <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-[#64748B]">
+                <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-slate-500">
                   Disponibilité
                 </span>
                 <select
@@ -597,7 +597,7 @@ export default function Catalogue() {
                   onChange={(event) =>
                     setDisponibilite(event.target.value)
                   }
-                  className="h-12 w-full rounded-xl border border-[#DCE3EB] bg-white px-4 text-sm font-bold text-[#0B1E3D] outline-none focus:border-blue-400 focus:ring-4 focus:ring-[#0052CC]/10"
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#0B1E3D] outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
                 >
                   <option value="tous">Toutes les disponibilités</option>
                   <option value="disponible">En stock</option>
@@ -607,8 +607,8 @@ export default function Catalogue() {
             </div>
 
             {nombreFiltresActifs > 0 && (
-              <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[#E8EDF3] pt-5">
-                <span className="mr-1 text-[10px] font-black uppercase tracking-wider text-[#94A3B8]">
+              <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-5">
+                <span className="mr-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
                   Actifs
                 </span>
 
@@ -616,7 +616,7 @@ export default function Catalogue() {
                   <button
                     type="button"
                     onClick={() => setRecherche('')}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F6FA] px-3 py-1.5 text-[10px] font-black text-[#334155]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-700"
                   >
                     Recherche
                     <X size={12} />
@@ -627,7 +627,7 @@ export default function Catalogue() {
                   <button
                     type="button"
                     onClick={() => changerCategorie('tous')}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#F0F6FF] px-3 py-1.5 text-[10px] font-black text-[#0052CC]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700"
                   >
                     Catégorie
                     <X size={12} />
@@ -638,7 +638,7 @@ export default function Catalogue() {
                   <button
                     type="button"
                     onClick={() => setSousCategorie('tous')}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#F0F6FF] px-3 py-1.5 text-[10px] font-black text-[#0052CC]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700"
                   >
                     Sous-catégorie
                     <X size={12} />
@@ -649,7 +649,7 @@ export default function Catalogue() {
                   <button
                     type="button"
                     onClick={() => setDisponibilite('tous')}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF7F0] px-3 py-1.5 text-[10px] font-black text-[#F06D0A]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-[10px] font-black text-orange-700"
                   >
                     Disponibilité
                     <X size={12} />
@@ -670,11 +670,11 @@ export default function Catalogue() {
 
         {/* RESULTATS */}
         <section className="mt-10">
-          <div className="flex flex-col gap-3 border-b border-[#DCE3EB] pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#64748B]">
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
                   Sélection actuelle
                 </p>
               </div>
@@ -687,7 +687,7 @@ export default function Catalogue() {
             </div>
 
             {!chargement && (
-              <p className="text-xs font-bold text-[#94A3B8]">
+              <p className="text-xs font-bold text-slate-400">
                 {produitsFiltres.length} produit
                 {produitsFiltres.length > 1 ? 's' : ''} trouvé
                 {produitsFiltres.length > 1 ? 's' : ''}
@@ -703,7 +703,7 @@ export default function Catalogue() {
               <h2 className="mt-4 text-lg font-black text-[#0B1E3D]">
                 Le catalogue n'a pas pu être chargé
               </h2>
-              <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#64748B]">
+              <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
                 {erreur}
               </p>
             </div>
@@ -724,8 +724,8 @@ export default function Catalogue() {
               ))}
             </div>
           ) : (
-            <div className="mt-7 overflow-hidden rounded-[1.7rem] border border-[#DCE3EB] bg-white px-5 py-16 text-center shadow-sm">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F3F6FA] text-[#94A3B8]">
+            <div className="mt-7 overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white px-5 py-16 text-center shadow-sm">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
                 <Search size={27} />
               </div>
 
@@ -733,7 +733,7 @@ export default function Catalogue() {
                 Aucun produit trouvé
               </h2>
 
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#64748B]">
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
                 Nous n'avons trouvé aucun article correspondant à ces
                 critères. Modifiez votre recherche ou réinitialisez les
                 filtres.
@@ -742,7 +742,7 @@ export default function Catalogue() {
               <button
                 type="button"
                 onClick={reinitialiserFiltres}
-                className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-6 text-sm font-black text-white shadow-lg shadow-[#0052CC]/20 transition hover:bg-[#003D99]"
+                className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-6 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition hover:bg-[#003D99]"
               >
                 <Check size={17} />
                 Afficher toute la sélection
@@ -756,42 +756,42 @@ export default function Catalogue() {
           <section className="mt-12 overflow-hidden rounded-[1.7rem] bg-[#0B1E3D]">
             <div className="grid md:grid-cols-3">
               <div className="flex items-center gap-4 border-b border-white/10 p-6 md:border-b-0 md:border-r">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FF8A3D]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-400">
                   <ShieldCheckIcon />
                 </div>
                 <div>
                   <p className="text-xs font-black text-white">
                     Commande sécurisée
                   </p>
-                  <p className="mt-1 text-[11px] leading-5 text-blue-100/70">
+                  <p className="mt-1 text-[11px] leading-5 text-blue-100/60">
                     Processus clair et suivi
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 border-b border-white/10 p-6 md:border-b-0 md:border-r">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FF8A3D]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-400">
                   <Truck size={20} />
                 </div>
                 <div>
                   <p className="text-xs font-black text-white">
                     Livraison au Bénin
                   </p>
-                  <p className="mt-1 text-[11px] leading-5 text-blue-100/70">
+                  <p className="mt-1 text-[11px] leading-5 text-blue-100/60">
                     Livraison ou retrait selon votre choix
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 p-6">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FF8A3D]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-400">
                   <Package size={20} />
                 </div>
                 <div>
                   <p className="text-xs font-black text-white">
                     Stock ou commande
                   </p>
-                  <p className="mt-1 text-[11px] leading-5 text-blue-100/70">
+                  <p className="mt-1 text-[11px] leading-5 text-blue-100/60">
                     Une solution selon la disponibilité
                   </p>
                 </div>
@@ -802,13 +802,13 @@ export default function Catalogue() {
 
         {/* INFO */}
         {!chargement && produitsVisibles.length > 0 && (
-          <section className="mt-6 rounded-[1.5rem] border border-[#DCE3EB] bg-white p-5 shadow-sm sm:p-6">
+          <section className="mt-6 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-black text-[#0B1E3D]">
                   Une question avant votre commande ?
                 </p>
-                <p className="mt-1 text-xs leading-5 text-[#64748B]">
+                <p className="mt-1 text-xs leading-5 text-slate-500">
                   Consultez les informations concernant les commandes,
                   paiements, livraison et retrait.
                 </p>
@@ -816,7 +816,7 @@ export default function Catalogue() {
 
               <Link
                 to="/infos"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-[#DCE3EB] px-5 text-xs font-black text-[#0B1E3D] transition hover:border-[#0052CC] hover:text-[#0052CC]"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-slate-200 px-5 text-xs font-black text-[#0B1E3D] transition hover:border-[#0052CC] hover:text-[#0052CC]"
               >
                 Voir les informations
                 <ArrowRight size={15} />

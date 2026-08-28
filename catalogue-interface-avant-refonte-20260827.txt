@@ -1,0 +1,446 @@
+  return (
+    <div className="min-h-screen bg-[#F7F9FC] text-[#0B1E3D]">
+      {/* TOP BAR */}
+      <div className="bg-[#071428] px-4 py-2.5 text-center text-[11px] font-bold text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2">
+          <Zap size={13} className="text-orange-400" />
+          <span>
+            Produits disponibles au Bénin · Livraison ou retrait · Commande
+            simple et sécurisée
+          </span>
+        </div>
+      </div>
+
+      {/* HERO CATALOGUE */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-blue-100/60 blur-3xl" />
+        <div className="absolute -bottom-48 -left-40 h-[30rem] w-[30rem] rounded-full bg-orange-100/50 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-14 lg:px-8 lg:pt-16">
+          <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#0052CC]">
+                <Sparkles size={13} />
+                Catalogue ChinaShop-Bénin
+              </div>
+
+              <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.035em] text-[#0B1E3D] sm:text-5xl lg:text-6xl">
+                Trouvez le bon produit.
+                <span className="block text-[#0052CC]">
+                  Achetez sans complication.
+                </span>
+              </h1>
+
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base">
+                Explorez notre sélection de produits disponibles au Bénin ou
+                accessibles sur commande. Recherchez, comparez et ajoutez
+                directement vos articles au panier.
+              </p>
+            </div>
+
+            <div className="hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:block">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <CheckCircle2 size={21} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-[#0B1E3D]">
+                    Sélection active
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500">
+                    Produits vérifiés pour commander
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SEARCH */}
+          <div className="mt-10 rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-[0_15px_50px_rgba(11,30,61,0.08)]">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
+                <Search
+                  size={20}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+                <input
+                  type="search"
+                  value={recherche}
+                  onChange={(event) => setRecherche(event.target.value)}
+                  placeholder="Rechercher un produit, une catégorie..."
+                  className="h-14 w-full rounded-xl bg-slate-50 pl-12 pr-11 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
+                />
+
+                {recherche && (
+                  <button
+                    type="button"
+                    onClick={() => setRecherche('')}
+                    className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    aria-label="Effacer la recherche"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setFiltresOuverts((value) => !value)}
+                className={`inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black transition ${
+                  filtresOuverts || nombreFiltresActifs > 0
+                    ? 'bg-[#0B1E3D] text-white'
+                    : 'bg-slate-50 text-[#0B1E3D] hover:bg-slate-100'
+                }`}
+              >
+                <Filter size={17} />
+                Filtres
+                {nombreFiltresActifs > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF7A1A] px-1 text-[10px] text-white">
+                    {nombreFiltresActifs}
+                  </span>
+                )}
+              </button>
+
+              <div className="relative">
+                <ArrowDownUp
+                  size={16}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+                <select
+                  value={tri}
+                  onChange={(event) => setTri(event.target.value as Tri)}
+                  className="h-14 w-full min-w-[190px] appearance-none rounded-xl bg-slate-50 pl-10 pr-10 text-xs font-black text-[#0B1E3D] outline-none transition hover:bg-slate-100 focus:ring-4 focus:ring-blue-500/10"
+                >
+                  <option value="pertinence">Pertinence</option>
+                  <option value="nouveautes">Nouveautés</option>
+                  <option value="prix-croissant">Prix croissant</option>
+                  <option value="prix-decroissant">Prix décroissant</option>
+                </select>
+                <ChevronDown
+                  size={15}
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        {/* CATEGORIES */}
+        <section className="-mt-1">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-600">
+                Explorer
+              </p>
+              <h2 className="mt-1 text-xl font-black tracking-tight text-[#0B1E3D]">
+                Catégories
+              </h2>
+            </div>
+
+            <span className="hidden text-xs font-semibold text-slate-400 sm:block">
+              {produitsVisibles.length} référence
+              {produitsVisibles.length > 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div className="mt-5 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <button
+              type="button"
+              onClick={() => changerCategorie('tous')}
+              className={`shrink-0 rounded-full px-5 py-3 text-xs font-black transition ${
+                categorie === 'tous'
+                  ? 'bg-[#0052CC] text-white shadow-lg shadow-blue-500/20'
+                  : 'border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-[#0052CC]'
+              }`}
+            >
+              Tout
+            </button>
+
+            {CATEGORIES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => changerCategorie(item.id)}
+                className={`shrink-0 rounded-full px-5 py-3 text-xs font-black transition ${
+                  categorie === item.id
+                    ? 'bg-[#0052CC] text-white shadow-lg shadow-blue-500/20'
+                    : 'border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-[#0052CC]'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* FILTER PANEL */}
+        <section
+          className={`overflow-hidden transition-all duration-300 ${
+            filtresOuverts
+              ? 'mt-5 max-h-[700px] opacity-100'
+              : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div className="grid gap-5 md:grid-cols-2">
+              <label>
+                <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Sous-catégorie
+                </span>
+                <select
+                  value={sousCategorie}
+                  onChange={(event) =>
+                    setSousCategorie(event.target.value)
+                  }
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#0B1E3D] outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
+                >
+                  <option value="tous">Toutes les sous-catégories</option>
+                  {categorieActive?.sousCategories?.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Disponibilité
+                </span>
+                <select
+                  value={disponibilite}
+                  onChange={(event) =>
+                    setDisponibilite(event.target.value)
+                  }
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#0B1E3D] outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
+                >
+                  <option value="tous">Toutes les disponibilités</option>
+                  <option value="disponible">En stock</option>
+                  <option value="sur_commande">Sur commande</option>
+                </select>
+              </label>
+            </div>
+
+            {nombreFiltresActifs > 0 && (
+              <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-5">
+                <span className="mr-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Actifs
+                </span>
+
+                {recherche.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => setRecherche('')}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-700"
+                  >
+                    Recherche
+                    <X size={12} />
+                  </button>
+                )}
+
+                {categorie !== 'tous' && (
+                  <button
+                    type="button"
+                    onClick={() => changerCategorie('tous')}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700"
+                  >
+                    Catégorie
+                    <X size={12} />
+                  </button>
+                )}
+
+                {sousCategorie !== 'tous' && (
+                  <button
+                    type="button"
+                    onClick={() => setSousCategorie('tous')}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700"
+                  >
+                    Sous-catégorie
+                    <X size={12} />
+                  </button>
+                )}
+
+                {disponibilite !== 'tous' && (
+                  <button
+                    type="button"
+                    onClick={() => setDisponibilite('tous')}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-[10px] font-black text-orange-700"
+                  >
+                    Disponibilité
+                    <X size={12} />
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={reinitialiserFiltres}
+                  className="ml-auto text-[10px] font-black text-[#0052CC] underline underline-offset-4"
+                >
+                  Tout effacer
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* RESULTATS */}
+        <section className="mt-10">
+          <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                  Sélection actuelle
+                </p>
+              </div>
+
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-[#0B1E3D] sm:text-3xl">
+                {recherche.trim()
+                  ? `Résultats pour « ${recherche.trim()} »`
+                  : 'Tous les produits'}
+              </h2>
+            </div>
+
+            {!chargement && (
+              <p className="text-xs font-bold text-slate-400">
+                {produitsFiltres.length} produit
+                {produitsFiltres.length > 1 ? 's' : ''} trouvé
+                {produitsFiltres.length > 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
+
+          {erreur ? (
+            <div className="mt-8 rounded-[1.5rem] border border-red-100 bg-red-50 p-8 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-red-500 shadow-sm">
+                <X size={24} />
+              </div>
+              <h2 className="mt-4 text-lg font-black text-[#0B1E3D]">
+                Le catalogue n'a pas pu être chargé
+              </h2>
+              <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
+                {erreur}
+              </p>
+            </div>
+          ) : chargement ? (
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <SkeletonCarte key={index} />
+              ))}
+            </div>
+          ) : produitsFiltres.length > 0 ? (
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+              {produitsFiltres.map((produit) => (
+                <CarteProduit
+                  key={produit.id}
+                  produit={produit}
+                  onAjouter={ajouter}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-7 overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white px-5 py-16 text-center shadow-sm">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                <Search size={27} />
+              </div>
+
+              <h2 className="mt-5 text-xl font-black text-[#0B1E3D]">
+                Aucun produit trouvé
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                Nous n'avons trouvé aucun article correspondant à ces
+                critères. Modifiez votre recherche ou réinitialisez les
+                filtres.
+              </p>
+
+              <button
+                type="button"
+                onClick={reinitialiserFiltres}
+                className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-6 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition hover:bg-[#003D99]"
+              >
+                <Check size={17} />
+                Afficher toute la sélection
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* TRUST STRIP */}
+        {!chargement && produitsVisibles.length > 0 && (
+          <section className="mt-12 overflow-hidden rounded-[1.7rem] bg-[#0B1E3D]">
+            <div className="grid md:grid-cols-3">
+              <div className="flex items-center gap-4 border-b border-white/10 p-6 md:border-b-0 md:border-r">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-400">
+                  <ShieldCheckIcon />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-white">
+                    Commande sécurisée
+                  </p>
+                  <p className="mt-1 text-[11px] leading-5 text-blue-100/60">
+                    Processus clair et suivi
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 border-b border-white/10 p-6 md:border-b-0 md:border-r">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-400">
+                  <Truck size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-white">
+                    Livraison au Bénin
+                  </p>
+                  <p className="mt-1 text-[11px] leading-5 text-blue-100/60">
+                    Livraison ou retrait selon votre choix
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 p-6">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-400">
+                  <Package size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-white">
+                    Stock ou commande
+                  </p>
+                  <p className="mt-1 text-[11px] leading-5 text-blue-100/60">
+                    Une solution selon la disponibilité
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* INFO */}
+        {!chargement && produitsVisibles.length > 0 && (
+          <section className="mt-6 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-black text-[#0B1E3D]">
+                  Une question avant votre commande ?
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Consultez les informations concernant les commandes,
+                  paiements, livraison et retrait.
+                </p>
+              </div>
+
+              <Link
+                to="/infos"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-slate-200 px-5 text-xs font-black text-[#0B1E3D] transition hover:border-[#0052CC] hover:text-[#0052CC]"
+              >
+                Voir les informations
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          </section>
+        )}
+      </main>
+    </div>
+  )

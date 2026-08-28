@@ -3,10 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowDownUp,
   ArrowRight,
+  CheckCircle2,
+  Clock3,
+  Package,
   Percent,
   Search,
-  ShoppingCart,
-  Tag,
+  ShoppingBag,
+  Sparkles,
   X,
 } from 'lucide-react'
 import { obtenirProduits, type Produit } from '../services/produits'
@@ -19,7 +22,24 @@ type Tri =
   | 'remise'
 
 function formatPrix(prix: number) {
-  return `${prix.toLocaleString('fr-FR')} FCFA`
+  return `${Number(prix || 0).toLocaleString('fr-FR')} FCFA`
+}
+
+function BadgeDisponibilite({ produit }: { produit: Produit }) {
+  const surCommande =
+    produit.stock <= 0 && produit.disponibilite === 'sur_commande'
+
+  return surCommande ? (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-bold text-amber-700">
+      <Clock3 size={12} />
+      Sur commande
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700">
+      <CheckCircle2 size={12} />
+      Disponible
+    </span>
+  )
 }
 
 function CartePromotion({
@@ -31,9 +51,9 @@ function CartePromotion({
 }) {
   const navigate = useNavigate()
 
-  const enStock = produit.stock > 0
   const surCommande =
     produit.stock <= 0 && produit.disponibilite === 'sur_commande'
+
   const indisponible =
     produit.stock <= 0 && produit.disponibilite !== 'sur_commande'
 
@@ -58,58 +78,60 @@ function CartePromotion({
   }
 
   return (
-    <article className="group overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-      <Link to={`/produit/${produit.id}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-slate-100">
-          {produit.image_url ? (
-            <img
-              src={produit.image_url}
-              alt={produit.nom}
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-xs text-slate-400">
-              Image indisponible
-            </div>
-          )}
+    <article className="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70">
+      <Link
+        to={`/produit/${produit.id}`}
+        className="relative block aspect-square overflow-hidden bg-slate-100"
+      >
+        {produit.image_url ? (
+          <img
+            src={produit.image_url}
+            alt={produit.nom}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-slate-300">
+            <Package size={52} strokeWidth={1.2} />
+          </div>
+        )}
 
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-1.5 text-[10px] font-black text-white shadow-sm">
+        <div className="absolute left-3 top-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A1A] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
             <Percent size={12} />
             -{produit.promo}%
           </span>
-
-          {produit.nouveau && (
-            <span className="absolute right-3 top-3 rounded-full bg-[#0284C7] px-2.5 py-1.5 text-[10px] font-bold text-white shadow-sm">
-              Nouveau
-            </span>
-          )}
         </div>
+
+        {produit.nouveau && (
+          <span className="absolute right-3 top-3 rounded-full bg-[#0052CC] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
+            Nouveau
+          </span>
+        )}
       </Link>
 
-      <div className="p-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+      <div className="p-4 sm:p-5">
+        <p className="text-[10px] font-black uppercase tracking-wider text-[#0052CC]">
           {produit.categorie || 'Produit'}
         </p>
 
         <Link to={`/produit/${produit.id}`}>
-          <h2 className="mt-1 line-clamp-2 min-h-10 text-sm font-bold leading-5 text-[#0B1E3D] transition hover:text-orange-600">
+          <h2 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#081A33] transition group-hover:text-[#0052CC]">
             {produit.nom}
           </h2>
         </Link>
 
-        <div className="mt-3">
-          <p className="text-base font-black text-orange-600">
+        <div className="mt-4">
+          <p className="text-lg font-black tracking-tight text-[#FF7A1A]">
             {formatPrix(produit.prix)}
           </p>
 
           {produit.prixOriginal &&
             produit.prixOriginal > produit.prix && (
-              <div className="flex items-center gap-2">
+              <div className="mt-1 flex items-center gap-2">
                 <p className="text-xs text-slate-400 line-through">
                   {formatPrix(produit.prixOriginal)}
                 </p>
-
                 <span className="text-[10px] font-bold text-emerald-600">
                   Offre avantageuse
                 </span>
@@ -118,21 +140,7 @@ function CartePromotion({
         </div>
 
         <div className="mt-4">
-          <span
-            className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-              enStock
-                ? 'bg-emerald-50 text-emerald-700'
-                : surCommande
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'bg-slate-100 text-slate-500'
-            }`}
-          >
-            {enStock
-              ? 'Disponible'
-              : surCommande
-                ? 'Sur commande'
-                : 'Indisponible'}
-          </span>
+          <BadgeDisponibilite produit={produit} />
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
@@ -140,9 +148,9 @@ function CartePromotion({
             type="button"
             disabled={indisponible}
             onClick={ajouterAuPanier}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-[#0B1E3D] px-2 text-xs font-bold text-[#0B1E3D] transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-[#081A33] px-2 text-xs font-black text-[#081A33] transition hover:border-[#0052CC] hover:bg-blue-50 hover:text-[#0052CC] disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
           >
-            <ShoppingCart size={15} />
+            <ShoppingBag size={15} />
             Ajouter
           </button>
 
@@ -150,7 +158,7 @@ function CartePromotion({
             type="button"
             disabled={indisponible}
             onClick={commander}
-            className="min-h-11 rounded-xl bg-[#0284C7] px-2 text-xs font-bold text-white transition hover:bg-[#0369A1] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+            className="min-h-11 rounded-xl bg-[#081A33] px-2 text-xs font-black text-white transition hover:bg-[#0052CC] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
           >
             Commander
           </button>
@@ -247,89 +255,112 @@ export default function Promotions() {
   }
 
   return (
-    <div className="min-h-[70vh]">
-      <section className="relative overflow-hidden bg-[#0284C7]">
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-orange-500/15 blur-3xl" />
-        <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+    <div className="min-h-screen bg-white">
+      <section className="relative overflow-hidden bg-[#F7F9FC]">
+        <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-orange-100/70 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-blue-100/60 blur-3xl" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-500/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-orange-300">
-              <Tag size={13} />
+        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8 lg:py-24">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-xs font-bold text-[#FF7A1A] shadow-sm">
+              <span className="h-2 w-2 rounded-full bg-[#FF7A1A]" />
+              <Percent size={14} />
               Offres du moment
-            </span>
+            </div>
 
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-              Des offres qui valent le détour
+            <h1 className="mt-6 text-4xl font-black leading-[1.04] tracking-tight text-[#081A33] sm:text-5xl lg:text-6xl">
+              Profitez des bonnes affaires.
+              <span className="mt-2 block text-[#FF7A1A]">
+                Les promotions ChinaShop.
+              </span>
             </h1>
 
-            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
-              Retrouvez ici les produits actuellement proposés à un prix
-              promotionnel. Les réductions affichées correspondent aux offres
-              disponibles sur notre catalogue.
+            <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+              Découvrez les produits actuellement proposés à prix réduit.
+              Les offres affichées correspondent aux promotions disponibles
+              dans notre catalogue.
             </p>
 
-            <Link
-              to="/catalogue"
-              className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0284C7] px-5 text-sm font-bold text-white transition hover:bg-[#0369A1] active:scale-[0.98]"
-            >
-              Explorer le catalogue
-              <ArrowRight size={17} />
-            </Link>
+            <div className="mt-8 flex max-w-xl items-center rounded-2xl border border-slate-200 bg-white p-2 shadow-lg shadow-slate-200/50">
+              <Search className="ml-3 shrink-0 text-slate-400" size={20} />
+
+              <input
+                value={recherche}
+                onChange={(event) => setRecherche(event.target.value)}
+                placeholder="Rechercher une promotion..."
+                className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#081A33] outline-none placeholder:text-slate-400"
+              />
+
+              {recherche && (
+                <button
+                  type="button"
+                  onClick={() => setRecherche('')}
+                  className="mr-1 rounded-xl p-2 text-slate-400 transition hover:bg-slate-50 hover:text-slate-700"
+                  aria-label="Effacer la recherche"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                to="/catalogue"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A1A] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-[#F06D0A]"
+              >
+                Découvrir le catalogue
+                <ArrowRight size={16} />
+              </Link>
+
+              <Link
+                to="/nouveautes"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-[#081A33] shadow-sm transition hover:border-blue-200 hover:text-[#0052CC]"
+              >
+                Voir les nouveautés
+                <Sparkles size={16} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative flex-1 lg:max-w-xl">
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-            />
+      <main className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#FF7A1A]">
+                Sélection promotionnelle
+              </p>
 
-            <input
-              value={recherche}
-              onChange={(event) => setRecherche(event.target.value)}
-              placeholder="Rechercher une offre..."
-              className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-10 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
-            />
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#081A33] sm:text-4xl">
+                Nos promotions
+              </h2>
 
-            {recherche && (
-              <button
-                type="button"
-                onClick={() => setRecherche('')}
-                className="absolute right-3 top-1/2 flex -translate-y-1/2 p-2 text-slate-400 transition hover:text-slate-700"
-                aria-label="Effacer la recherche"
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">
+                Les offres actuellement disponibles sur ChinaShop-Bénin.
+              </p>
+            </div>
+
+            <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 shadow-sm sm:min-w-60">
+              <ArrowDownUp size={16} className="text-slate-400" />
+
+              <select
+                value={tri}
+                onChange={(event) =>
+                  setTri(event.target.value as Tri)
+                }
+                className="w-full bg-transparent text-sm font-semibold text-[#081A33] outline-none"
               >
-                <X size={16} />
-              </button>
-            )}
+                <option value="pertinence">Pertinence</option>
+                <option value="remise">Réduction la plus forte</option>
+                <option value="prix-croissant">Prix croissant</option>
+                <option value="prix-decroissant">Prix décroissant</option>
+              </select>
+            </label>
           </div>
 
-          <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 lg:min-w-56">
-            <ArrowDownUp size={16} className="text-slate-400" />
-
-            <select
-              value={tri}
-              onChange={(event) =>
-                setTri(event.target.value as Tri)
-              }
-              className="w-full bg-transparent text-sm font-semibold text-[#0B1E3D] outline-none"
-            >
-              <option value="pertinence">Pertinence</option>
-              <option value="remise">Réduction la plus forte</option>
-              <option value="prix-croissant">Prix croissant</option>
-              <option value="prix-decroissant">
-                Prix décroissant
-              </option>
-            </select>
-          </label>
-        </div>
-
-        <div className="mt-7 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-bold text-[#0B1E3D]">
+          <div className="mt-7">
+            <p className="text-sm font-bold text-[#081A33]">
               {chargement
                 ? 'Chargement des offres...'
                 : `${promotions.length} offre${
@@ -339,77 +370,78 @@ export default function Promotions() {
 
             {!chargement && (
               <p className="mt-1 text-xs text-slate-400">
-                Les prix et disponibilités sont actualisés depuis notre
-                catalogue.
+                Les prix et disponibilités sont actualisés depuis le catalogue.
               </p>
             )}
           </div>
-        </div>
 
-        {chargement ? (
-          <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={index}
-                className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200"
-              >
-                <div className="aspect-square animate-pulse bg-slate-200" />
-                <div className="space-y-3 p-4">
-                  <div className="h-3 w-20 animate-pulse rounded bg-slate-200" />
-                  <div className="h-5 w-4/5 animate-pulse rounded bg-slate-200" />
-                  <div className="h-5 w-2/5 animate-pulse rounded bg-slate-200" />
-                  <div className="h-10 animate-pulse rounded-xl bg-slate-200" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : promotions.length > 0 ? (
-          <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {promotions.map((produit) => (
-              <CartePromotion
-                key={produit.id}
-                produit={produit}
-                onAjouter={ajouter}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="mt-6 rounded-3xl bg-white px-6 py-14 text-center ring-1 ring-slate-200">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
-              <Percent size={25} />
-            </div>
-
-            <h2 className="mt-5 text-xl font-black text-[#0B1E3D]">
-              Aucune offre disponible pour le moment
-            </h2>
-
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-              {recherche
-                ? 'Aucun produit en promotion ne correspond à votre recherche.'
-                : 'Nos offres évoluent régulièrement. Consultez le catalogue pour découvrir les produits actuellement disponibles.'}
-            </p>
-
-            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              {recherche && (
-                <button
-                  type="button"
-                  onClick={reinitialiser}
-                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-[#0B1E3D] transition hover:bg-slate-50"
+          {chargement ? (
+            <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <div
+                  key={item}
+                  className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm"
                 >
-                  Effacer la recherche
-                </button>
-              )}
+                  <div className="aspect-square animate-pulse bg-slate-200" />
 
-              <Link
-                to="/catalogue"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-5 text-sm font-bold text-white transition hover:bg-[#0369A1]"
-              >
-                Voir le catalogue
-                <ArrowRight size={16} />
-              </Link>
+                  <div className="space-y-3 p-4 sm:p-5">
+                    <div className="h-3 w-20 animate-pulse rounded bg-slate-200" />
+                    <div className="h-5 w-4/5 animate-pulse rounded bg-slate-200" />
+                    <div className="h-5 w-2/5 animate-pulse rounded bg-slate-200" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-slate-200" />
+                    <div className="h-11 animate-pulse rounded-xl bg-slate-200" />
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        )}
+          ) : promotions.length > 0 ? (
+            <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {promotions.map((produit) => (
+                <CartePromotion
+                  key={produit.id}
+                  produit={produit}
+                  onAjouter={ajouter}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-10 rounded-[2rem] border border-slate-100 bg-[#F7F9FC] px-6 py-16 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-[#FF7A1A]">
+                <Percent size={28} />
+              </div>
+
+              <h2 className="mt-5 text-2xl font-black text-[#081A33]">
+                Aucune promotion disponible
+              </h2>
+
+              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500">
+                {recherche
+                  ? 'Aucun produit en promotion ne correspond à votre recherche.'
+                  : 'Nos offres évoluent régulièrement. Consultez le catalogue pour découvrir les produits actuellement disponibles.'}
+              </p>
+
+              <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+                {recherche && (
+                  <button
+                    type="button"
+                    onClick={reinitialiser}
+                    className="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-[#081A33] transition hover:bg-slate-50"
+                  >
+                    Effacer la recherche
+                  </button>
+                )}
+
+                <Link
+                  to="/catalogue"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#081A33] px-5 text-sm font-black text-white transition hover:bg-[#0052CC]"
+                >
+                  Explorer le catalogue
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )

@@ -336,78 +336,73 @@ export default function Produit() {
 
   return (
     <main className="min-h-screen bg-[#F7F9FC] text-[#0B1E3D]">
-      {/* Fil d’Ariane */}
-      <div className="border-b border-slate-200/70 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="border-b border-slate-200/80 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 text-xs sm:px-6 lg:px-8">
           <Link
             to="/catalogue"
-            className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-black text-slate-500 transition hover:bg-blue-50 hover:text-[#0052CC]"
+            className="inline-flex items-center gap-2 font-bold text-slate-500 transition hover:text-[#0052CC]"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={15} />
             Catalogue
           </Link>
 
           <span className="text-slate-300">/</span>
 
-          <span className="min-w-0 truncate text-xs font-bold text-slate-400">
+          <span className="truncate font-semibold text-slate-400">
             {produit.nom}
           </span>
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-        {/* PRODUIT */}
-        <div className="grid gap-8 lg:grid-cols-[1.08fr_.92fr] lg:items-start">
-
-          {/* VISUEL */}
+        <div className="grid gap-8 lg:grid-cols-[1.03fr_.97fr] lg:items-start">
           <section>
-            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_24px_70px_rgba(11,30,61,0.08)]">
-
-              {/* Badges */}
-              <div className="absolute left-4 top-4 z-10 flex max-w-[75%] flex-wrap gap-2 sm:left-5 sm:top-5">
+            <div className="group relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(11,30,61,0.08)]">
+              <div className="absolute left-4 top-4 z-10 flex flex-wrap gap-2 sm:left-5 sm:top-5">
                 {produit.nouveau && (
-                  <span className="rounded-full bg-[#0B1E3D] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-lg">
+                  <span className="rounded-full bg-[#0B1E3D] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white shadow-lg">
                     Nouveau
                   </span>
                 )}
 
                 {produit.promo > 0 && (
-                  <span className="rounded-full bg-[#FF7A1A] px-3.5 py-2 text-[10px] font-black text-white shadow-lg">
+                  <span className="rounded-full bg-[#FF7A1A] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
                     -{produit.promo}% aujourd'hui
                   </span>
                 )}
               </div>
 
-              {/* Favori */}
               <button
                 type="button"
                 onClick={basculerFavori}
                 disabled={chargementFavori}
-                aria-label={favori ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                aria-label={
+                  favori ? 'Retirer des favoris' : 'Ajouter aux favoris'
+                }
                 className={`absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg backdrop-blur transition sm:right-5 sm:top-5 ${
                   favori
                     ? 'border-red-100 bg-red-50 text-red-500'
-                    : 'border-white/80 bg-white/90 text-slate-500 hover:border-red-100 hover:bg-red-50 hover:text-red-500'
+                    : 'border-white/80 bg-white/90 text-slate-500 hover:text-red-500'
                 }`}
               >
-                <Heart size={19} fill={favori ? 'currentColor' : 'none'} />
+                <Heart
+                  size={19}
+                  fill={favori ? 'currentColor' : 'none'}
+                />
               </button>
 
-              {/* Image */}
-              <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F3F6FA] via-white to-[#E8EDF3]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.95),transparent_52%)]" />
-
+              <div className="aspect-square bg-gradient-to-br from-slate-50 via-white to-slate-100">
                 {produit.image_url && !imageErreur ? (
                   <img
                     src={produit.image_url}
                     alt={produit.nom}
                     onError={() => setImageErreur(true)}
-                    className="relative h-full w-full object-contain p-6 transition duration-700 hover:scale-[1.025] sm:p-12"
+                    className="h-full w-full object-contain p-4 transition duration-700 group-hover:scale-[1.025] sm:p-8"
                   />
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400">
-                    <Package size={44} strokeWidth={1.5} />
-                    <span className="text-sm font-bold">
+                    <Package size={42} />
+                    <span className="text-sm font-semibold">
                       Image non disponible
                     </span>
                   </div>
@@ -415,44 +410,34 @@ export default function Produit() {
               </div>
             </div>
 
-            {/* Réassurance */}
-            <div className="mt-4 grid grid-cols-3 gap-2.5 sm:gap-3">
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
-                  <ShieldCheck size={18} />
-                </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#0B1E3D] sm:text-[11px]">
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center">
+                <ShieldCheck className="mx-auto text-[#0052CC]" size={20} />
+                <p className="mt-2 text-[11px] font-black text-[#0B1E3D]">
                   Achat sécurisé
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
-                  <Truck size={18} />
-                </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#0B1E3D] sm:text-[11px]">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center">
+                <Truck className="mx-auto text-[#0052CC]" size={20} />
+                <p className="mt-2 text-[11px] font-black text-[#0B1E3D]">
                   Livraison Bénin
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
-                  <BadgeCheck size={18} />
-                </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#0B1E3D] sm:text-[11px]">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center">
+                <BadgeCheck className="mx-auto text-[#0052CC]" size={20} />
+                <p className="mt-2 text-[11px] font-black text-[#0B1E3D]">
                   Sélection contrôlée
                 </p>
               </div>
             </div>
           </section>
 
-          {/* INFORMATIONS / ACHAT */}
-          <section className="lg:sticky lg:top-5">
-            <div className="rounded-[2rem] border border-slate-200/80 bg-white p-5 shadow-[0_24px_70px_rgba(11,30,61,0.07)] sm:p-7">
-
-              {/* Catégorie */}
+          <section className="lg:sticky lg:top-6">
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_rgba(11,30,61,0.06)] sm:p-7">
               <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-[#F0F6FF] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#0052CC]">
+                <span className="rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#0052CC]">
                   {categorie}
                 </span>
 
@@ -460,7 +445,7 @@ export default function Produit() {
                   type="button"
                   onClick={basculerFavori}
                   disabled={chargementFavori}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-black text-slate-400 transition hover:bg-red-50 hover:text-red-500 lg:hidden"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-red-500 lg:hidden"
                 >
                   <Heart
                     size={15}
@@ -470,20 +455,17 @@ export default function Produit() {
                 </button>
               </div>
 
-              {/* Nom */}
-              <h1 className="mt-5 text-[1.75rem] font-black leading-[1.12] tracking-[-0.025em] text-[#0B1E3D] sm:text-3xl lg:text-[2.35rem]">
+              <h1 className="mt-5 text-2xl font-black leading-tight tracking-tight sm:text-3xl lg:text-[2.2rem]">
                 {produit.nom}
               </h1>
 
-              {/* Disponibilité */}
               <div className="mt-5">
                 <BadgeDisponibilite produit={produit} />
               </div>
 
-              {/* Prix */}
               <div className="mt-6 border-y border-slate-100 py-6">
                 <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-                  <span className="text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
+                  <span className="text-3xl font-black tracking-tight text-[#0B1E3D] sm:text-4xl">
                     {formatPrix(prixActuel)}
                   </span>
 
@@ -495,23 +477,22 @@ export default function Produit() {
                 </div>
 
                 {economie > 0 && (
-                  <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700">
-                    <Check size={13} />
+                  <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-emerald-600">
+                    <Check size={14} />
                     Économisez {formatPrix(economie)}
                   </div>
                 )}
               </div>
 
-              {/* Promotion */}
               {produit.promo > 0 && tempsPromo > 0 && (
-                <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-[#FFF7F0]">
+                <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-r from-orange-50 to-amber-50">
                   <div className="flex items-center gap-3 px-4 py-3.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A1A] text-white shadow-sm">
-                      <Zap size={18} />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A1A] text-white">
+                      <Zap size={19} />
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-[#F06D0A]">
+                      <p className="text-xs font-black text-orange-800">
                         Offre promotionnelle
                       </p>
                       <p className="mt-0.5 text-[11px] font-semibold text-orange-700">
@@ -520,7 +501,7 @@ export default function Produit() {
                     </div>
                   </div>
 
-                  <div className="h-1 bg-[#FFE8D6]">
+                  <div className="h-1 bg-orange-100">
                     <div
                       key={tempsPromo}
                       className="h-full bg-[#FF7A1A]"
@@ -533,56 +514,46 @@ export default function Produit() {
                 </div>
               )}
 
-              {/* Quantité */}
               <div className="mt-6">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
-                    Quantité
-                  </p>
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.12em] text-slate-400">
+                  Quantité
+                </p>
 
-                  {enStock && (
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {produit.stock} disponible{produit.stock > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-[#F7F9FC] p-1.5">
+                <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-1.5">
                   <button
                     type="button"
                     onClick={diminuerQuantite}
                     disabled={quantite <= 1}
-                    aria-label="Diminuer la quantité"
                     className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#0B1E3D] shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Diminuer la quantité"
                   >
                     <Minus size={17} />
                   </button>
 
-                  <span className="text-base font-black text-[#0B1E3D]">
-                    {quantite}
-                  </span>
+                  <span className="text-base font-black">{quantite}</span>
 
                   <button
                     type="button"
                     onClick={augmenterQuantite}
                     disabled={enStock && quantite >= produit.stock}
-                    aria-label="Augmenter la quantité"
                     className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0B1E3D] text-white shadow-sm transition hover:bg-[#0052CC] disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Augmenter la quantité"
                   >
                     <Plus size={17} />
                   </button>
                 </div>
+
+                {enStock && (
+                  <p className="mt-2 text-[11px] font-semibold text-slate-400">
+                    {produit.stock} unité{produit.stock > 1 ? 's' : ''} disponible{produit.stock > 1 ? 's' : ''}
+                  </p>
+                )}
               </div>
 
-              {/* Sur commande */}
               {surCommande && (
                 <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50 p-4">
                   <div className="flex gap-3">
-                    <Clock3
-                      className="mt-0.5 shrink-0 text-amber-600"
-                      size={18}
-                    />
-
+                    <Clock3 className="mt-0.5 shrink-0 text-amber-600" size={18} />
                     <div>
                       <p className="text-xs font-black text-amber-800">
                         Article disponible sur commande
@@ -596,17 +567,15 @@ export default function Produit() {
                 </div>
               )}
 
-              {/* Actions */}
               <div className="mt-6 grid gap-3">
                 <button
                   type="button"
                   onClick={commanderMaintenant}
                   disabled={indisponible}
-                  className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-[#0052CC] px-5 text-sm font-black text-white shadow-[0_14px_35px_rgba(0,82,204,0.22)] transition hover:-translate-y-0.5 hover:bg-[#003D99] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                  className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-[#0052CC] px-5 text-sm font-black text-white shadow-[0_12px_30px_rgba(0,82,204,0.22)] transition hover:-translate-y-0.5 hover:bg-[#003F9E] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                 >
                   <ShoppingBag size={19} />
                   {indisponible ? 'Produit indisponible' : 'Commander maintenant'}
-
                   {!indisponible && (
                     <ArrowRight
                       size={17}
@@ -626,8 +595,7 @@ export default function Produit() {
                 </button>
               </div>
 
-              {/* Avantages */}
-              <div className="mt-6 grid gap-2.5">
+              <div className="mt-6 grid gap-3">
                 <BlocAvantage
                   icon={ShieldCheck}
                   titre="Paiement sécurisé"
@@ -648,18 +616,13 @@ export default function Produit() {
               </div>
             </div>
 
-            {/* Informations */}
-            <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white px-5 py-4 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-white px-5 py-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
-                  <Package size={17} />
-                </div>
-
+                <Package className="mt-0.5 shrink-0 text-[#0052CC]" size={18} />
                 <div>
                   <p className="text-xs font-black text-[#0B1E3D]">
                     Besoin d'informations ?
                   </p>
-
                   <p className="mt-1 text-[11px] leading-5 text-slate-500">
                     Consultez les conditions de livraison, retrait et commande
                     avant votre achat.
@@ -667,7 +630,7 @@ export default function Produit() {
 
                   <Link
                     to="/infos"
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#0052CC] hover:text-[#003D99]"
+                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#0052CC]"
                   >
                     Voir les informations
                     <ArrowRight size={13} />
@@ -678,82 +641,55 @@ export default function Produit() {
           </section>
         </div>
 
-        {/* PARCOURS CLIENT */}
         <section className="mt-10">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#FF7A1A]">
-                    Votre commande
-                  </p>
-
-                  <h2 className="mt-2 text-xl font-black tracking-tight text-[#0B1E3D] sm:text-2xl">
-                    Une expérience simple, du produit à la réception
-                  </h2>
-                </div>
-
-                <Link
-                  to="/catalogue"
-                  className="inline-flex items-center gap-2 text-xs font-black text-[#0052CC] hover:text-[#003D99]"
-                >
-                  Continuer mes achats
-                  <ArrowRight size={15} />
-                </Link>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3">
-              <div className="border-b border-slate-100 p-6 md:border-b-0 md:border-r sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0F6FF] text-[#0052CC]">
-                  <ShoppingBag size={19} />
-                </div>
-
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0052CC]">
-                  Étape 01
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#FF7A1A]">
+                  Votre commande
                 </p>
 
-                <h3 className="mt-1 text-sm font-black">
-                  Choisissez
-                </h3>
+                <h2 className="mt-2 text-xl font-black tracking-tight sm:text-2xl">
+                  Une expérience simple, du produit à la réception
+                </h2>
+              </div>
 
-                <p className="mt-1.5 text-xs leading-5 text-slate-500">
+              <Link
+                to="/catalogue"
+                className="inline-flex items-center gap-2 text-xs font-black text-[#0052CC]"
+              >
+                Continuer mes achats
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl bg-[#F7F9FC] p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0052CC] shadow-sm">
+                  <ShoppingBag size={18} />
+                </div>
+                <h3 className="mt-4 text-sm font-black">1. Choisissez</h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
                   Sélectionnez votre produit et la quantité souhaitée.
                 </p>
               </div>
 
-              <div className="border-b border-slate-100 p-6 md:border-b-0 md:border-r sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0F6FF] text-[#0052CC]">
-                  <WalletCards size={19} />
+              <div className="rounded-2xl bg-[#F7F9FC] p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0052CC] shadow-sm">
+                  <WalletCards size={18} />
                 </div>
-
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0052CC]">
-                  Étape 02
-                </p>
-
-                <h3 className="mt-1 text-sm font-black">
-                  Commandez
-                </h3>
-
-                <p className="mt-1.5 text-xs leading-5 text-slate-500">
+                <h3 className="mt-4 text-sm font-black">2. Commandez</h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
                   Validez votre panier avec les informations nécessaires.
                 </p>
               </div>
 
-              <div className="p-6 sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0F6FF] text-[#0052CC]">
-                  <Truck size={19} />
+              <div className="rounded-2xl bg-[#F7F9FC] p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0052CC] shadow-sm">
+                  <Truck size={18} />
                 </div>
-
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0052CC]">
-                  Étape 03
-                </p>
-
-                <h3 className="mt-1 text-sm font-black">
-                  Recevez
-                </h3>
-
-                <p className="mt-1.5 text-xs leading-5 text-slate-500">
+                <h3 className="mt-4 text-sm font-black">3. Recevez</h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
                   Choisissez la livraison ou le retrait selon votre commande.
                 </p>
               </div>

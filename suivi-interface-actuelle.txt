@@ -1,449 +1,69 @@
-import { useEffect, useState } from 'react'
-import { useNavigationType, useSearchParams } from 'react-router-dom'
-import {
-  CheckCircle2,
-  Clock3,
-  MapPin,
-  Package,
-  Search,
-  Truck,
-} from 'lucide-react'
-import { supabase } from '../lib/supabase'
-
-type Article = {
-  id?: string
-  produit_id?: string
-  nom_produit?: string
-  prix_unitaire?: number
-  quantite?: number
-  origine?: string
-  total_ligne?: number
-}
-
-type Etape = {
-  id?: string
-  titre?: string
-  statut?: string
-  position?: number
-  description?: string
-  date_etape?: string
-  created_at?: string
-}
-
-type Commande = {
-  id?: string
-  numero?: string
-  statut?: string
-  code_suivi?: string
-  code_retrait?: string
-  mode_reception?: string
-  mode_paiement?: string
-  adresse_livraison?: string
-  created_at?: string
-  total?: number
-  acompte_requis?: number
-  acompte_paye?: number
-  livraison_statut?: string
-  point_depart?: string
-  point_destination?: string
-  depart_prevu_at?: string
-  arrivee_prevue_at?: string
-  depart_reel_at?: string
-  arrivee_reelle_at?: string
-  livraison_confirmee_at?: string
-  livreur_nom?: string
-}
-
-function formatPrix(value?: number) {
-  return `${Math.round(Number(value || 0)).toLocaleString('fr-FR')} FCFA`
-}
-
-function formatDate(value?: string) {
-  if (!value) return ''
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) return ''
-
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
-}
-
-function libelleStatut(statut?: string) {
-  const labels: Record<string, string> = {
-    acompte_requis: 'Acompte requis',
-    acompte_paye: 'Acompte reçu',
-    commande_recue: 'Commande reçue',
-    attente: 'En attente',
-    en_attente: 'En attente',
-    en_attente_paiement: 'Paiement en attente',
-    confirmee: 'Commande confirmée',
-    preparation: 'Préparation',
-    pret: 'Commande prête',
-    expedition: 'Expédition',
-    transit: 'En transit',
-    livree: 'Commande livrée',
-    annulee: 'Commande annulée',
-  }
-
-  return labels[String(statut || '').toLowerCase()] || statut || 'Mise à jour'
-}
-
-function iconeEtape(statut?: string) {
-  const value = String(statut || '').toLowerCase()
-
-  if (
-    value.includes('livr') ||
-    value.includes('confirm') ||
-    value.includes('paye')
-  ) {
-    return CheckCircle2
-  }
-
-  if (
-    value.includes('exped') ||
-    value.includes('transit') ||
-    value.includes('livraison')
-  ) {
-    return Truck
-  }
-
-  return Package
-}
-
-function texteReception(mode?: string) {
-  if (mode === 'livraison') {
-    return {
-      titre: 'Livraison à domicile',
-      description:
-        'Votre commande sera acheminée jusqu’à l’adresse indiquée lors de la commande.',
-    }
-  }
-
-  return {
-    titre: 'Retrait',
-    description:
-      'Votre commande sera disponible au point de retrait prévu par ChinaShop-Bénin.',
-  }
-}
-
-export default function Suivi() {
-  const [searchParams] = useSearchParams()
-  const navigationType = useNavigationType()
-  const [code, setCode] = useState('')
-  const [commande, setCommande] = useState<Commande | null>(null)
-  const CLE_SESSION_SUIVI = 'chinashop_suivi_commande'
-  const [etapes, setEtapes] = useState<Etape[]>([])
-  const [articles, setArticles] = useState<Article[]>([])
-  const [chargement, setChargement] = useState(false)
-  const [erreur, setErreur] = useState('')
-
-  async function rechercher(
-    event?: React.FormEvent,
-    codeRecherche?: string,
-  ) {
-    event?.preventDefault()
-
-    const valeur = (codeRecherche ?? code).trim().toUpperCase()
-
-    if (valeur.length < 3) {
-      setErreur('Veuillez saisir un code de suivi valide.')
-      setCommande(null)
-      setEtapes([])
-      return
-    }
-
-    setChargement(true)
-    setErreur('')
-    setCommande(null)
-    setEtapes([])
-    setArticles([])
-
-    const { data, error } = await supabase.rpc('suivre_commande', {
-      p_code_suivi: valeur,
-    })
-
-    setChargement(false)
-
-    if (error) {
-      console.error('Erreur suivi commande:', error)
-      setErreur('Impossible de récupérer cette commande pour le moment.')
-      return
-    }
-
-    const resultat = Array.isArray(data) ? data[0] : data
-
-    if (!resultat) {
-      setErreur('Aucune commande ne correspond à ce code de suivi.')
-      return
-    }
-
-    const commandeResultat = resultat.commande || resultat
-
-    const etapesResultat = Array.isArray(resultat.etapes)
-      ? [...resultat.etapes].sort(
-          (a, b) =>
-            Number(a.position || 0) - Number(b.position || 0),
-        )
-      : []
-
-    const articlesResultat = Array.isArray(resultat.articles)
-      ? resultat.articles
-      : []
-
-    setCommande(commandeResultat)
-    setEtapes(etapesResultat)
-    setArticles(articlesResultat)
-
-    try {
-      sessionStorage.setItem(
-        CLE_SESSION_SUIVI,
-        JSON.stringify({
-          code: valeur,
-          commande: commandeResultat,
-          articles: articlesResultat,
-          etapes: etapesResultat,
-        }),
-      )
-    } catch (err) {
-      console.warn('Impossible de mémoriser temporairement le suivi.', err)
-    }
-  }
-
-  
-  const actualiserSuiviSilencieusement = async (codeSuivi: string) => {
-    const valeur = codeSuivi.trim().toUpperCase()
-
-    if (valeur.length < 3) return
-
-    try {
-      const { data, error } = await supabase.rpc('suivre_commande', {
-        p_code_suivi: valeur,
-      })
-
-      if (error) {
-        console.warn('Actualisation automatique du suivi impossible:', error)
-        return
-      }
-
-      const resultat = Array.isArray(data) ? data[0] : data
-
-      if (!resultat) return
-
-      const commandeResultat = resultat.commande || resultat
-
-      const etapesResultat = Array.isArray(resultat.etapes)
-        ? [...resultat.etapes].sort(
-            (a, b) =>
-              Number(a.position || 0) - Number(b.position || 0),
-          )
-        : []
-
-      const articlesResultat = Array.isArray(resultat.articles)
-        ? resultat.articles
-        : []
-
-      setCommande(commandeResultat)
-      setEtapes(etapesResultat)
-      setArticles(articlesResultat)
-
-      try {
-        sessionStorage.setItem(
-          CLE_SESSION_SUIVI,
-          JSON.stringify({
-            code: valeur,
-            commande: commandeResultat,
-            articles: articlesResultat,
-            etapes: etapesResultat,
-          }),
-        )
-      } catch (err) {
-        console.warn(
-          'Impossible de mémoriser la mise à jour automatique du suivi.',
-          err,
-        )
-      }
-    } catch (err) {
-      console.warn('Erreur pendant l’actualisation automatique:', err)
-    }
-  }
-
-  useEffect(() => {
-    const codeUrl = searchParams.get('code')?.trim()
-    if (codeUrl) return
-
-    // PUSH = arrivée depuis une autre page de l'application.
-    // Dans ce cas, le client doit obligatoirement saisir son code.
-    if (navigationType === 'PUSH') {
-      sessionStorage.removeItem(CLE_SESSION_SUIVI)
-      setCode('')
-      setCommande(null)
-      setArticles([])
-      setEtapes([])
-      return
-    }
-
-    // POP correspond notamment à l'ouverture/rechargement de la page.
-    // On restaure donc le dernier suivi disponible.
-    try {
-      const sauvegarde = sessionStorage.getItem(CLE_SESSION_SUIVI)
-      if (!sauvegarde) return
-
-      const contenu = JSON.parse(sauvegarde)
-
-      if (contenu?.code && contenu?.commande) {
-        setCode(String(contenu.code).toUpperCase())
-        setCommande(contenu.commande)
-        setArticles(
-          Array.isArray(contenu.articles)
-            ? contenu.articles
-            : [],
-        )
-        setEtapes(
-          Array.isArray(contenu.etapes)
-            ? contenu.etapes
-            : [],
-        )
-      }
-    } catch (err) {
-      console.warn(
-        'Impossible de restaurer le suivi temporaire.',
-        err,
-      )
-      sessionStorage.removeItem(CLE_SESSION_SUIVI)
-    }
-  }, [searchParams, navigationType])
-
-  useEffect(() => {
-    const codeUrl = searchParams.get('code')?.trim()
-
-    if (!codeUrl) return
-
-    const codeNormalise = codeUrl.toUpperCase()
-    setCode(codeNormalise)
-    rechercher(undefined, codeNormalise)
-
-    // Le code sert uniquement à l'arrivée initiale.
-    // Après la recherche, on le retire de l'URL afin qu'un retour
-    // sur la page exige à nouveau la saisie du code.
-    window.history.replaceState({}, '', window.location.pathname)
-  }, [searchParams])
-
-  useEffect(() => {
-    if (!commande?.id || !code) return
-
-    let actif = true
-
-    const actualiser = async () => {
-      if (!actif) return
-      await actualiserSuiviSilencieusement(code)
-    }
-
-    const intervalle = window.setInterval(actualiser, 5000)
-
-    return () => {
-      actif = false
-      window.clearInterval(intervalle)
-    }
-  }, [commande?.id, code])
-
-  const statut = String(commande?.statut || '').toLowerCase()
-  const derniereEtape =
-    etapes.length > 0 ? etapes[etapes.length - 1] : null
-
-  const reception = texteReception(commande?.mode_reception)
-
-  const acompteRequis = Number(commande?.acompte_requis || 0)
-  const acomptePaye = Number(commande?.acompte_paye || 0)
-
   return (
     <main className="min-h-screen bg-slate-50">
-              {/* HERO / RECHERCHE */}
-        <section className="relative overflow-hidden bg-[#081A35]">
-          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[#0052CC]/25 blur-3xl" />
-          <div className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-[#FF7A1A]/15 blur-3xl" />
-          <div className="absolute inset-x-0 bottom-0 h-px bg-white/10" />
+      {/* HERO / RECHERCHE */}
+      <section className="relative overflow-hidden bg-[#0B1E3D]">
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#0052CC]/30 blur-3xl" />
+        <div className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-[#FF7A1A]/15 blur-3xl" />
 
-          <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14">
-            <div className="mx-auto max-w-3xl text-center">
-
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/75 shadow-lg shadow-black/10 backdrop-blur">
-                <Package size={14} className="text-[#FF7A1A]" />
-                ChinaShop-Bénin
-              </div>
-
-              <h1 className="mt-6 text-3xl font-black tracking-[-0.03em] text-white sm:text-5xl">
-                Suivez votre commande
-              </h1>
-
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                Entrez votre code de suivi pour consulter simplement
-                l’avancement de votre commande, de la préparation
-                jusqu’à la livraison ou au retrait.
-              </p>
-
-              <form
-                onSubmit={rechercher}
-                className="mx-auto mt-9 max-w-3xl"
-              >
-                <div className="rounded-[24px] border border-white/10 bg-white/95 p-2 shadow-2xl shadow-black/25 backdrop-blur sm:p-2.5">
-                  <div className="flex flex-col gap-2 sm:flex-row">
-
-                    <div className="relative flex-1">
-                      <Search
-                        size={19}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
-
-                      <input
-                        id="code-suivi"
-                        value={code}
-                        onChange={(event) =>
-                          setCode(event.target.value.toUpperCase())
-                        }
-                        placeholder="Votre code : CS-XXXXXX"
-                        autoComplete="off"
-                        className="h-14 w-full rounded-[18px] bg-slate-100/80 pl-11 pr-4 text-sm font-black tracking-[0.08em] text-[#0B1E3D] placeholder:font-semibold placeholder:tracking-normal placeholder:text-slate-400 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#0052CC]/20"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={chargement}
-                      className="inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-[#0052CC] px-7 text-sm font-black text-white shadow-lg shadow-[#0052CC]/25 transition-all hover:-translate-y-0.5 hover:bg-[#003D99] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-                    >
-                      <Search size={17} />
-                      {chargement ? 'Recherche…' : 'Suivre ma commande'}
-                    </button>
-
-                  </div>
-                </div>
-
-                {erreur && (
-                  <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-left text-sm font-bold text-red-700 shadow-sm">
-                    {erreur}
-                  </div>
-                )}
-              </form>
-
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
-                <span>Suivi en temps réel</span>
-                <span className="h-1 w-1 rounded-full bg-[#FF7A1A]" />
-                <span>Livraison ou retrait</span>
-                <span className="h-1 w-1 rounded-full bg-[#0052CC]" />
-                <span>Code sécurisé</span>
-              </div>
-
+        <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+          <div className="text-center">
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white/80 backdrop-blur">
+              <Package size={14} />
+              ChinaShop-Bénin
             </div>
-          </div>
-        </section>
 
-{commande && (
+            <h1 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-5xl">
+              Suivez votre commande
+            </h1>
+
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+              Retrouvez en temps réel l’avancement de votre commande,
+              de sa préparation jusqu’à sa livraison ou son retrait.
+            </p>
+          </div>
+
+          <form
+            onSubmit={rechercher}
+            className="mx-auto mt-8 max-w-3xl rounded-2xl bg-white p-2 shadow-2xl shadow-black/20"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
+                <Search
+                  size={19}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+                <input
+                  id="code-suivi"
+                  value={code}
+                  onChange={(event) =>
+                    setCode(event.target.value.toUpperCase())
+                  }
+                  placeholder="Entrez votre code : CS-XXXXXX"
+                  autoComplete="off"
+                  className="h-13 w-full rounded-xl bg-slate-50 pl-11 pr-4 text-sm font-black tracking-wide text-[#0B1E3D] outline-none transition focus:bg-white focus:ring-2 focus:ring-[#0052CC]/20"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={chargement}
+                className="inline-flex h-13 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-7 text-sm font-black text-white shadow-lg shadow-[#0052CC]/20 transition hover:bg-[#003D99] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Search size={17} />
+                {chargement ? 'Recherche…' : 'Suivre ma commande'}
+              </button>
+            </div>
+
+            {erreur && (
+              <div className="mt-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                {erreur}
+              </div>
+            )}
+          </form>
+        </div>
+      </section>
+
+      {commande && (
         <section className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
           {/* EN-TÊTE COMMANDE */}
           <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -888,4 +508,3 @@ export default function Suivi() {
       )}
     </main>
   )
-}

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Menu,
   ShoppingBag,
@@ -95,13 +94,9 @@ export default function Header() {
               <ShoppingBag size={18} strokeWidth={2.2} />
               <span className="hidden sm:inline">Panier</span>
               {nombreArticles > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#FF7A1A] to-[#FF9C4D] px-1 text-[9px] font-bold text-white shadow-lg"
-                >
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#FF7A1A] to-[#FF9C4D] px-1 text-[9px] font-bold text-white shadow-lg">
                   {nombreArticles > 99 ? '99+' : nombreArticles}
-                </motion.span>
+                </span>
               )}
             </Link>
 
@@ -115,17 +110,26 @@ export default function Header() {
           </div>
         </div>
 
-        <AnimatePresence>
-          {menuOuvert && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="border-t border-gray-200 bg-white md:hidden"
-            >
-              <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
+        {menuOuvert && (
+          <div className="border-t border-gray-200 bg-white md:hidden">
+            <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
+              <NavLink
+                to="/"
+                onClick={fermerMenu}
+                className={({ isActive }) =>
+                  `flex min-h-11 items-center justify-between rounded-lg px-4 text-sm font-bold ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`
+                }
+              >
+                <span>Accueil</span>
+              </NavLink>
+              {navItems.map((item) => (
                 <NavLink
-                  to="/"
+                  key={item.to}
+                  to={item.to}
                   onClick={fermerMenu}
                   className={({ isActive }) =>
                     `flex min-h-11 items-center justify-between rounded-lg px-4 text-sm font-bold ${
@@ -135,44 +139,28 @@ export default function Header() {
                     }`
                   }
                 >
-                  <span>Accueil</span>
+                  <span>{item.label}</span>
                 </NavLink>
-                {navItems.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    onClick={fermerMenu}
-                    className={({ isActive }) =>
-                      `flex min-h-11 items-center justify-between rounded-lg px-4 text-sm font-bold ${
-                        isActive
-                          ? 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      }`
-                    }
-                  >
-                    <span>{item.label}</span>
-                  </NavLink>
-                ))}
-                <NavLink
-                  to={user ? '/compte' : '/connexion'}
-                  onClick={fermerMenu}
-                  className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433]"
-                >
-                  <span>{user ? 'Mon compte' : 'Se connecter'}</span>
-                  <UserRound size={17} />
-                </NavLink>
-                <NavLink
-                  to="/suivi"
-                  onClick={fermerMenu}
-                  className="mt-1 flex min-h-11 items-center justify-between rounded-lg bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] px-4 text-sm font-bold text-white shadow-lg shadow-blue-500/25"
-                >
-                  <span>Suivre ma commande</span>
-                  <PackageSearch size={17} />
-                </NavLink>
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              ))}
+              <NavLink
+                to={user ? '/compte' : '/connexion'}
+                onClick={fermerMenu}
+                className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433]"
+              >
+                <span>{user ? 'Mon compte' : 'Se connecter'}</span>
+                <UserRound size={17} />
+              </NavLink>
+              <NavLink
+                to="/suivi"
+                onClick={fermerMenu}
+                className="mt-1 flex min-h-11 items-center justify-between rounded-lg bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] px-4 text-sm font-bold text-white shadow-lg shadow-blue-500/25"
+              >
+                <span>Suivre ma commande</span>
+                <PackageSearch size={17} />
+              </NavLink>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   )

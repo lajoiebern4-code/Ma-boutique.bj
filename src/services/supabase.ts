@@ -109,6 +109,7 @@ export async function sauvegarderCommandeV2(commande) {
 
 export async function payerAcompteCommande(
   numeroCommande: string,
+  telephone: string,
   montant: number,
 ) {
   if (!supabase) {
@@ -123,6 +124,7 @@ export async function payerAcompteCommande(
       'cs_payer_acompte_commande',
       {
         p_numero_commande: numeroCommande,
+        p_telephone: telephone,
         p_montant: montant,
       },
     )
