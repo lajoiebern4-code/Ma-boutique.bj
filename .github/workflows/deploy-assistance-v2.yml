@@ -1,0 +1,28 @@
+name: Deploy Assistance Robot V2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
+      - name: Deploy Assistance Robot V2
+        run: |
+          supabase functions deploy assistance-robot-v2 \
+            --project-ref "$SUPABASE_PROJECT_ID" \
+            --no-verify-jwt \
+            --use-api
