@@ -1,6 +1,9 @@
 name: Deploy Assistance Robot V2
 
 on:
+  push:
+    branches:
+      - v6-deploy-test
   workflow_dispatch:
 
 jobs:
