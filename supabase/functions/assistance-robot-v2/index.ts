@@ -155,28 +155,31 @@ function matchedAlias(t:string){
 function extractCandidate(m:string){
   const t=norm(m);
 
-  // Superlatif : "le téléphone le moins cher", "le produit le moins cher", etc.
-  const cheapestMatch=t.match(/\b(?:quel|quelle)\s+(?:est\s+)?(?:le|la)\s+(.+?)\s+le\s+moins\s+cher(?:e)?\s*$/);
-  if(cheapestMatch){
-    const meaningful=cheapestMatch[1]
+  // Superlatifs : "quel est le téléphone le moins cher",
+  // "quel est le téléphone le plus cher", etc.
+  const superMatch=t.match(/\b(?:quel|quelle)\s+(?:est\s+)?(?:le|la)\s+(.+?)\s+(le|la)\s+(moins|plus)\s+cher(?:e)?\s*$/);
+  if(superMatch){
+    const meaningful=superMatch[1]
       .split(/\s+/)
       .map(singularToken)
-      .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
+      .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="plus"&&x!=="plu"&&x!=="cher"&&x!=="chere");
     if(meaningful.length)return meaningful.join(" ");
+    return null;
   }
 
-  // Variante générique : "le moins cher" sans "quel est".
-  if(/\b(?:le|la)\s+moins\s+cher(?:e)?\s*$/.test(t)){
+  // Variante générique : "le moins cher" / "le plus cher".
+  if(/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\s*$/.test(t)){
     const candidate=t
-      .replace(/\b(?:le|la)\s+moins\s+cher(?:e)?\s*$/,"")
+      .replace(/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\s*$/,"")
       .trim();
 
     const meaningful=candidate
       .split(/\s+/)
       .map(singularToken)
-      .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
+      .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="plus"&&x!=="plu"&&x!=="cher"&&x!=="chere");
 
     if(meaningful.length)return meaningful.join(" ");
+    return null;
   }
 
   const patterns=[
@@ -188,12 +191,19 @@ function extractCandidate(m:string){
     const x=t.match(p);
     if(x){
       let v=x[1].trim();
-      v=v.replace(/\b(?:a|avec|pour|dans|sur|mais|et)\s+\d+[a-z]?\b.*$/," ").trim();
+
+      // Retirer les contraintes de budget du candidat produit.
+      v=v
+        .replace(/\b(?:a|avec|pour|dans|sur)\s+(?:moins|plus)\s+de\s+\d[\d\s.,]*\s*(?:fcfa|f|francs?)?\b.*$/," ")
+        .replace(/\b(?:moins|plus)\s+de\s+\d[\d\s.,]*\s*(?:fcfa|f|francs?)?\b.*$/," ")
+        .replace(/\b\d[\d\s.,]*\s*(?:fcfa|f|francs?)\b.*$/," ")
+        .replace(/\b(?:a|avec|pour|dans|sur|mais|et)\s+\d+[a-z]?\b.*$/," ")
+        .trim();
 
       const meaningful=v
         .split(/\s+/)
         .map(singularToken)
-        .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
+        .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="plus"&&x!=="plu"&&x!=="cher"&&x!=="chere");
 
       if(meaningful.length>1)return meaningful.join(" ");
       if(meaningful.length===1)return meaningful[0];
@@ -213,29 +223,23 @@ function extractCandidate(m:string){
     .replace(/\s+vou(?:s)?\s+avez\s*$/,"")
     .replace(/\s+proposez[- ]vou(?:s)?\s*$/,"")
     .replace(/\s+vendez[- ]vou(?:s)?\s*$/,"")
-    .replace(/\s+le\s+moins\s+cher(?:e)?\s*$/,"")
-    .replace(/\s+la\s+moins\s+cher(?:e)?\s*$/,"")
-    .replace(/\s+moins\s+cher(?:e)?\s*$/,"")
+    .replace(/\s+(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\s*$/,"")
+    .replace(/\s+(?:moins|plus)\s+cher(?:e)?\s*$/,"")
+    .replace(/\b(?:moins|plus)\s+de\s+\d[\d\s.,]*\s*(?:fcfa|f|francs?)?\b.*$/,"")
+    .replace(/\b\d[\d\s.,]*\s*(?:fcfa|f|francs?)\b.*$/,"")
     .trim();
 
   const questionTokens=tokenList(questionCandidate)
-    .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
+    .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="plus"&&x!=="plu"&&x!=="cher"&&x!=="chere");
 
-  if(questionTokens.length>1){
-    return questionTokens.join(" ");
-  }
+  if(questionTokens.length>1)return questionTokens.join(" ");
+  if(questionTokens.length===1)return questionTokens[0];
 
   const alias=matchedAlias(t);
   if(alias)return alias;
 
-  const directTokens=tokenList(t)
-    .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
-
-  if(directTokens.length)return directTokens.join(" ");
-
   return null;
 }
-
 function canonicalTerms(term:string){
   const t=norm(term);
   const out=new Set<string>();
@@ -332,7 +336,7 @@ function detectIntent(t:string):Intent{
   if(has(t,["mon compte","compte client","connexion","inscription","mot de passe","favori","favoris","mes commandes"]))return "ACCOUNT";
   if(has(t,["sur commande","a commander","à commander","disponible sur commande","articles sur commande","produits sur commande"]))return "ON_ORDER";
   if(has(t,["en stock","dans le stock","articles disponibles","produits disponibles","disponible actuellement","disponibilite","disponibilité","stock actuellement"]))return "PRODUCT_AVAILABILITY";
-  if(has(t,["moins cher","moins chère","moins chere","moins coûteux","moins couteux","prix le plus bas","le moins cher","la moins chere","le moins chère"]))return "PRODUCT_PRICE";
+  if(has(t,["moins cher","moins chère","moins chere","moins coûteux","moins couteux","prix le plus bas","le moins cher","la moins chere","le moins chère","plus cher","plus chère","plus chere","plus coûteux","plus couteux","prix le plus haut","le plus cher","la plus chere","le plus chère"]))return "PRODUCT_PRICE";
   if(has(t,["prix","combien coute","combien coûte","combien ca coute","combien ça coûte","tarif"]))return "PRODUCT_PRICE";
   if(extractCandidate(t)||matchedAlias(t)||has(t,["acheter","cherche","recherche","je veux","je voudrais","quel article","quelle article","quel produit","quelle produit","que vendez vous","que vendez-vous","vous avez quoi","vous proposez quoi","je peux acheter quoi","quels articles","quelles articles","quels produits","quelles produits","quels telephones","quelles telephones","quels smartphones","quels televiseurs","quelles chaussures","quels sacs"]))return "PRODUCT_SEARCH";
   if(has(t,["site","chinashop","information du site","informations du site","conditions","fonctionnement","comment ca marche","comment ça marche","delai","délai"]))return "SITE";
@@ -473,7 +477,8 @@ async function productSearch(message:string,h:Context,mode:Intent){
   let filtered=rows.slice();
 
   const availability=productNeed(t)||h.availability;
-  const cheapest=/\ble\s+(?:plus|moins)\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+bas\b/.test(t);
+  const cheapest=/\ble\s+moins\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+bas\b/.test(t);
+  const mostExpensive=/\ble\s+plus\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+haut\b/.test(t);
 
   if(availability==="stock")
     filtered=filtered.filter(p=>availabilityOf(p)==="stock");
@@ -510,13 +515,20 @@ async function productSearch(message:string,h:Context,mode:Intent){
       .sort((a,b)=>currentPrice(a)-currentPrice(b));
   }
 
+  if(mostExpensive){
+    filtered=filtered
+      .filter(p=>availabilityOf(p)!=="epuise")
+      .sort((a,b)=>currentPrice(b)-currentPrice(a));
+  }
+
   return {
-    rows:filtered.slice(0,cheapest?1:8),
+    rows:filtered.slice(0,(cheapest||mostExpensive)?1:8),
     all:rows,
     term,
     budget,
     availability,
-    cheapest
+    cheapest,
+    mostExpensive
   };
 }
 function describeProduct(p:ProductRow){const av=availabilityOf(p);const status=av==="stock"?`En stock (${Number(p.stock)} disponible${Number(p.stock)>1?"s":""}).`:av==="sur_commande"?"Disponible sur commande.":"Stock épuisé actuellement.";const promo=Number(p.promo||0)>0&&(!p.promo_fin||new Date(p.promo_fin)>=new Date());return`• **${p.nom}** — **${money(currentPrice(p))}**${promo?" 🏷️ promotion":""} — ${status}`}
@@ -529,6 +541,8 @@ function productResponse(r:any,mode:Intent){
     return`Voici les articles actuellement disponibles **sur commande**${r.term?` correspondant à **« ${r.term} »`:""} :\n\n${r.rows.map(describeProduct).join("\n")}`;
   }
   if(mode==="PRODUCT_AVAILABILITY"){if(!r.rows.length)return"Je ne trouve actuellement aucun article en stock. Les autres articles peuvent être disponibles sur commande.";return`Voici les articles que je peux confirmer **en stock actuellement** :\n\n${r.rows.map(describeProduct).join("\n")}`}if(!r.rows.length){if(r.term)return`Je ne trouve actuellement pas **« ${r.term} »** dans le catalogue ChinaShop. Si vous cherchez un article qui n’est pas dans le catalogue, je ne peux pas confirmer automatiquement que nous pouvons le rechercher : un conseiller doit vérifier.`;if(r.budget!==null)return`Je ne trouve actuellement aucun article correspondant à votre demande dans un budget de **${money(r.budget)}**. Donnez-moi un autre budget ou précisez ce que vous recherchez.`;return"Je peux vous aider à choisir. Donnez-moi simplement le type d’article recherché, votre budget ou vos préférences."}
+  if(r.cheapest&&r.rows.length===1)return`L’article le moins cher correspondant à votre demande est :\n\n${describeProduct(r.rows[0])}`;
+  if(r.mostExpensive&&r.rows.length===1)return`L’article le plus cher correspondant à votre demande est :\n\n${describeProduct(r.rows[0])}`;
   if(r.term&&r.rows.length===1)return`J’ai trouvé ceci :\n\n${describeProduct(r.rows[0])}`;
   if(r.term&&r.rows.length>1)return`Voici les articles qui correspondent à **« ${r.term} »**${r.budget!==null?` avec un budget jusqu’à **${money(r.budget)}**`:""} :\n\n${r.rows.map(describeProduct).join("\n")}`;
   if(r.budget!==null)return`Avec un budget d’environ **${money(r.budget)}**, je peux vous proposer :\n\n${r.rows.map(describeProduct).join("\n")}`;
