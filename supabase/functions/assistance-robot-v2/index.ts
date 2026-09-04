@@ -427,8 +427,7 @@ function productMatchScore(p:ProductRow,terms:string[]){
 async function loadProducts(){
   const {data:products,error:productsError}=await db
     .from("cs_produits")
-    .select("id,nom,prix,stock,disponibilite,promo,promo_fin")
-    .eq("actif",true);
+    .select("id,nom,prix,stock,disponibilite,categorie,sous_categorie,genre,promo,promo_fin,nouveau");
 
   if(productsError){
     console.error("loadProducts produits",productsError);
