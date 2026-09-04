@@ -343,7 +343,7 @@ function detectIntent(t:string):Intent{
   return "UNKNOWN";
 }
 
-async function context(id:string):Promise<Context>{const {data}=await db.from("cs_assistance_messages").select("sender_type,contenu,created_at").eq("conversation_id",id).order("created_at",{ascending:false}).limit(30);const rows=(data||[]).reverse() as any[];let c:Context={intent:null,productTerm:null,budget:null,availability:null};for(const r of rows){if(r.sender_type!=="client")continue;const m=String(r.contenu||""),t=norm(m),p=parseMoney(m),candidate=extractCandidate(m),intent=detectIntent(t);if(p!==null)c.budget=p;if(candidate)c.productTerm=candidate;if(intent!=="UNKNOWN")c.intent=intent;if(has(t,["en stock","dans le stock","stock actuellement"]))c.availability="stock";if(has(t,["sur commande","a commander","à commander"]))c.availability="sur_commande"}return c}
+async function context(id:string):Promise<Context>{const {data}=await db.from("cs_assistance_messages").select("sender_type,contenu,created_at").eq("conversation_id",id).order("created_at",{ascending:false}).limit(30);const rows=(data||[]).reverse() as any[];let c:Context={intent:null,productTerm:null,budget:null,availability:null};for(const r of rows){if(r.sender_type!=="client")continue;const m=String(r.contenu||""),t=norm(m),p=parseMoney(m),candidate=extractCandidate(m),intent=detectIntent(t);if(p!==null)c.budget=p;if(candidate&&!/\\b(?:le|la)\\s+(?:moins|plus)\\s+cher(?:e)?\\b/.test(t)&&!/\\bprix\\s+le\\s+plus\\s+(?:bas|haut)\\b/.test(t))c.productTerm=candidate;if(intent!=="UNKNOWN")c.intent=intent;if(has(t,["en stock","dans le stock","stock actuellement"]))c.availability="stock";if(has(t,["sur commande","a commander","à commander"]))c.availability="sur_commande"}return c}
 
 function mergedIntent(message:string,h:Context){const t=norm(message),now=detectIntent(t);if(now!=="UNKNOWN")return now;if(has(t,["tu ne sais pas","vous ne savez pas","donc","et alors","d accord","daccord","ok","oui","non","plus d infos","plus dinfos","c est tout"]))return h.intent||"UNKNOWN";return h.intent||"UNKNOWN"}
 function productNeed(t:string){return has(t,["en stock","stock","actuellement en stock","disponible maintenant","disponibles maintenant"]) ? "stock" : has(t,["sur commande","a commander","à commander","commander"])?"sur_commande":null}
@@ -473,7 +473,9 @@ async function productSearch(message:string,h:Context,mode:Intent){
 
   const t=norm(message);
   const budget=budgetOr(message,h);
-  const term=extractCandidate(message)||h.productTerm;
+  const extractedTerm=extractCandidate(message);
+  const tSuperlative=/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+(?:bas|haut)\b/.test(t);
+  const term=extractedTerm||(tSuperlative?h.productTerm:null)||h.productTerm;
   let filtered=rows.slice();
 
   const availability=productNeed(t)||h.availability;
