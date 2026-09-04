@@ -449,6 +449,23 @@ async function loadProducts(){
     return null;
   }
 
+  console.log("V2_RUNTIME_PRODUCTS",JSON.stringify({
+    products_count: rows.length,
+    details_count: (details||[]).length,
+    phones: rows
+      .map(p=>{
+        const d=(details||[]).find((x:any)=>String(x.produit_id)===String(p.id));
+        return {
+          nom:p.nom,
+          categorie:d?.categorie??null,
+          sous_categorie:d?.sous_categorie??null,
+          genre:d?.genre??null
+        };
+      })
+      .filter(x=>String(x.categorie||"").toLowerCase().includes("telephone"))
+      .slice(0,10)
+  }));
+
   const byProduct=new Map<string,any>();
   for(const d of (details||[]) as any[]){
     byProduct.set(String(d.produit_id),d);
@@ -494,6 +511,26 @@ async function productSearch(message:string,h:Context,mode:Intent){
 
   const terms=canonicalTerms(term||"");
 
+    if(/telephone|telephones|smartphone|smartphones/i.test(t)){
+      const debugRows=filtered
+        .filter((p:any)=>/samsung|iphone/i.test(String(p.nom||"")))
+        .slice(0,10)
+        .map((p:any)=>({
+          nom:p.nom,
+          categorie:p.categorie??null,
+          terms,
+          score:productMatchScore(p,terms)
+        }));
+
+      console.log("V2_RUNTIME_MATCH",JSON.stringify({
+        message,
+        extractedTerm,
+        term,
+        terms,
+        rows_before_filter:rows.length,
+        debugRows
+      }));
+    }
   if(term){
     filtered=filtered
       .map(p=>({...p,_score:productMatchScore(p,terms)}))
