@@ -434,39 +434,9 @@ async function loadProducts(){
     return null;
   }
 
-  const rows=(products||[]) as ProductRow[];
-  if(!rows.length)return rows;
-
-  const ids=rows.map(p=>p.id);
-
-  const {data:details,error:detailsError}=await db
-    .from("cs_produit_details")
-    .select("produit_id,categorie,sous_categorie,genre,promo,nouveau,promo_fin")
-    .in("produit_id",ids);
-
-  if(detailsError){
-    console.error("loadProducts details",detailsError);
-    return null;
-  }
-
-  const byProduct=new Map<string,any>();
-  for(const d of (details||[]) as any[])byProduct.set(String(d.produit_id),d);
-
-  return rows.map(p=>{
-    const d=byProduct.get(String(p.id));
-    if(!d)return p;
-
-    return {
-      ...p,
-      categorie:d.categorie??null,
-      sous_categorie:d.sous_categorie??null,
-      genre:d.genre??null,
-      promo:d.promo!==null&&d.promo!==undefined?Number(d.promo):p.promo,
-      promo_fin:d.promo_fin??p.promo_fin,
-      nouveau:d.nouveau===true
-    };
-  });
+  return (products||[]) as ProductRow[];
 }
+
 async function productSearch(message:string,h:Context,mode:Intent){
   const rows=await loadProducts();
   if(!rows)return null;
