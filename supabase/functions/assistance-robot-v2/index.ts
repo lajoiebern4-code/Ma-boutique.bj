@@ -108,6 +108,7 @@ const STOP=new Set(["je","j","veux","voudrais","cherche","recherche","il","me","
 
 function singularToken(v:string){
   const t=norm(v);
+  if(t==="moins")return t;
   if(t.length<=3)return t;
   if(t.endsWith("aux")&&t.length>4)return t.slice(0,-3)+"al";
   if(t.endsWith("s")&&!t.endsWith("ss"))return t.slice(0,-1);
@@ -154,6 +155,30 @@ function matchedAlias(t:string){
 function extractCandidate(m:string){
   const t=norm(m);
 
+  // Superlatif : "le téléphone le moins cher", "le produit le moins cher", etc.
+  const cheapestMatch=t.match(/\b(?:quel|quelle)\s+(?:est\s+)?(?:le|la)\s+(.+?)\s+le\s+moins\s+cher(?:e)?\s*$/);
+  if(cheapestMatch){
+    const meaningful=cheapestMatch[1]
+      .split(/\s+/)
+      .map(singularToken)
+      .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
+    if(meaningful.length)return meaningful.join(" ");
+  }
+
+  // Variante générique : "le moins cher" sans "quel est".
+  if(/\b(?:le|la)\s+moins\s+cher(?:e)?\s*$/.test(t)){
+    const candidate=t
+      .replace(/\b(?:le|la)\s+moins\s+cher(?:e)?\s*$/,"")
+      .trim();
+
+    const meaningful=candidate
+      .split(/\s+/)
+      .map(singularToken)
+      .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
+
+    if(meaningful.length)return meaningful.join(" ");
+  }
+
   const patterns=[
     /\b(?:je veux|je cherche|je voudrais|il me faut|montrez moi|donnez moi|je prends)\s+(?:un|une|des)?\s*([^?!.;,]+)/,
     /\b(?:un|une|des)\s+([^?!.;,]+)/
@@ -163,10 +188,12 @@ function extractCandidate(m:string){
     const x=t.match(p);
     if(x){
       let v=x[1].trim();
-
       v=v.replace(/\b(?:a|avec|pour|dans|sur|mais|et)\s+\d+[a-z]?\b.*$/," ").trim();
 
-      const meaningful=v.split(/\s+/).filter(x=>x&&!STOP.has(x));
+      const meaningful=v
+        .split(/\s+/)
+        .map(singularToken)
+        .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
 
       if(meaningful.length>1)return meaningful.join(" ");
       if(meaningful.length===1)return meaningful[0];
@@ -174,8 +201,8 @@ function extractCandidate(m:string){
   }
 
   let questionCandidate=t;
-
   questionCandidate=questionCandidate
+    .replace(/^quel(?:le)?\s+est\s+/,"")
     .replace(/^quels?\s+/,"")
     .replace(/^quelles?\s+/,"")
     .replace(/^avez[- ]vou(?:s)?\s+/,"")
@@ -186,10 +213,13 @@ function extractCandidate(m:string){
     .replace(/\s+vou(?:s)?\s+avez\s*$/,"")
     .replace(/\s+proposez[- ]vou(?:s)?\s*$/,"")
     .replace(/\s+vendez[- ]vou(?:s)?\s*$/,"")
+    .replace(/\s+le\s+moins\s+cher(?:e)?\s*$/,"")
+    .replace(/\s+la\s+moins\s+cher(?:e)?\s*$/,"")
+    .replace(/\s+moins\s+cher(?:e)?\s*$/,"")
     .trim();
 
   const questionTokens=tokenList(questionCandidate)
-    .filter(x=>x&&!STOP.has(x));
+    .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
 
   if(questionTokens.length>1){
     return questionTokens.join(" ");
@@ -199,12 +229,13 @@ function extractCandidate(m:string){
   if(alias)return alias;
 
   const directTokens=tokenList(t)
-    .filter(x=>x&&!STOP.has(x));
+    .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="cher"&&x!=="chere");
 
   if(directTokens.length)return directTokens.join(" ");
 
   return null;
 }
+
 function canonicalTerms(term:string){
   const t=norm(term);
   const out=new Set<string>();
@@ -299,6 +330,7 @@ function detectIntent(t:string):Intent{
   if(has(t,["notification","notifications","alerte commande","alerte livraison"]))return "NOTIFICATIONS";
   if(has(t,["confidentialite","confidentialité","vie privee","vie privée","donnees personnelles","données personnelles"]))return "PRIVACY";
   if(has(t,["mon compte","compte client","connexion","inscription","mot de passe","favori","favoris","mes commandes"]))return "ACCOUNT";
+  if(has(t,["sur commande","a commander","à commander","disponible sur commande","articles sur commande","produits sur commande"]))return "ON_ORDER";
   if(has(t,["en stock","dans le stock","articles disponibles","produits disponibles","disponible actuellement","disponibilite","disponibilité","stock actuellement"]))return "PRODUCT_AVAILABILITY";
   if(has(t,["moins cher","moins chère","moins chere","moins coûteux","moins couteux","prix le plus bas","le moins cher","la moins chere","le moins chère"]))return "PRODUCT_PRICE";
   if(has(t,["prix","combien coute","combien coûte","combien ca coute","combien ça coûte","tarif"]))return "PRODUCT_PRICE";
@@ -438,7 +470,15 @@ async function productSearch(message:string,h:Context,mode:Intent){const rows=aw
   return {rows:filtered.slice(0,8),all:rows,term,budget,availability};}
 
 function describeProduct(p:ProductRow){const av=availabilityOf(p);const status=av==="stock"?`En stock (${Number(p.stock)} disponible${Number(p.stock)>1?"s":""}).`:av==="sur_commande"?"Disponible sur commande.":"Stock épuisé actuellement.";const promo=Number(p.promo||0)>0&&(!p.promo_fin||new Date(p.promo_fin)>=new Date());return`• **${p.nom}** — **${money(currentPrice(p))}**${promo?" 🏷️ promotion":""} — ${status}`}
-function productResponse(r:any,mode:Intent){if(mode==="PRODUCT_AVAILABILITY"){if(!r.rows.length)return"Je ne trouve actuellement aucun article en stock. Les autres articles peuvent être disponibles sur commande.";return`Voici les articles que je peux confirmer **en stock actuellement** :\n\n${r.rows.map(describeProduct).join("\n")}`}if(!r.rows.length){if(r.term)return`Je ne trouve actuellement pas **« ${r.term} »** dans le catalogue ChinaShop. Si vous cherchez un article qui n’est pas dans le catalogue, je ne peux pas confirmer automatiquement que nous pouvons le rechercher : un conseiller doit vérifier.`;if(r.budget!==null)return`Je ne trouve actuellement aucun article correspondant à votre demande dans un budget de **${money(r.budget)}**. Donnez-moi un autre budget ou précisez ce que vous recherchez.`;return"Je peux vous aider à choisir. Donnez-moi simplement le type d’article recherché, votre budget ou vos préférences."}
+function productResponse(r:any,mode:Intent){
+  if(mode==="ON_ORDER"){
+    if(!r.rows.length){
+      if(r.term)return`Je ne trouve actuellement aucun article **sur commande** correspondant à **« ${r.term} »** dans le catalogue ChinaShop.`;
+      return"Je ne trouve actuellement aucun article marqué **sur commande** dans le catalogue.";
+    }
+    return`Voici les articles actuellement disponibles **sur commande**${r.term?` correspondant à **« ${r.term} »`:""} :\n\n${r.rows.map(describeProduct).join("\n")}`;
+  }
+  if(mode==="PRODUCT_AVAILABILITY"){if(!r.rows.length)return"Je ne trouve actuellement aucun article en stock. Les autres articles peuvent être disponibles sur commande.";return`Voici les articles que je peux confirmer **en stock actuellement** :\n\n${r.rows.map(describeProduct).join("\n")}`}if(!r.rows.length){if(r.term)return`Je ne trouve actuellement pas **« ${r.term} »** dans le catalogue ChinaShop. Si vous cherchez un article qui n’est pas dans le catalogue, je ne peux pas confirmer automatiquement que nous pouvons le rechercher : un conseiller doit vérifier.`;if(r.budget!==null)return`Je ne trouve actuellement aucun article correspondant à votre demande dans un budget de **${money(r.budget)}**. Donnez-moi un autre budget ou précisez ce que vous recherchez.`;return"Je peux vous aider à choisir. Donnez-moi simplement le type d’article recherché, votre budget ou vos préférences."}
   if(r.term&&r.rows.length===1)return`J’ai trouvé ceci :\n\n${describeProduct(r.rows[0])}`;
   if(r.term&&r.rows.length>1)return`Voici les articles qui correspondent à **« ${r.term} »**${r.budget!==null?` avec un budget jusqu’à **${money(r.budget)}**`:""} :\n\n${r.rows.map(describeProduct).join("\n")}`;
   if(r.budget!==null)return`Avec un budget d’environ **${money(r.budget)}**, je peux vous proposer :\n\n${r.rows.map(describeProduct).join("\n")}`;
@@ -475,7 +515,7 @@ Deno.serve(async r=>{if(r.method==="OPTIONS")return new Response("ok",{headers:h
     const mid=await addRobot(id,a);
     return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.99})
   }
-  if(intent==="PRODUCT_SEARCH"||intent==="PRODUCT_PRICE"||intent==="PRODUCT_AVAILABILITY"){const result=await productSearch(message,h,intent);if(!result)return out(r,{error:"Catalogue indisponible."},500);if(intent==="PRODUCT_SEARCH"&&result.term===null&&budget===null&&result.availability===null&&has(t,["je veux acheter","je veux un article","je veux une article","je cherche quelque chose","je veux quelque chose","je veux acheter une article"])) {const a="Bien sûr 😊 Dites-moi simplement ce que vous recherchez ou votre budget, et je vérifierai les articles réellement disponibles sur ChinaShop.";const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.9})}const a=productResponse(result,intent);const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.94})}
+  if(intent==="PRODUCT_SEARCH"||intent==="PRODUCT_PRICE"||intent==="PRODUCT_AVAILABILITY"||intent==="ON_ORDER"){const result=await productSearch(message,h,intent);if(!result)return out(r,{error:"Catalogue indisponible."},500);if(intent==="PRODUCT_SEARCH"&&result.term===null&&budget===null&&result.availability===null&&has(t,["je veux acheter","je veux un article","je veux une article","je cherche quelque chose","je veux quelque chose","je veux acheter une article"])) {const a="Bien sûr 😊 Dites-moi simplement ce que vous recherchez ou votre budget, et je vérifierai les articles réellement disponibles sur ChinaShop.";const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.9})}const a=productResponse(result,intent);const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.94})}
   if(intent==="PROMO"){const a=await promotions("promo")||UNKNOWN;const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.97})}
   if(intent==="NEW"){const a=await promotions("new")||UNKNOWN;const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.95})}
   if(intent==="DELIVERY"){const a=await delivery(message);const mid=await addRobot(id,a);return out(r,{status:"robot",answer:a,message_id:mid,intent,confidence:.96})}
