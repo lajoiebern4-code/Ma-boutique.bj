@@ -61,33 +61,199 @@ function parseMoney(v:string){const t=norm(v).replace(/\s+/g,"");let m=t.match(/
 function ref(v:string){const t=v.toUpperCase().replace(/[–—]/g,"-");let m=t.match(/\bCS\s*-\s*(\d{6})\b/);if(m)return{field:"code_suivi" as const,value:`CS-${m[1]}`};m=t.match(/\bCR\s*-\s*(\d{6})\b/);if(m)return{field:"code_retrait" as const,value:`CR-${m[1]}`};m=t.match(/\b[A-Z]{2,10}\s*-\s*\d{6,}\b/);return m?{field:"numero" as const,value:m[0].replace(/\s+/g,"")}:null}
 
 const ALIASES:Record<string,string[]>={
-  tv:["tv","tele","television","téléviseur","televiseur"],
-  telephone:["telephone","téléphone","smartphone","portable","mobile","iphone","samsung"],
-  ordinateur:["ordinateur","pc","laptop","notebook","macbook"],
-  robot:["robot","aspirateur robot","robot menager","robot ménager"],
-  aspirateur:["aspirateur","aspirateur robot"],
-  mixeur:["mixeur","blender","mixer"],
-  friteuse:["friteuse","air fryer","fryer"],
-  chaussure:["chaussure","chaussures","basket","baskets","sneakers","sandale","sandales"],
-  sac:["sac","sacs","sac a main","sac à main"],
-  vetement:["vetement","vêtement","habits","habit","pantalon","chemise","robe","costume"],
+  tv:["tv","tele","television","televiseur","televiseurs","smart tv"],
+  telephone:["telephone","telephones","smartphone","smartphones","portable","portables","mobile","mobiles","iphone","iphones","samsung","galaxy"],
+  ordinateur:["ordinateur","ordinateurs","pc","laptop","laptops","notebook","notebooks","macbook"],
+  robot:["robot","robots","robot menager","robot menagers","robot menager","robots menagers"],
+  aspirateur:["aspirateur","aspirateurs","aspirateur robot","aspirateurs robots"],
+  mixeur:["mixeur","mixeurs","blender","blenders","mixer","mixers"],
+  friteuse:["friteuse","friteuses","air fryer","air fryers","fryer","fryers"],
+  chaussure:["chaussure","chaussures","basket","baskets","sneaker","sneakers","sandale","sandales"],
+  sac:["sac","sacs","sac a main","sacs a main","sac a main","sacs a main"],
+  vetement:["vetement","vetements","habit","habits","vetement homme","vetements homme","vetement femme","vetements femme"],
   robe:["robe","robes"],
   pantalon:["pantalon","pantalons"],
-  meuble:["meuble","canape","canapé","table","chaise"],
-  cuisine:["cuisine","cuisiniere","cuisinière","four","micro onde","micro-ondes","refrigerateur","réfrigérateur","frigo","ventilateur","climatiseur"],
-  montre:["montre","montres","smartwatch"],
-  ecouteur:["ecouteur","écouteurs","earbuds","casque"],
-  valise:["valise","bagage","bagages"],
-  perruque:["perruque","cheveux"],
-  voiture:["voiture","auto","automobile","vehicule","véhicule"],
-  moto:["moto","scooter"]
+  meuble:["meuble","meubles","canape","canapes","table","tables","chaise","chaises"],
+  cuisine:["cuisine","cuisines","cuisiniere","cuisinieres","four","fours","micro onde","micro ondes","refrigerateur","refrigerateurs","frigo","frigos","ventilateur","ventilateurs","climatiseur","climatiseurs"],
+  montre:["montre","montres","smartwatch","smartwatches"],
+  ecouteur:["ecouteur","ecouteurs","earbud","earbuds","casque","casques"],
+  valise:["valise","valises","bagage","bagages"],
+  perruque:["perruque","perruques","cheveux"],
+  voiture:["voiture","voitures","auto","automobile","automobiles","vehicule","vehicules"],
+  moto:["moto","motos","scooter","scooters"]
 };
-const STOP=new Set(["je","j","veux","voudrais","cherche","recherche","il","me","faut","un","une","des","le","la","les","du","de","pour","avec","sur","dans","chez","vous","avez","avez vous","proposez","vendez","acheter","achat","commander","commande","article","articles","produit","produits","quel","quelle","quels","quelles","que","quoi","est","sont","comme","comment","combien","prix","cout","coût","coute","coûte","disponible","disponibilite","disponibilité","stock","actuellement","maintenant","moi","mon","ma","mes","me","ce","cet","cette","ces","qui","va","etre","être","ajouter","ajoute","site","chez","peux","peut","pouvez","pas","plus","moins","cher","chere","chère","avec","et","ou","a","au","aux","en","k","fcfa","franc","francs"]);
 
-function extractCandidate(m:string){const t=norm(m);const patterns=[/\b(?:je veux|je cherche|je voudrais|il me faut|montrez moi|donnez moi|je prends)\s+(?:un|une|des)?\s*([^?!.;,]+)/,/\b(?:un|une|des)\s+([^?!.;,]+)/];for(const p of patterns){const x=t.match(p);if(x){let v=x[1].trim();v=v.replace(/\b(?:a|avec|pour|dans|sur|mais|et)\s+\d+[a-z]?\b.*$/," ").trim();if(v&&v.length>1&&!/^(quelque chose|quelque|truc|chose|article|produit|produits|articles)$/.test(v))return v}}for(const [key,words] of Object.entries(ALIASES))if(words.some(w=>t.includes(norm(w))))return key;return null}
-function canonicalTerms(term:string){const t=norm(term);const out=new Set<string>();if(t)out.add(t);for(const [key,words] of Object.entries(ALIASES)){if(key===t||words.some(w=>t.includes(norm(w)))){out.add(key);for(const w of words)out.add(norm(w))}}return [...out]}
+const CATEGORY_MAP:Record<string,string[]>={
+  telephone:["telephones"],
+  tv:["electronique"],
+  ordinateur:["ordinateur"],
+  ecouteur:["audio"],
+  robot:["electromenager"],
+  aspirateur:["electromenager"],
+  mixeur:["electromenager"],
+  friteuse:["electromenager"],
+  cuisine:["cuisine"],
+  vetement:["vetements"],
+  robe:["vetements"],
+  pantalon:["vetements"],
+  chaussure:["chaussures"],
+  sac:["sacs"],
+  montre:["electronique"],
+  meuble:["meubles"],
+  valise:["bagagerie"],
+  perruque:["beaute"]
+};
+
+const STOP=new Set(["je","j","veux","voudrais","cherche","recherche","il","me","faut","un","une","des","le","la","les","du","de","pour","avec","sur","dans","chez","vous","avez","avez vous","proposez","vendez","acheter","achat","commander","commande","article","articles","produit","produits","quel","quelle","quels","quelles","que","quoi","est","sont","comme","comment","combien","prix","cout","coute","disponible","disponibilite","stock","actuellement","maintenant","moi","mon","ma","mes","ce","cet","cette","ces","qui","va","etre","ajouter","ajoute","site","peux","peut","pouvez","pas","plus","moins","cher","chere","et","ou","a","au","aux","en","k","fcfa","franc","francs"]);
+
+function singularToken(v:string){
+  const t=norm(v);
+  if(t.length<=3)return t;
+  if(t.endsWith("aux")&&t.length>4)return t.slice(0,-3)+"al";
+  if(t.endsWith("s")&&!t.endsWith("ss"))return t.slice(0,-1);
+  return t;
+}
+
+function tokenList(v:string){
+  return norm(v).split(/\s+/).filter(Boolean).map(singularToken);
+}
+
+function phraseTokensMatch(text:string,phrase:string){
+  const a=tokenList(text);
+  const b=tokenList(phrase);
+  if(!b.length)return false;
+  if(b.length===1)return a.includes(b[0]);
+  for(let i=0;i<=a.length-b.length;i++){
+    let ok=true;
+    for(let j=0;j<b.length;j++)if(a[i+j]!==b[j]){ok=false;break}
+    if(ok)return true;
+  }
+  return false;
+}
+
+function aliasMatches(t:string,w:string){
+  return phraseTokensMatch(t,w);
+}
+
+function matchedAlias(t:string){
+  const n=norm(t);
+  const candidates:{key:string;score:number}[]=[];
+  for(const [key,words] of Object.entries(ALIASES)){
+    for(const w of words){
+      if(aliasMatches(n,w)){
+        const nw=tokenList(w).length;
+        const score=nw*100+(w.length);
+        candidates.push({key,score});
+      }
+    }
+  }
+  candidates.sort((a,b)=>b.score-a.score);
+  return candidates[0]?.key||null;
+}
+
+function extractCandidate(m:string){
+  const t=norm(m);
+
+  const patterns=[
+    /\\b(?:je veux|je cherche|je voudrais|il me faut|montrez moi|donnez moi|je prends)\\s+(?:un|une|des)?\\s*([^?!.;,]+)/,
+    /\\b(?:un|une|des)\\s+([^?!.;,]+)/
+  ];
+
+  for(const p of patterns){
+    const x=t.match(p);
+    if(x){
+      let v=x[1].trim();
+
+      v=v.replace(/\\b(?:a|avec|pour|dans|sur|mais|et)\\s+\\d+[a-z]?\\b.*$/," ").trim();
+
+      const meaningful=v.split(/\\s+/).filter(x=>x&&!STOP.has(x));
+
+      if(meaningful.length>1)return meaningful.join(" ");
+      if(meaningful.length===1)return meaningful[0];
+    }
+  }
+
+  let questionCandidate=t;
+
+  questionCandidate=questionCandidate
+    .replace(/^quels?\\s+/,"")
+    .replace(/^quelles?\\s+/,"")
+    .replace(/^avez[- ]vous\\s+/,"")
+    .replace(/^vous\\s+avez\\s+/,"")
+    .replace(/^que\\s+proposez\\s+vous\\s+/,"")
+    .replace(/^que\\s+vendez\\s+vous\\s+/,"")
+    .replace(/\\s+avez[- ]vous\\s*$/,"")
+    .replace(/\\s+vous\\s+avez\\s*$/,"")
+    .replace(/\\s+proposez\\s+vous\\s*$/,"")
+    .replace(/\\s+vendez\\s+vous\\s*$/,"")
+    .trim();
+
+  const questionTokens=tokenList(questionCandidate)
+    .filter(x=>x&&!STOP.has(x));
+
+  if(questionTokens.length>1){
+    return questionTokens.join(" ");
+  }
+
+  const alias=matchedAlias(t);
+  if(alias)return alias;
+
+  const directTokens=tokenList(t)
+    .filter(x=>x&&!STOP.has(x));
+
+  if(directTokens.length)return directTokens.join(" ");
+
+  return null;
+}
+
+function canonicalTerms(term:string){
+  const t=norm(term);
+  const out=new Set<string>();
+  if(!t)return [];
+
+  for(const x of tokenList(t)){
+    if(x.length>1&&!STOP.has(x))out.add(x);
+  }
+
+  const alias=matchedAlias(t);
+
+  if(alias){
+    const genericQueries:Record<string,string[]>={
+      telephone:["telephone","telephones","smartphone","smartphones","portable","portables","mobile","mobiles"],
+      tv:["tv","tele","television","televiseur","televiseurs","smart tv"],
+      ordinateur:["ordinateur","ordinateurs","pc","laptop","laptops","notebook","notebooks"],
+      chaussure:["chaussure","chaussures","basket","baskets","sneaker","sneakers","sandale","sandales"],
+      sac:["sac","sacs","sac a main","sacs a main"],
+      vetement:["vetement","vetements","habit","habits"],
+      robe:["robe","robes"],
+      pantalon:["pantalon","pantalons"],
+      meuble:["meuble","meubles","canape","canapes","table","tables","chaise","chaises"],
+      cuisine:["cuisine","cuisines","cuisiniere","cuisinieres","four","fours","micro onde","micro ondes","refrigerateur","refrigerateurs","frigo","frigos"],
+      montre:["montre","montres","smartwatch","smartwatches"],
+      ecouteur:["ecouteur","ecouteurs","earbud","earbuds","casque","casques"],
+      valise:["valise","valises","bagage","bagages"],
+      perruque:["perruque","perruques","cheveux"],
+      voiture:["voiture","voitures","auto","automobile","automobiles","vehicule","vehicules"],
+      moto:["moto","motos","scooter","scooters"],
+      robot:["robot","robots","robot menager","robot menagers"],
+      aspirateur:["aspirateur","aspirateurs","aspirateur robot","aspirateurs robots"],
+      mixeur:["mixeur","mixeurs","blender","blenders","mixer","mixers"],
+      friteuse:["friteuse","friteuses","air fryer","air fryers","fryer","fryers"]
+    };
+
+    const generic=genericQueries[alias]||[];
+    const isGeneric=generic.some(x=>norm(x)===t);
+
+    if(isGeneric){
+      out.add(alias);
+      for(const c of CATEGORY_MAP[alias]||[])out.add(norm(c));
+    }
+  }
+
+  return [...out];
+}
 function availabilityOf(p:ProductRow){return p.disponibilite==="stock"?(Number(p.stock)>0?"stock":"epuise"):"sur_commande"}
-function currentPrice(p:ProductRow){const promo=Number(p.promo||0)>0&&(!p.promo_fin||new Date(p.promo_fin)>=new Date());return promo?Number(p.promo):Number(p.prix)}
+function currentPrice(p:ProductRow){const promo=Number(p.promo||0)>0&&(!p.promo_fin||new Date(p.promo_fin)>=new Date());return promo?Math.round(Number(p.prix)*(1-Number(p.promo)/100)):Number(p.prix)}
 
 async function identity(r:Request):Promise<Identity>{const vid=r.headers.get("x-visitor-id"),vt=r.headers.get("x-visitor-token"),a=r.headers.get("authorization");if(a?.startsWith("Bearer ")){const {data}=await db.auth.getUser(a.slice(7));if(data.user)return{userId:data.user.id,visitorId:vid,visitorToken:vt}}return{userId:null,visitorId:vid,visitorToken:vt}}
 async function conversation(id:string){const {data}=await db.from("cs_assistance_conversations").select("id,commande_id,visitor_id,client_user_id,mode_assistance,statut").eq("id",id).maybeSingle();return data}
@@ -118,7 +284,7 @@ function detectIntent(t:string):Intent{
   if(has(t,["en stock","dans le stock","articles disponibles","produits disponibles","disponible actuellement","disponibilite","disponibilité","stock actuellement"]))return "PRODUCT_AVAILABILITY";
   if(has(t,["moins cher","moins chère","moins chere","moins coûteux","moins couteux","prix le plus bas","le moins cher","la moins chere","le moins chère"]))return "PRODUCT_PRICE";
   if(has(t,["prix","combien coute","combien coûte","combien ca coute","combien ça coûte","tarif"]))return "PRODUCT_PRICE";
-  if(extractCandidate(t)||has(t,["acheter","cherche","recherche","je veux","je voudrais","quel article","quelle article","quel produit","quelle produit","que vendez vous","que vendez-vous","vous avez quoi","vous proposez quoi","je peux acheter quoi"]))return "PRODUCT_SEARCH";
+  if(extractCandidate(t)||matchedAlias(t)||has(t,["acheter","cherche","recherche","je veux","je voudrais","quel article","quelle article","quel produit","quelle produit","que vendez vous","que vendez-vous","vous avez quoi","vous proposez quoi","je peux acheter quoi","quels articles","quelles articles","quels produits","quelles produits","quels telephones","quelles telephones","quels smartphones","quels televiseurs","quelles chaussures","quels sacs"]))return "PRODUCT_SEARCH";
   if(has(t,["site","chinashop","information du site","informations du site","conditions","fonctionnement","comment ca marche","comment ça marche","delai","délai"]))return "SITE";
   return "UNKNOWN";
 }
@@ -138,25 +304,65 @@ function productMatchScore(p:ProductRow,terms:string[]){
 
   let score=0;
 
-  for(const term of terms){
-    if(!term)continue;
+  const normalizedTerms=terms
+    .map(x=>norm(x))
+    .filter(Boolean);
+
+  const genericTerms=new Set([
+    "telephone","tv","ordinateur","chaussure","sac","vetement",
+    "robe","pantalon","meuble","cuisine","montre","ecouteur",
+    "valise","perruque","voiture","moto","robot","aspirateur",
+    "mixeur","friteuse"
+  ]);
+
+  const specificTerms=normalizedTerms.filter(term=>{
+    return !genericTerms.has(term);
+  });
+
+  for(const term of normalizedTerms){
+    const termTokens=tokenList(term).filter(Boolean);
+    if(!termTokens.length)continue;
 
     for(const field of fields){
       const value=field.value;
       if(!value)continue;
 
-      if(value===term){
-        score+=100*field.weight;
-      }else if(value.includes(term)){
-        score+=35*field.weight;
-      }else{
-        const words=term.split(" ").filter(Boolean);
-        for(const w of words){
-          if(w.length>2&&value.includes(w)){
-            score+=12*field.weight;
-          }
+      const valueTokens=tokenList(value);
+
+      if(termTokens.length===1){
+        const token=termTokens[0];
+
+        if(valueTokens.includes(token)){
+          score+=100*field.weight;
+          continue;
         }
+
+        if(value.includes(token)){
+          score+=35*field.weight;
+        }
+        continue;
       }
+
+      const matched=termTokens.filter(token=>valueTokens.includes(token));
+
+      if(matched.length===termTokens.length){
+        score+=100*field.weight;
+      }else if(matched.length>0){
+        score+=25*field.weight*matched.length;
+      }
+    }
+  }
+
+  if(specificTerms.length>0){
+    for(const term of specificTerms){
+      const tokens=tokenList(term).filter(Boolean);
+      if(!tokens.length)continue;
+
+      const matchedSpecific=tokens.some(token=>
+        fields.some(field=>tokenList(field.value).includes(token))
+      );
+
+      if(!matchedSpecific)return 0;
     }
   }
 
