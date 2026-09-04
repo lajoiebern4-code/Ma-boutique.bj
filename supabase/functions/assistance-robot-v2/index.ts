@@ -463,12 +463,62 @@ async function loadProducts(){
     };
   });
 }
-async function productSearch(message:string,h:Context,mode:Intent){const rows=await loadProducts();if(!rows)return null;const t=norm(message),budget=budgetOr(message,h),term=extractCandidate(message)||h.productTerm;let filtered=rows.slice();const availability=productNeed(t)||h.availability;if(availability==="stock")filtered=filtered.filter(p=>availabilityOf(p)==="stock");if(availability==="sur_commande")filtered=filtered.filter(p=>availabilityOf(p)==="sur_commande");if(budget!==null)filtered=filtered.filter(p=>currentPrice(p)<=budget);const terms=canonicalTerms(term||"");if(term)filtered=filtered.map(p=>({...p,_score:productMatchScore(p,terms)})).filter((p:any)=>p._score>0).sort((a:any,b:any)=>b._score-a._score) as any[];
-  if(mode=== "PRODUCT_PRICE")filtered.sort((a,b)=>currentPrice(a)-currentPrice(b));
-  if(mode=== "PRODUCT_AVAILABILITY")filtered=filtered.filter(p=>availabilityOf(p)==="stock").sort((a,b)=>currentPrice(a)-currentPrice(b));
-  if(mode=== "PRODUCT_SEARCH"&&!term&&!budget&& !availability)filtered.sort((a,b)=>currentPrice(a)-currentPrice(b));
-  return {rows:filtered.slice(0,8),all:rows,term,budget,availability};}
+async function productSearch(message:string,h:Context,mode:Intent){
+  const rows=await loadProducts();
+  if(!rows)return null;
 
+  const t=norm(message);
+  const budget=budgetOr(message,h);
+  const term=extractCandidate(message)||h.productTerm;
+  let filtered=rows.slice();
+
+  const availability=productNeed(t)||h.availability;
+  const cheapest=/\ble\s+(?:plus|moins)\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+bas\b/.test(t);
+
+  if(availability==="stock")
+    filtered=filtered.filter(p=>availabilityOf(p)==="stock");
+
+  if(availability==="sur_commande")
+    filtered=filtered.filter(p=>availabilityOf(p)==="sur_commande");
+
+  if(budget!==null)
+    filtered=filtered.filter(p=>currentPrice(p)<=budget);
+
+  const terms=canonicalTerms(term||"");
+
+  if(term){
+    filtered=filtered
+      .map(p=>({...p,_score:productMatchScore(p,terms)}))
+      .filter((p:any)=>p._score>0)
+      .sort((a:any,b:any)=>b._score-a._score) as any[];
+  }
+
+  if(mode==="PRODUCT_PRICE")
+    filtered.sort((a,b)=>currentPrice(a)-currentPrice(b));
+
+  if(mode==="PRODUCT_AVAILABILITY")
+    filtered=filtered
+      .filter(p=>availabilityOf(p)==="stock")
+      .sort((a,b)=>currentPrice(a)-currentPrice(b));
+
+  if(mode==="PRODUCT_SEARCH"&&!term&&!budget&&!availability)
+    filtered.sort((a,b)=>currentPrice(a)-currentPrice(b));
+
+  if(cheapest){
+    filtered=filtered
+      .filter(p=>availabilityOf(p)!=="epuise")
+      .sort((a,b)=>currentPrice(a)-currentPrice(b));
+  }
+
+  return {
+    rows:filtered.slice(0,cheapest?1:8),
+    all:rows,
+    term,
+    budget,
+    availability,
+    cheapest
+  };
+}
 function describeProduct(p:ProductRow){const av=availabilityOf(p);const status=av==="stock"?`En stock (${Number(p.stock)} disponible${Number(p.stock)>1?"s":""}).`:av==="sur_commande"?"Disponible sur commande.":"Stock épuisé actuellement.";const promo=Number(p.promo||0)>0&&(!p.promo_fin||new Date(p.promo_fin)>=new Date());return`• **${p.nom}** — **${money(currentPrice(p))}**${promo?" 🏷️ promotion":""} — ${status}`}
 function productResponse(r:any,mode:Intent){
   if(mode==="ON_ORDER"){
