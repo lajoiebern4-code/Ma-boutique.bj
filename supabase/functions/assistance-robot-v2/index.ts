@@ -257,7 +257,26 @@ function currentPrice(p:ProductRow){const promo=Number(p.promo||0)>0&&(!p.promo_
 
 async function identity(r:Request):Promise<Identity>{const vid=r.headers.get("x-visitor-id"),vt=r.headers.get("x-visitor-token"),a=r.headers.get("authorization");if(a?.startsWith("Bearer ")){const {data}=await db.auth.getUser(a.slice(7));if(data.user)return{userId:data.user.id,visitorId:vid,visitorToken:vt}}return{userId:null,visitorId:vid,visitorToken:vt}}
 async function conversation(id:string){const {data}=await db.from("cs_assistance_conversations").select("id,commande_id,visitor_id,client_user_id,mode_assistance,statut").eq("id",id).maybeSingle();return data}
-async function allowed(id:string,i:Identity){if(i.userId){const {data,error}=await db.from("cs_assistance_conversations").select("id").eq("id",id).eq("client_user_id",i.userId).maybeSingle();return !error&&!!data}if(i.visitorId&&i.visitorToken){const {error}=await db.rpc("cs_assistance_visiteur_lire",{p_visitor_id:i.visitorId,p_access_token:i.visitorToken,p_conversation_id:id});return !error}return false}
+async function sha256Hex(v:string){
+  const bytes=new TextEncoder().encode(v);
+  const hash=await crypto.subtle.digest("SHA-256",bytes);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function allowed(id:string,i:Identity){
+  if(i.userId){
+    const {data,error}=await db.from("cs_assistance_conversations").select("id").eq("id",id).eq("client_user_id",i.userId).maybeSingle();
+    return !error&&!!data;
+  }
+  if(i.visitorId&&i.visitorToken){
+    const {data:visitor,error:visitorError}=await db.from("cs_assistance_visitors").select("access_token_hash").eq("id",i.visitorId).maybeSingle();
+    if(visitorError||!visitor?.access_token_hash)return false;
+    const hash=await sha256Hex(i.visitorToken);
+    if(hash!==visitor.access_token_hash)return false;
+    const {data:conversation,error:conversationError}=await db.from("cs_assistance_conversations").select("id").eq("id",id).eq("visitor_id",i.visitorId).maybeSingle();
+    return !conversationError&&!!conversation;
+  }
+  return false;
+}
 async function addRobot(id:string,text:string){const {data,error}=await db.from("cs_assistance_messages").insert({conversation_id:id,sender_type:"robot",contenu:text,has_attachment:false}).select("id").single();if(error){console.error("robot message",error);return null}return data.id}
 
 function detectIntent(t:string):Intent{
