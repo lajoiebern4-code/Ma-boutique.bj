@@ -277,8 +277,9 @@ function canonicalTerms(term:string){
 
     const generic=genericQueries[alias]||[];
     const isGeneric=generic.some(x=>norm(x)===t);
+    const aliasFound=generic.some(x=>aliasMatches(t,x));
 
-    if(isGeneric){
+    if(isGeneric||aliasFound){
       out.add(alias);
       for(const c of CATEGORY_MAP[alias]||[])out.add(norm(c));
     }
