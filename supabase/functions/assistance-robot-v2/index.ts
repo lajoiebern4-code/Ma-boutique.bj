@@ -427,14 +427,45 @@ function productMatchScore(p:ProductRow,terms:string[]){
 async function loadProducts(){
   const {data:products,error:productsError}=await db
     .from("cs_produits")
-    .select("id,nom,prix,stock,disponibilite,categorie,sous_categorie,genre,promo,promo_fin,nouveau");
+    .select("id,nom,prix,stock,disponibilite,promo,promo_fin,actif");
 
   if(productsError){
     console.error("loadProducts produits",productsError);
     return null;
   }
 
-  return (products||[]) as ProductRow[];
+  const rows=(products||[]) as ProductRow[];
+  if(!rows.length)return rows;
+
+  const ids=rows.map(p=>p.id);
+
+  const {data:details,error:detailsError}=await db
+    .from("cs_produit_details")
+    .select("produit_id,categorie,sous_categorie,genre,nouveau")
+    .in("produit_id",ids);
+
+  if(detailsError){
+    console.error("loadProducts details",detailsError);
+    return null;
+  }
+
+  const byProduct=new Map<string,any>();
+  for(const d of (details||[]) as any[]){
+    byProduct.set(String(d.produit_id),d);
+  }
+
+  return rows.map(p=>{
+    const d=byProduct.get(String(p.id));
+    if(!d)return p;
+
+    return {
+      ...p,
+      categorie:d.categorie??null,
+      sous_categorie:d.sous_categorie??null,
+      genre:d.genre??null,
+      nouveau:d.nouveau===true,
+    };
+  });
 }
 
 async function productSearch(message:string,h:Context,mode:Intent){
