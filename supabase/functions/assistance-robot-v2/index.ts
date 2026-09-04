@@ -155,8 +155,8 @@ function extractCandidate(m:string){
   const t=norm(m);
 
   const patterns=[
-    /\\b(?:je veux|je cherche|je voudrais|il me faut|montrez moi|donnez moi|je prends)\\s+(?:un|une|des)?\\s*([^?!.;,]+)/,
-    /\\b(?:un|une|des)\\s+([^?!.;,]+)/
+    /\b(?:je veux|je cherche|je voudrais|il me faut|montrez moi|donnez moi|je prends)\s+(?:un|une|des)?\s*([^?!.;,]+)/,
+    /\b(?:un|une|des)\s+([^?!.;,]+)/
   ];
 
   for(const p of patterns){
@@ -164,9 +164,9 @@ function extractCandidate(m:string){
     if(x){
       let v=x[1].trim();
 
-      v=v.replace(/\\b(?:a|avec|pour|dans|sur|mais|et)\\s+\\d+[a-z]?\\b.*$/," ").trim();
+      v=v.replace(/\b(?:a|avec|pour|dans|sur|mais|et)\s+\d+[a-z]?\b.*$/," ").trim();
 
-      const meaningful=v.split(/\\s+/).filter(x=>x&&!STOP.has(x));
+      const meaningful=v.split(/\s+/).filter(x=>x&&!STOP.has(x));
 
       if(meaningful.length>1)return meaningful.join(" ");
       if(meaningful.length===1)return meaningful[0];
@@ -176,16 +176,16 @@ function extractCandidate(m:string){
   let questionCandidate=t;
 
   questionCandidate=questionCandidate
-    .replace(/^quels?\\s+/,"")
-    .replace(/^quelles?\\s+/,"")
-    .replace(/^avez[- ]vous\\s+/,"")
-    .replace(/^vous\\s+avez\\s+/,"")
-    .replace(/^que\\s+proposez\\s+vous\\s+/,"")
-    .replace(/^que\\s+vendez\\s+vous\\s+/,"")
-    .replace(/\\s+avez[- ]vous\\s*$/,"")
-    .replace(/\\s+vous\\s+avez\\s*$/,"")
-    .replace(/\\s+proposez\\s+vous\\s*$/,"")
-    .replace(/\\s+vendez\\s+vous\\s*$/,"")
+    .replace(/^quels?\s+/,"")
+    .replace(/^quelles?\s+/,"")
+    .replace(/^avez[- ]vou(?:s)?\s+/,"")
+    .replace(/^vou(?:s)?\s+avez\s+/,"")
+    .replace(/^que\s+proposez[- ]vou(?:s)?\s+/,"")
+    .replace(/^que\s+vendez[- ]vou(?:s)?\s+/,"")
+    .replace(/\s+avez[- ]vou(?:s)?\s*$/,"")
+    .replace(/\s+vou(?:s)?\s+avez\s*$/,"")
+    .replace(/\s+proposez[- ]vou(?:s)?\s*$/,"")
+    .replace(/\s+vendez[- ]vou(?:s)?\s*$/,"")
     .trim();
 
   const questionTokens=tokenList(questionCandidate)
@@ -205,7 +205,6 @@ function extractCandidate(m:string){
 
   return null;
 }
-
 function canonicalTerms(term:string){
   const t=norm(term);
   const out=new Set<string>();
