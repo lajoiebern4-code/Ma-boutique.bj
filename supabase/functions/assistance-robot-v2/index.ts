@@ -477,7 +477,26 @@ async function context(id:string):Promise<Context>{
 
   return c;
 }
-function mergedIntent(message:string,h:Context){const t=norm(message),now=detectIntent(t);if(now!=="UNKNOWN")return now;if(has(t,["tu ne sais pas","vous ne savez pas","donc","et alors","d accord","daccord","ok","oui","non","plus d infos","plus dinfos","c est tout"]))return h.intent||"UNKNOWN";return h.intent||"UNKNOWN"}
+function isOrderContextClarification(t:string){
+  const n=norm(t);
+  return /^(?:c est|c'est)\s+(?:pour|la commande de)\s+(?:un|une)\s+(?:ami|amie|proche|parent|quelqu un|quelqu une)$/.test(n)
+    || /^(?:je|on)\s+(?:verifie|vérifie)\s+(?:pour|la commande de)\s+(?:un|une)\s+(?:ami|amie|proche|parent|quelqu un|quelqu une)$/.test(n);
+}
+
+function mergedIntent(message:string,h:Context){
+  const t=norm(message);
+
+  if(h.intent==="ORDER_STATUS" && isOrderContextClarification(t))
+    return "ORDER_STATUS";
+
+  const now=detectIntent(t);
+  if(now!=="UNKNOWN")return now;
+
+  if(has(t,["tu ne sais pas","vous ne savez pas","donc","et alors","d accord","daccord","ok","oui","non","plus d infos","plus dinfos","c est tout"]))
+    return h.intent||"UNKNOWN";
+
+  return h.intent||"UNKNOWN";
+}
 function productNeed(t:string){
   if(has(t,["en stock","stock","actuellement en stock","disponible maintenant","disponibles maintenant"]))
     return "stock";
