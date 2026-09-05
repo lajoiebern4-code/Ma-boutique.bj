@@ -214,6 +214,7 @@ function isSmallTalk(t:string){
 function extractCandidate(m:string){
   const t=norm(m);
   if(isSmallTalk(t))return null;
+  if(isOrderContextClarification(t))return null;
 
   // Superlatifs : "quel est le téléphone le moins cher",
   // "quel est le téléphone le plus cher", etc.
