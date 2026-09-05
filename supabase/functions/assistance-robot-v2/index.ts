@@ -208,7 +208,7 @@ function isBudgetRecommendation(t:string){
 
 function isSmallTalk(t:string){
   const n=norm(t);
-  return /^(?:comment\s+(?:allez[- ]vous|vous\s+allez|vas[- ]tu|tu\s+vas)|(?:allez[- ]vous|vous\s+allez)\s+bien|(?:ca|ça)\s+va(?:\s+bien)?|tu\s+vas\s+bien|vous\s+allez\s+bien)$/.test(n);
+  return /^(?:comment\s+(?:allez[- ]vous|vous\s+allez|vas[- ]tu|tu\s+vas|ca\s+va)|(?:allez[- ]vous|vous\s+allez)\s+bien|ca\s+va(?:\s+bien)?|tu\s+vas\s+bien|vous\s+allez\s+bien)$/.test(n);
 }
 
 function extractCandidate(m:string){
