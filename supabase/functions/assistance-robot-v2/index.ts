@@ -193,7 +193,7 @@ function isBudgetOnlyQuery(t:string){
     .trim();
 
   const meaningful=tokenList(stripped)
-    .filter(x=>x && !BUDGET_FRAME_WORDS.has(x));
+    .filter(x=>x && !BUDGET_FRAME_WORDS.has(x) && !STOP.has(x));
 
   return meaningful.length===0;
 }
