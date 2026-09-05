@@ -206,8 +206,14 @@ function isBudgetRecommendation(t:string){
   );
 }
 
+function isSmallTalk(t:string){
+  const n=norm(t);
+  return /^(?:comment\s+(?:allez[- ]vous|vous\s+allez|vas[- ]tu|tu\s+vas)|(?:allez[- ]vous|vous\s+allez)\s+bien|(?:ca|ça)\s+va(?:\s+bien)?|tu\s+vas\s+bien|vous\s+allez\s+bien)$/.test(n);
+}
+
 function extractCandidate(m:string){
   const t=norm(m);
+  if(isSmallTalk(t))return null;
 
   // Superlatifs : "quel est le téléphone le moins cher",
   // "quel est le téléphone le plus cher", etc.
@@ -380,7 +386,7 @@ async function allowed(id:string,i:Identity){
 async function addRobot(id:string,text:string){const {data,error}=await db.from("cs_assistance_messages").insert({conversation_id:id,sender_type:"robot",contenu:text,has_attachment:false}).select("id").single();if(error){console.error("robot message",error);return null}return data.id}
 
 function detectIntent(t:string):Intent{
-  if(has(t,["bonjour","bonsoir","salut","hello","coucou"]))return "GREETING";
+  if(has(t,["bonjour","bonsoir","salut","hello","coucou"])||isSmallTalk(t))return "GREETING";
   if(has(t,["conseiller","conseillere","humain","agent","administrateur","admin","service client","personne"] )&&has(t,["parler","contact","aide","veux","avec","demande"]))return "HUMAN";
   if(has(t,["remboursement","rembourser","retour produit","garantie","echange","retour"] ))return "SITE";
   if(has(t,["quel produit va","quelle produit va","quel article va","quelle article va","sera ajoute","va etre ajoute","va être ajouté","prochain produit","futur produit","nouveau produit qui sera ajoute"]))return "UNKNOWN";
