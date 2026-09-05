@@ -496,7 +496,7 @@ async function productSearch(message:string,h:Context,mode:Intent){
   const term=extractedTerm||(tSuperlative?h.productTerm:null)||h.productTerm;
   let filtered=rows.slice();
 
-  const availability=productNeed(t)||h.availability;
+  const availability=productNeed(t)||(extractedTerm?null:h.availability);
   const cheapest=/\ble\s+moins\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+bas\b/.test(t);
   const mostExpensive=/\ble\s+plus\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+haut\b/.test(t);
 
