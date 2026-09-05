@@ -480,8 +480,8 @@ async function context(id:string):Promise<Context>{
 }
 function isOrderContextClarification(t:string){
   const n=norm(t);
-  return /^(?:c est|c'est)\s+(?:pour|la commande de)\s+(?:un|une)\s+(?:ami|amie|proche|parent|quelqu un|quelqu une)$/.test(n)
-    || /^(?:je|on)\s+(?:verifie|vérifie)\s+(?:pour|la commande de)\s+(?:un|une)\s+(?:ami|amie|proche|parent|quelqu un|quelqu une)$/.test(n);
+  return /^(?:(?:moi\s+)?c est|(?:moi\s+)?c'est)\s+(?:pour|la commande de)\s+(?:un|une|mon|ma)\s+(?:ami|amie|proche|parent|quelqu un|quelqu une)$/.test(n)
+    || /^(?:je|on)\s+(?:verifie|vérifie)\s+(?:pour|la commande de)\s+(?:un|une|mon|ma)\s+(?:ami|amie|proche|parent|quelqu un|quelqu une)$/.test(n);
 }
 
 function mergedIntent(message:string,h:Context){
