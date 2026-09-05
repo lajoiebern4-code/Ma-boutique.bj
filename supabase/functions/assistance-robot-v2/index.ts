@@ -57,7 +57,17 @@ function out(r:Request,b:unknown,s=200){return new Response(JSON.stringify(b),{s
 function norm(v:string){return v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[’']/g," ").replace(/[^a-z0-9\s#%-]/g," ").replace(/\s+/g," ").trim()}
 function has(t:string,arr:string[]){return arr.some(x=>t.includes(x))}
 function money(n:number){return `${Math.round(n).toLocaleString("fr-FR")} FCFA`}
-function parseMoney(v:string){const t=norm(v).replace(/\s+/g,"");let m=t.match(/(\d+(?:[.,]\d+)?)k\b/);if(m)return Math.round(Number(m[1].replace(",","."))*1000);m=t.match(/(\d[\d.]*)\s*(?:fcfa|f|francs?)\b/);if(m)return Number(m[1].replace(/\./g,""));return null}
+function parseMoney(v:string){
+  const raw=norm(v);
+  const t=raw.replace(/\s+/g,"");
+  let m=t.match(/(\d+(?:[.,]\d+)?)k\b/);
+  if(m)return Math.round(Number(m[1].replace(",","."))*1000);
+  m=raw.match(/(\d[\d\s.]*)\s*(?:fcfa|f|francs?)\b/);
+  if(m)return Number(m[1].replace(/[\s.]/g,""));
+  m=raw.match(/(?:moins de|maximum de|au plus|jusqu(?:'|’)à)\s*(\d[\d\s.]*)/);
+  if(m)return Number(m[1].replace(/[\s.]/g,""));
+  return null
+}
 function ref(v:string){const t=v.toUpperCase().replace(/[–—]/g,"-");let m=t.match(/\bCS\s*-\s*(\d{6})\b/);if(m)return{field:"code_suivi" as const,value:`CS-${m[1]}`};m=t.match(/\bCR\s*-\s*(\d{6})\b/);if(m)return{field:"code_retrait" as const,value:`CR-${m[1]}`};m=t.match(/\b[A-Z]{2,10}\s*-\s*\d{6,}\b/);return m?{field:"numero" as const,value:m[0].replace(/\s+/g,"")}:null}
 
 const ALIASES:Record<string,string[]>={
@@ -496,7 +506,7 @@ async function productSearch(message:string,h:Context,mode:Intent){
   const term=extractedTerm||(tSuperlative?h.productTerm:null)||h.productTerm;
   let filtered=rows.slice();
 
-  const availability=productNeed(t)||(extractedTerm?null:h.availability);
+  const availability=productNeed(t)||((extractedTerm||tSuperlative)?null:h.availability);
   const cheapest=/\ble\s+moins\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+bas\b/.test(t);
   const mostExpensive=/\ble\s+plus\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+haut\b/.test(t);
 
