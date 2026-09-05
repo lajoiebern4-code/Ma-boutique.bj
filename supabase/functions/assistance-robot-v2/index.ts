@@ -619,14 +619,18 @@ async function productSearch(message:string,h:Context,mode:Intent){
   const tSuperlative=/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+(?:bas|haut)\b/.test(t);
   const budget=parseMoney(message) ?? ((extractedTerm||tSuperlative) ? null : h.budget);
 
-  // Une demande avec budget explicite mais sans produit identifiable
-  // est une recommandation par budget.
+  // Un budget explicite sans produit dans le message courant
+  // doit toujours ignorer le produit conservé dans l'ancien contexte.
+  const currentMessageHasProduct =
+    !!extractedTerm ||
+    !!matchedAlias(t) ||
+    !!productNeed(t) ||
+    tSuperlative;
+
   const budgetOnlyRecommendation =
     budget!==null &&
-    !tSuperlative &&
-    !matchedAlias(t) &&
-    !productNeed(t) &&
-    isBudgetOnlyQuery(t);
+    !currentMessageHasProduct &&
+    (isBudgetOnlyQuery(t) || !extractedTerm);
 
   const term=budgetOnlyRecommendation
     ? null
