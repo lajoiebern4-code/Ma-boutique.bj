@@ -214,7 +214,7 @@ function extractCandidate(m:string){
   }
 
   const patterns=[
-    /\b(?:je veux|je cherche|je voudrais|il me faut|montrez moi|donnez moi|je prends)\s+(?:un|une|des)?\s*([^?!.;,]+)/,
+    /\b(?:je veux|je cherche|je voudrais|il me faut|montrez(?:[- ]+)moi|donnez moi|je prends)\s+(?:un|une|des)?\s*([^?!.;,]+)/,
     /\b(?:un|une|des)\s+([^?!.;,]+)/
   ];
 
@@ -590,12 +590,20 @@ async function productSearch(message:string,h:Context,mode:Intent){
   // Une demande avec budget explicite mais sans produit identifiable
   // est une demande de recommandation par budget, pas une recherche
   // sur un faux terme extrait d'une formulation comme "j'ai".
+  const candidateForBudget=extractCandidate(t);
+  const budgetCandidateOnly = candidateForBudget
+    ? candidateForBudget.split(/\s+/).filter(Boolean).every(x=>
+        STOP.has(x) ||
+        /^(?:\d+(?:[.,]\d+)?k|\d[\d\s.]*)$/.test(x)
+      )
+    : true;
+
   const budgetOnlyRecommendation =
     budget!==null &&
     !tSuperlative &&
     !matchedAlias(t) &&
     !productNeed(t) &&
-    !extractCandidate(t);
+    budgetCandidateOnly;
 
   const term=budgetOnlyRecommendation
     ? null
@@ -631,6 +639,21 @@ async function productSearch(message:string,h:Context,mode:Intent){
 
     }
   if(term){
+    const categoryKey=matchedAlias(t) || matchedAlias(term);
+    const mappedCategories=categoryKey ? (CATEGORY_MAP[categoryKey]||[]) : [];
+
+    if(mappedCategories.length){
+      const categoryFiltered=filtered.filter(p=>{
+        const c=norm(p.categorie||"");
+        return mappedCategories.some(expected=>
+          c===norm(expected) || c.includes(norm(expected))
+        );
+      });
+
+      if(categoryFiltered.length)
+        filtered=categoryFiltered;
+    }
+
     const scored=filtered.map(p=>({
       ...p,
       _score:productMatchScore(p,terms)
