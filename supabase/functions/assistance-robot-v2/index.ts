@@ -166,6 +166,38 @@ function matchedAlias(t:string){
   return candidates[0]?.key||null;
 }
 
+const BUDGET_FRAME_WORDS=new Set([
+  "j","j'ai","jai","ai","je","avec","mon","ma","mes","budget","est","de","a","au","aux",
+  "environ","pour","moi","me","les","des","un","une",
+  "produit","produits","article","articles",
+  "montrez","donnez","proposez","propose","proposer",
+  "conseille","conseillez","recommande","recommandez",
+  "quoi","que","quel","quelle","quels","quelles",
+  "lequel","laquelle","lesquels","lesquelles",
+  "cherche","recherche","veux","voudrais","faut","il"
+]);
+
+function isBudgetOnlyQuery(t:string){
+  if(parseMoney(t)===null)return false;
+
+  if(matchedAlias(t) || productNeed(t))
+    return false;
+
+  let stripped=norm(t)
+    .replace(/-/g," ")
+    .replace(/\b(?:moins|plus)\s+de\s+\d+(?:[\d\s.,]*)(?:k)?\s*(?:fcfa|f|francs?)?\b/g," ")
+    .replace(/\b(?:maximum(?:\s+de)?|au\s+plus|jusqu\s+a)\s+\d+(?:[\d\s.,]*)(?:k)?\s*(?:fcfa|f|francs?)?\b/g," ")
+    .replace(/\b\d+(?:[.,]\d+)?k\b/g," ")
+    .replace(/\b\d[\d\s.]*\s*(?:fcfa|f|francs?)\b/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+
+  const meaningful=tokenList(stripped)
+    .filter(x=>x && !BUDGET_FRAME_WORDS.has(x));
+
+  return meaningful.length===0;
+}
+
 function isBudgetRecommendation(t:string){
   return(
     parseMoney(t)!==null &&
@@ -588,22 +620,13 @@ async function productSearch(message:string,h:Context,mode:Intent){
   const budget=parseMoney(message) ?? ((extractedTerm||tSuperlative) ? null : h.budget);
 
   // Une demande avec budget explicite mais sans produit identifiable
-  // est une demande de recommandation par budget, pas une recherche
-  // sur un faux terme extrait d'une formulation comme "j'ai".
-  const candidateForBudget=extractCandidate(t);
-  const budgetCandidateOnly = candidateForBudget
-    ? candidateForBudget.split(/\s+/).filter(Boolean).every(x=>
-        STOP.has(x) ||
-        /^(?:\d+(?:[.,]\d+)?k|\d[\d\s.]*)$/.test(x)
-      )
-    : true;
-
+  // est une recommandation par budget.
   const budgetOnlyRecommendation =
     budget!==null &&
     !tSuperlative &&
     !matchedAlias(t) &&
     !productNeed(t) &&
-    budgetCandidateOnly;
+    isBudgetOnlyQuery(t);
 
   const term=budgetOnlyRecommendation
     ? null
@@ -624,34 +647,28 @@ async function productSearch(message:string,h:Context,mode:Intent){
     filtered=filtered.filter(p=>currentPrice(p)<=budget);
 
   const terms=canonicalTerms(term||"");
-
-    if(/telephone|telephones|smartphone|smartphones/i.test(t)){
-      const debugRows=filtered
-        .filter((p:any)=>/samsung|iphone/i.test(String(p.nom||"")))
-        .slice(0,10)
-        .map((p:any)=>({
-          nom:p.nom,
-          categorie:p.categorie??null,
-          terms,
-          score:productMatchScore(p,terms)
-        }));
-
-
-    }
   if(term){
     const categoryKey=matchedAlias(t) || matchedAlias(term);
-    const mappedCategories=categoryKey ? (CATEGORY_MAP[categoryKey]||[]) : [];
 
-    if(mappedCategories.length){
-      const categoryFiltered=filtered.filter(p=>{
-        const c=norm(p.categorie||"");
-        return mappedCategories.some(expected=>
-          c===norm(expected) || c.includes(norm(expected))
+    if(categoryKey){
+      const strictTerms=ALIASES[categoryKey]||[];
+
+      const strictFiltered=filtered.filter(p=>{
+        const searchable=[
+          p.nom,
+          p.sous_categorie,
+          p.genre
+        ]
+        .map(x=>norm(String(x||"")))
+        .join(" ");
+
+        return strictTerms.some(alias=>
+          phraseTokensMatch(searchable,alias)
         );
       });
 
-      if(categoryFiltered.length)
-        filtered=categoryFiltered;
+      if(strictFiltered.length)
+        filtered=strictFiltered;
     }
 
     const scored=filtered.map(p=>({
