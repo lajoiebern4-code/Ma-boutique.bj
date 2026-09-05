@@ -542,8 +542,28 @@ async function productSearch(message:string,h:Context,mode:Intent){
       }));
     }
   if(term){
-    filtered=filtered
-      .map(p=>({...p,_score:productMatchScore(p,terms)}))
+    const scored=filtered.map(p=>({
+      ...p,
+      _score:productMatchScore(p,terms)
+    }));
+
+    console.log("V2_MATCH_DIAGNOSTIC",JSON.stringify({
+      message,
+      extractedTerm,
+      term,
+      terms,
+      products:scored
+        .filter((p:any)=>/samsung|iphone/i.test(String(p.nom||"")))
+        .map((p:any)=>({
+          nom:p.nom,
+          categorie:p.categorie??null,
+          sous_categorie:p.sous_categorie??null,
+          genre:p.genre??null,
+          score:p._score
+        }))
+    }));
+
+    filtered=scored
       .filter((p:any)=>p._score>0)
       .sort((a:any,b:any)=>b._score-a._score) as any[];
   }
