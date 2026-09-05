@@ -162,6 +162,14 @@ function matchedAlias(t:string){
   return candidates[0]?.key||null;
 }
 
+function isBudgetRecommendation(t:string){
+  return(
+    parseMoney(t)!==null &&
+    /\b(?:propose|proposez|proposer|conseille|conseillez|recommande|recommandez)\b/.test(t) &&
+    /\b(?:quoi|que|quel|quelle|quels|quelles|lequel|laquelle|lesquels|lesquelles)\b/.test(t)
+  );
+}
+
 function extractCandidate(m:string){
   const t=norm(m);
 
@@ -189,6 +197,15 @@ function extractCandidate(m:string){
       .filter(x=>x&&!STOP.has(x)&&x!=="moin"&&x!=="moins"&&x!=="plus"&&x!=="plu"&&x!=="cher"&&x!=="chere");
 
     if(meaningful.length)return meaningful.join(" ");
+    return null;
+  }
+
+  // Budget seul + demande de proposition :
+  // "j'ai 300000f vous me proposez quoi ?"
+  // "avec 300000 FCFA que pouvez-vous me proposer ?"
+  // "mon budget est de 300000f vous me proposez laquelle ?"
+  // Ces formulations ne contiennent pas de produit à rechercher.
+  if(isBudgetRecommendation(t)){
     return null;
   }
 
@@ -349,6 +366,7 @@ function detectIntent(t:string):Intent{
   if(has(t,["en stock","dans le stock","articles disponibles","produits disponibles","disponible actuellement","disponibilite","disponibilité","stock actuellement"]))return "PRODUCT_AVAILABILITY";
   if(has(t,["moins cher","moins chère","moins chere","moins coûteux","moins couteux","prix le plus bas","le moins cher","la moins chere","le moins chère","plus cher","plus chère","plus chere","plus coûteux","plus couteux","prix le plus haut","le plus cher","la plus chere","le plus chère"]))return "PRODUCT_PRICE";
   if(has(t,["prix","combien coute","combien coûte","combien ca coute","combien ça coûte","tarif"]))return "PRODUCT_PRICE";
+  if(isBudgetRecommendation(t))return "PRODUCT_SEARCH";
   if(extractCandidate(t)||matchedAlias(t)||has(t,["acheter","cherche","recherche","je veux","je voudrais","quel article","quelle article","quel produit","quelle produit","que vendez vous","que vendez-vous","vous avez quoi","vous proposez quoi","je peux acheter quoi","quels articles","quelles articles","quels produits","quelles produits","quels telephones","quelles telephones","quels smartphones","quels televiseurs","quelles chaussures","quels sacs"]))return "PRODUCT_SEARCH";
   if(has(t,["site","chinashop","information du site","informations du site","conditions","fonctionnement","comment ca marche","comment ça marche","delai","délai"]))return "SITE";
   return "UNKNOWN";
@@ -503,10 +521,23 @@ async function productSearch(message:string,h:Context,mode:Intent){
   const extractedTerm=extractCandidate(message);
   const tSuperlative=/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+(?:bas|haut)\b/.test(t);
   const budget=parseMoney(message) ?? ((extractedTerm||tSuperlative) ? null : h.budget);
-  const term=extractedTerm||(tSuperlative?h.productTerm:null)||h.productTerm;
+
+  // Une demande avec budget explicite mais sans produit identifiable
+  // est une demande de recommandation par budget, pas une recherche
+  // sur un faux terme extrait d'une formulation comme "j'ai".
+  const budgetOnlyRecommendation =
+    budget!==null &&
+    !tSuperlative &&
+    !matchedAlias(t) &&
+    !productNeed(t) &&
+    !extractCandidate(t);
+
+  const term=budgetOnlyRecommendation
+    ? null
+    : extractedTerm||(tSuperlative?h.productTerm:null)||h.productTerm;
   let filtered=rows.slice();
 
-  const availability=productNeed(t)||((extractedTerm||tSuperlative)?null:h.availability);
+  const availability=productNeed(t)||((extractedTerm||tSuperlative||budgetOnlyRecommendation)?null:h.availability);
   const cheapest=/\ble\s+moins\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+bas\b/.test(t);
   const mostExpensive=/\ble\s+plus\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+haut\b/.test(t);
 
