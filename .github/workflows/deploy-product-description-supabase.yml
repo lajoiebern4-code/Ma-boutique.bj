@@ -1,6 +1,9 @@
 name: Deploy Product Description Supabase
 
 on:
+  push:
+    branches:
+      - v6-deploy-test
   workflow_dispatch:
 
 jobs:
