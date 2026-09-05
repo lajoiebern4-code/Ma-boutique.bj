@@ -623,9 +623,9 @@ async function productSearch(message:string,h:Context,mode:Intent){
   }
 
   // Recommandation par budget sans catégorie précise :
-  // privilégier les articles réellement en stock, puis les moins chers.
+  // privilégier le stock, éviter les doublons et diversifier les catégories.
   if(mode==="PRODUCT_SEARCH" && budget!==null && !term && !availability){
-    filtered=filtered
+    const candidates=filtered
       .filter(p=>availabilityOf(p)!=="epuise")
       .sort((a,b)=>{
         const aStock=availabilityOf(a)==="stock"?0:1;
@@ -633,6 +633,33 @@ async function productSearch(message:string,h:Context,mode:Intent){
         if(aStock!==bStock)return aStock-bStock;
         return currentPrice(a)-currentPrice(b);
       });
+
+    const selected:ProductRow[]=[];
+    const seenCategories=new Set<string>();
+    const seenNames=new Set<string>();
+
+    for(const p of candidates){
+      const name=norm(p.nom);
+      const category=norm(p.categorie||"");
+
+      if(seenNames.has(name))continue;
+
+      if(category && !seenCategories.has(category)){
+        selected.push(p);
+        seenCategories.add(category);
+        seenNames.add(name);
+      }
+    }
+
+    for(const p of candidates){
+      if(selected.length>=5)break;
+      const name=norm(p.nom);
+      if(seenNames.has(name))continue;
+      selected.push(p);
+      seenNames.add(name);
+    }
+
+    filtered=selected;
   }
 
   return {
