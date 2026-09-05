@@ -501,8 +501,8 @@ async function productSearch(message:string,h:Context,mode:Intent){
 
   const t=norm(message);
   const extractedTerm=extractCandidate(message);
-  const budget=parseMoney(message) ?? (extractedTerm ? null : h.budget);
   const tSuperlative=/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\b/.test(t)||/\bprix\s+le\s+plus\s+(?:bas|haut)\b/.test(t);
+  const budget=parseMoney(message) ?? ((extractedTerm||tSuperlative) ? null : h.budget);
   const term=extractedTerm||(tSuperlative?h.productTerm:null)||h.productTerm;
   let filtered=rows.slice();
 
