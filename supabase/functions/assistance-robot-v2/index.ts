@@ -622,8 +622,21 @@ async function productSearch(message:string,h:Context,mode:Intent){
       .sort((a,b)=>currentPrice(b)-currentPrice(a));
   }
 
+  // Recommandation par budget sans catégorie précise :
+  // privilégier les articles réellement en stock, puis les moins chers.
+  if(mode==="PRODUCT_SEARCH" && budget!==null && !term && !availability){
+    filtered=filtered
+      .filter(p=>availabilityOf(p)!=="epuise")
+      .sort((a,b)=>{
+        const aStock=availabilityOf(a)==="stock"?0:1;
+        const bStock=availabilityOf(b)==="stock"?0:1;
+        if(aStock!==bStock)return aStock-bStock;
+        return currentPrice(a)-currentPrice(b);
+      });
+  }
+
   return {
-    rows:filtered.slice(0,(cheapest||mostExpensive)?1:8),
+    rows:filtered.slice(0,(cheapest||mostExpensive)?1:5),
     all:rows,
     term,
     budget,
