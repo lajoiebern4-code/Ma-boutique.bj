@@ -59,14 +59,18 @@ function has(t:string,arr:string[]){return arr.some(x=>t.includes(x))}
 function money(n:number){return `${Math.round(n).toLocaleString("fr-FR")} FCFA`}
 function parseMoney(v:string){
   const raw=norm(v);
-  const t=raw.replace(/\s+/g,"");
-  let m=t.match(/(\d+(?:[.,]\d+)?)k\b/);
+  const compact=raw.replace(/\s+/g,"");
+
+  let m=compact.match(/(\d+(?:[.,]\d+)?)k\b/);
   if(m)return Math.round(Number(m[1].replace(",","."))*1000);
+
   m=raw.match(/(\d[\d\s.]*)\s*(?:fcfa|f|francs?)\b/);
   if(m)return Number(m[1].replace(/[\s.]/g,""));
-  m=raw.match(/(?:moins de|maximum de|au plus|jusqu(?:'|’)à)\s*(\d[\d\s.]*)/);
+
+  m=raw.match(/(?:moins\s+de|maximum(?:\s+de)?|au\s+plus|jusqu\s+a)\s*(\d[\d\s.]*)/);
   if(m)return Number(m[1].replace(/[\s.]/g,""));
-  return null
+
+  return null;
 }
 function ref(v:string){const t=v.toUpperCase().replace(/[–—]/g,"-");let m=t.match(/\bCS\s*-\s*(\d{6})\b/);if(m)return{field:"code_suivi" as const,value:`CS-${m[1]}`};m=t.match(/\bCR\s*-\s*(\d{6})\b/);if(m)return{field:"code_retrait" as const,value:`CR-${m[1]}`};m=t.match(/\b[A-Z]{2,10}\s*-\s*\d{6,}\b/);return m?{field:"numero" as const,value:m[0].replace(/\s+/g,"")}:null}
 
@@ -221,8 +225,9 @@ function extractCandidate(m:string){
 
       // Retirer les contraintes de budget du candidat produit.
       v=v
-        .replace(/\b(?:a|avec|pour|dans|sur)\s+(?:moins|plus)\s+de\s+\d[\d\s.,]*\s*(?:fcfa|f|francs?)?\b.*$/," ")
-        .replace(/\b(?:moins|plus)\s+de\s+\d[\d\s.,]*\s*(?:fcfa|f|francs?)?\b.*$/," ")
+        .replace(/\b(?:a|avec|pour|dans|sur)\s+(?:moins|plus)\s+de\s+\d+(?:[\d\s.,]*)(?:k)?\s*(?:fcfa|f|francs?)?\b.*$/," ")
+        .replace(/\b(?:moins|plus)\s+de\s+\d+(?:[\d\s.,]*)(?:k)?\s*(?:fcfa|f|francs?)?\b.*$/," ")
+        .replace(/\b\d+(?:[\d\s.,]*)(?:k)\s*\b.*$/," ")
         .replace(/\b\d[\d\s.,]*\s*(?:fcfa|f|francs?)\b.*$/," ")
         .replace(/\b(?:a|avec|pour|dans|sur|mais|et)\s+\d+[a-z]?\b.*$/," ")
         .trim();
@@ -252,7 +257,8 @@ function extractCandidate(m:string){
     .replace(/\s+vendez[- ]vou(?:s)?\s*$/,"")
     .replace(/\s+(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\s*$/,"")
     .replace(/\s+(?:moins|plus)\s+cher(?:e)?\s*$/,"")
-    .replace(/\b(?:moins|plus)\s+de\s+\d[\d\s.,]*\s*(?:fcfa|f|francs?)?\b.*$/,"")
+    .replace(/\b(?:moins|plus)\s+de\s+\d+(?:[\d\s.,]*)(?:k)?\s*(?:fcfa|f|francs?)?\b.*$/,"")
+    .replace(/\b\d+(?:[\d\s.,]*)(?:k)\s*\b.*$/,"")
     .replace(/\b\d[\d\s.,]*\s*(?:fcfa|f|francs?)\b.*$/,"")
     .trim();
 
@@ -372,10 +378,84 @@ function detectIntent(t:string):Intent{
   return "UNKNOWN";
 }
 
-async function context(id:string):Promise<Context>{const {data}=await db.from("cs_assistance_messages").select("sender_type,contenu,created_at").eq("conversation_id",id).order("created_at",{ascending:false}).limit(30);const rows=(data||[]).reverse() as any[];let c:Context={intent:null,productTerm:null,budget:null,availability:null};for(const r of rows){if(r.sender_type!=="client")continue;const m=String(r.contenu||""),t=norm(m),p=parseMoney(m),candidate=extractCandidate(m),intent=detectIntent(t);if(p!==null)c.budget=p;if(candidate&&!/\b(?:le|la)\s+(?:moins|plus)\s+cher(?:e)?\b/.test(t)&&!/\bprix\s+le\s+plus\s+(?:bas|haut)\b/.test(t))c.productTerm=candidate;if(intent!=="UNKNOWN")c.intent=intent;if(has(t,["en stock","dans le stock","stock actuellement"]))c.availability="stock";if(has(t,["sur commande","a commander","à commander"]))c.availability="sur_commande"}return c}
+async function context(id:string):Promise<Context>{
+  const {data}=await db
+    .from("cs_assistance_messages")
+    .select("sender_type,contenu,created_at")
+    .eq("conversation_id",id)
+    .order("created_at",{ascending:false})
+    .limit(20);
 
+  const rows=(data||[]).reverse() as any[];
+
+  let c:Context={
+    intent:null,
+    productTerm:null,
+    budget:null,
+    availability:null
+  };
+
+  for(const r of rows){
+    if(r.sender_type!=="client")continue;
+
+    const m=String(r.contenu||"").trim();
+    if(!m)continue;
+
+    const t=norm(m);
+    const p=parseMoney(m);
+    const candidate=extractCandidate(m);
+    const intent=detectIntent(t);
+
+    if(p!==null)c.budget=p;
+
+    if(
+      candidate &&
+      !/\\b(?:le|la)\\s+(?:moins|plus)\\s+cher(?:e)?\\b/.test(t) &&
+      !/\\bprix\\s+le\\s+plus\\s+(?:bas|haut)\\b/.test(t)
+    ){
+      c.productTerm=candidate;
+    }
+
+    if(intent!=="UNKNOWN")c.intent=intent;
+
+    if(has(t,[
+      "en stock",
+      "dans le stock",
+      "stock actuellement",
+      "actuellement en stock"
+    ])){
+      c.availability="stock";
+    }
+
+    if(has(t,[
+      "sur commande",
+      "a commander",
+      "à commander",
+      "disponible sur commande"
+    ])){
+      c.availability="sur_commande";
+    }
+  }
+
+  return c;
+}
 function mergedIntent(message:string,h:Context){const t=norm(message),now=detectIntent(t);if(now!=="UNKNOWN")return now;if(has(t,["tu ne sais pas","vous ne savez pas","donc","et alors","d accord","daccord","ok","oui","non","plus d infos","plus dinfos","c est tout"]))return h.intent||"UNKNOWN";return h.intent||"UNKNOWN"}
-function productNeed(t:string){return has(t,["en stock","stock","actuellement en stock","disponible maintenant","disponibles maintenant"]) ? "stock" : has(t,["sur commande","a commander","à commander","commander"])?"sur_commande":null}
+function productNeed(t:string){
+  if(has(t,["en stock","stock","actuellement en stock","disponible maintenant","disponibles maintenant"]))
+    return "stock";
+
+  if(has(t,[
+    "sur commande",
+    "a commander",
+    "à commander",
+    "disponible sur commande",
+    "articles sur commande",
+    "produits sur commande"
+  ]))
+    return "sur_commande";
+
+  return null;
+}
 function budgetOr(t:string,h:Context){return parseMoney(t)??h.budget}
 function productMatchScore(p:ProductRow,terms:string[]){
   const fields=[
@@ -477,22 +557,7 @@ async function loadProducts(){
     return null;
   }
 
-  console.log("V2_RUNTIME_PRODUCTS",JSON.stringify({
-    products_count: rows.length,
-    details_count: (details||[]).length,
-    phones: rows
-      .map(p=>{
-        const d=(details||[]).find((x:any)=>String(x.produit_id)===String(p.id));
-        return {
-          nom:p.nom,
-          categorie:d?.categorie??null,
-          sous_categorie:d?.sous_categorie??null,
-          genre:d?.genre??null
-        };
-      })
-      .filter(x=>String(x.categorie||"").toLowerCase().includes("telephone"))
-      .slice(0,10)
-  }));
+
 
   const byProduct=new Map<string,any>();
   for(const d of (details||[]) as any[]){
@@ -563,14 +628,7 @@ async function productSearch(message:string,h:Context,mode:Intent){
           score:productMatchScore(p,terms)
         }));
 
-      console.log("V2_RUNTIME_MATCH",JSON.stringify({
-        message,
-        extractedTerm,
-        term,
-        terms,
-        rows_before_filter:rows.length,
-        debugRows
-      }));
+
     }
   if(term){
     const scored=filtered.map(p=>({
@@ -578,21 +636,7 @@ async function productSearch(message:string,h:Context,mode:Intent){
       _score:productMatchScore(p,terms)
     }));
 
-    console.log("V2_MATCH_DIAGNOSTIC",JSON.stringify({
-      message,
-      extractedTerm,
-      term,
-      terms,
-      products:scored
-        .filter((p:any)=>/samsung|iphone/i.test(String(p.nom||"")))
-        .map((p:any)=>({
-          nom:p.nom,
-          categorie:p.categorie??null,
-          sous_categorie:p.sous_categorie??null,
-          genre:p.genre??null,
-          score:p._score
-        }))
-    }));
+
 
     filtered=scored
       .filter((p:any)=>p._score>0)
