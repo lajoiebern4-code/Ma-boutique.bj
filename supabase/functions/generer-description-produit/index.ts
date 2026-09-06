@@ -186,21 +186,22 @@ Deno.serve(async (req) => {
       5000,
     );
 
-    if (!nom) {
-      return response(
-        {
-          success: false,
-          error: "Le nom du produit est obligatoire.",
-        },
-        400,
-      );
-    }
-
     /*
      * L'image doit être envoyée sous forme de data URL.
      * Le frontend pourra compresser l'image avant l'envoi.
      */
     const image = cleanString(body?.image, 8_000_000);
+
+    if (!nom && !image) {
+      return response(
+        {
+          success: false,
+          error: "Renseignez le nom du produit ou ajoutez une photo.",
+        },
+        400,
+      );
+    }
+
 
     if (image && !/^data:image\/(jpeg|jpg|png|webp);base64,/i.test(image)) {
       return response(
@@ -280,6 +281,11 @@ Deno.serve(async (req) => {
 
       const data = await aiResponse.json();
 
+      const titre =
+        typeof data?.titre === "string"
+          ? data.titre.trim().slice(0, 200)
+          : "";
+
       const description =
         typeof data?.description === "string"
           ? data.description.trim()
@@ -287,7 +293,6 @@ Deno.serve(async (req) => {
 
       if (!description) {
         console.error("PRODUCT_DESCRIPTION_EMPTY");
-
         return response(
           {
             success: false,
@@ -297,8 +302,20 @@ Deno.serve(async (req) => {
         );
       }
 
+      if (image && !titre) {
+        console.error("PRODUCT_TITLE_EMPTY");
+        return response(
+          {
+            success: false,
+            error: "L’IA n’a pas retourné de titre exploitable pour la photo.",
+          },
+          502,
+        );
+      }
+
       return response({
         success: true,
+        titre: titre || nom,
         description,
       });
     } finally {
