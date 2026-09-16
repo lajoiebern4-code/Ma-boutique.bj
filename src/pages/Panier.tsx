@@ -124,6 +124,7 @@ export default function Panier() {
           <section className="space-y-4">
             {items.map((item) => {
               const prixLigne = item.produit.prix * item.quantite
+              const cleLigne = `${item.produit.id}::${item.produit.variante_id || ''}`
 
               return (
                 <article
@@ -171,7 +172,7 @@ export default function Panier() {
 
                           <button
                             type="button"
-                            onClick={() => supprimer(item.produit.id)}
+                            onClick={() => supprimer(cleLigne)}
                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
                             aria-label={`Supprimer ${item.produit.nom}`}
                           >
@@ -188,7 +189,7 @@ export default function Panier() {
                             <div className="flex h-10 items-center overflow-hidden rounded-xl border border-slate-200 bg-[#F7F9FC]">
                               <button
                                 type="button"
-                                onClick={() => diminuer(item.produit.id)}
+                                onClick={() => diminuer(cleLigne)}
                                 className="flex h-10 w-10 items-center justify-center text-[#0B1E3D] transition hover:bg-white hover:text-[#0052CC]"
                                 aria-label="Diminuer"
                               >
@@ -201,7 +202,7 @@ export default function Panier() {
 
                               <button
                                 type="button"
-                                onClick={() => augmenter(item.produit.id)}
+                                onClick={() => augmenter(cleLigne)}
                                 className="flex h-10 w-10 items-center justify-center text-[#0B1E3D] transition hover:bg-white hover:text-[#0052CC]"
                                 aria-label="Augmenter"
                               >

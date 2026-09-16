@@ -2,20 +2,60 @@ import { useCallback, useEffect, useState, type ChangeEvent } from 'react'
 import {
   Check,
   ImagePlus,
+  ArrowLeft,
+  ArrowRight,
   Package,
   Plus,
   RefreshCw,
   Save,
   Search,
+  Trash2,
   X,
 } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+
+import type { ProduitPhotoAdmin, ProduitVariante } from '../../services/supabase'
+
 import {
   ajouterProduit,
+  ajouterPhotoProduitAdmin,
+  definirPhotoPrincipaleAdmin,
   modifierProduit,
-  modifierPromotionAdmin,
+  recupererPhotosProduit,
   recupererProduitsAdmin,
+  reordonnerPhotosProduitAdmin,
+  supprimerPhotoProduit,
+  supprimerPhotoProduitAdmin,
+  supprimerProduit,
   televerserPhotoProduit,
+  ajouterVarianteProduit,
+  modifierVarianteProduit,
+  recupererVariantesProduit,
+  supprimerVarianteProduit,
+  reordonnerVariantesProduit,
 } from '../../services/supabase'
+
+const COULEURS_PRODUIT = [
+  'Noir',
+  'Blanc',
+  'Rouge',
+  'Bleu',
+  'Bleu ciel',
+  'Bleu marine',
+  'Vert',
+  'Vert foncé',
+  'Jaune',
+  'Orange',
+  'Rose',
+  'Violet',
+  'Marron',
+  'Beige',
+  'Gris',
+  'Doré',
+  'Argenté',
+  'Bordeaux',
+  'Camel',
+] as const
 
 type Produit = {
   id: string
@@ -34,6 +74,8 @@ type Produit = {
   promo?: number
   nouveau?: boolean
   date_ajout?: string | null
+  created_at?: string | null
+  produit_source_id?: string | null
   promo_fin?: string | null
 }
 
@@ -222,14 +264,24 @@ export default function Produits() {
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
   const [sauvegardeId, setSauvegardeId] = useState<string | null>(null)
+  const [suppressionId, setSuppressionId] = useState<string | null>(null)
+  const [produitASupprimer, setProduitASupprimer] = useState<Produit | null>(null)
 
   const [ajoutOuvert, setAjoutOuvert] = useState(false)
   const [produitModificationId, setProduitModificationId] = useState<string | null>(null)
   const [creationEnCours, setCreationEnCours] = useState(false)
+  const [generationDescriptionEnCours, setGenerationDescriptionEnCours] = useState(false)
   const [formulaire, setFormulaire] =
     useState<FormulaireProduit>(formulaireInitial)
-  const [photoFichier, setPhotoFichier] = useState<File | null>(null)
-  const [photoApercu, setPhotoApercu] = useState('')
+  const [photosFichiers, setPhotosFichiers] = useState<File[]>([])
+  const [photosApercus, setPhotosApercus] = useState<string[]>([])
+  const [photosProduit, setPhotosProduit] = useState<ProduitPhotoAdmin[]>([])
+
+  const [variantesProduit, setVariantesProduit] = useState<ProduitVariante[]>([])
+  const [varianteNom, setVarianteNom] = useState('')
+  const [varianteStock, setVarianteStock] = useState('0')
+  const [varianteChargement, setVarianteChargement] = useState(false)
+  const [varianteSauvegardeId, setVarianteSauvegardeId] = useState<string | null>(null)
 
   const chargerProduits = useCallback(async () => {
     setChargement(true)
@@ -265,19 +317,235 @@ export default function Produits() {
     setMessage('')
   }
 
+  async function ajouterVariante() {
+    if (!produitModificationId) return
+
+    const nom = varianteNom.trim()
+    const stock = Math.max(
+      0,
+      Math.floor(Number(varianteStock) || 0),
+    )
+
+    if (!nom) {
+      setErreur('Le nom de la variante est obligatoire.')
+      return
+    }
+
+    setVarianteChargement(true)
+    setErreur('')
+    setMessage('')
+
+    try {
+      const resultat = await ajouterVarianteProduit(
+        produitModificationId,
+        nom,
+        stock,
+      )
+
+      if (!resultat.success) {
+        throw new Error(
+          resultat.error || 'Impossible d’ajouter la variante.',
+        )
+      }
+
+      const recharge = await recupererVariantesProduit(
+        produitModificationId,
+      )
+
+      if (!recharge.success) {
+        throw new Error(
+          recharge.error || 'Impossible de recharger les variantes.',
+        )
+      }
+
+      setVariantesProduit(recharge.data)
+      setVarianteNom('')
+      setVarianteStock('0')
+      setMessage(`Variante « ${nom} » ajoutée.`)
+    } catch (err) {
+      setErreur(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors de l’ajout de la variante.',
+      )
+    } finally {
+      setVarianteChargement(false)
+    }
+  }
+
+  async function sauvegarderVariante(
+    variante: ProduitVariante,
+  ) {
+    const nom = variante.nom.trim()
+    const stock = Math.max(
+      0,
+      Math.floor(Number(variante.stock) || 0),
+    )
+
+    if (!nom) {
+      setErreur('Le nom de la variante est obligatoire.')
+      return
+    }
+
+    setVarianteSauvegardeId(variante.id)
+    setErreur('')
+    setMessage('')
+
+    try {
+      const resultat = await modifierVarianteProduit(
+        variante.id,
+        nom,
+        stock,
+        variante.position,
+      )
+
+      if (!resultat.success) {
+        throw new Error(
+          resultat.error || 'Impossible de modifier la variante.',
+        )
+      }
+
+      const recharge = await recupererVariantesProduit(
+        variante.produit_id,
+      )
+
+      if (!recharge.success) {
+        throw new Error(
+          recharge.error || 'Impossible de recharger les variantes.',
+        )
+      }
+
+      setVariantesProduit(recharge.data)
+      setMessage(`Variante « ${nom} » mise à jour.`)
+    } catch (err) {
+      setErreur(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors de la modification de la variante.',
+      )
+    } finally {
+      setVarianteSauvegardeId(null)
+    }
+  }
+
+  async function supprimerVarianteAdmin(
+    variante: ProduitVariante,
+  ) {
+    if (varianteSauvegardeId) return
+
+    setVarianteSauvegardeId(variante.id)
+    setErreur('')
+    setMessage('')
+
+    try {
+      const resultat = await supprimerVarianteProduit(
+        variante.id,
+      )
+
+      if (!resultat.success) {
+        throw new Error(
+          resultat.error || 'Impossible de supprimer la variante.',
+        )
+      }
+
+      setVariantesProduit((actuelles) =>
+        actuelles.filter((item) => item.id !== variante.id),
+      )
+      setMessage(`Variante « ${variante.nom} » supprimée.`)
+    } catch (err) {
+      setErreur(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors de la suppression de la variante.',
+      )
+    } finally {
+      setVarianteSauvegardeId(null)
+    }
+  }
+
+  async function deplacerVariante(
+    index: number,
+    direction: -1 | 1,
+  ) {
+    if (!produitModificationId || varianteSauvegardeId) return
+
+    const cible = index + direction
+
+    if (
+      cible < 0 ||
+      cible >= variantesProduit.length
+    ) {
+      return
+    }
+
+    const nouvelOrdre = variantesProduit.map(
+      (variante) => variante.id,
+    )
+
+    ;[
+      nouvelOrdre[index],
+      nouvelOrdre[cible],
+    ] = [
+      nouvelOrdre[cible],
+      nouvelOrdre[index],
+    ]
+
+    setVarianteSauvegardeId(variantesProduit[index].id)
+    setErreur('')
+    setMessage('')
+
+    try {
+      const resultat = await reordonnerVariantesProduit(
+        produitModificationId,
+        nouvelOrdre,
+      )
+
+      if (!resultat.success) {
+        throw new Error(
+          resultat.error || 'Impossible de déplacer la variante.',
+        )
+      }
+
+      const recharge = await recupererVariantesProduit(
+        produitModificationId,
+      )
+
+      if (!recharge.success) {
+        throw new Error(
+          recharge.error || 'Impossible de recharger les variantes.',
+        )
+      }
+
+      setVariantesProduit(recharge.data)
+      setMessage('Variante déplacée.')
+    } catch (err) {
+      setErreur(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors du déplacement de la variante.',
+      )
+    } finally {
+      setVarianteSauvegardeId(null)
+    }
+  }
+
   function ouvrirAjout() {
     setFormulaire({
       ...formulaireInitial,
       dateAjout: new Date().toISOString().slice(0, 10),
     })
-    setPhotoFichier(null)
-    setPhotoApercu('')
+    setPhotosFichiers([])
+    setPhotosApercus([])
+    setPhotosProduit([])
+    setVariantesProduit([])
+    setVarianteNom('')
+    setVarianteStock('0')
     setErreur('')
     setMessage('')
     setAjoutOuvert(true)
   }
 
-  function ouvrirModification(produit: Produit) {
+  async function ouvrirModification(produit: Produit) {
     setProduitModificationId(produit.id)
 
     setFormulaire({
@@ -305,25 +573,56 @@ export default function Produits() {
       volumeCbm: String(produit.volume_cbm ?? ''),
     })
 
-    setPhotoFichier(null)
-    setPhotoApercu(produit.image_url || '')
+    setPhotosFichiers([])
+    setPhotosProduit([])
+    setVariantesProduit([])
+    setVarianteNom('')
+    setVarianteStock('0')
+    setPhotosApercus(
+      produit.image_url ? [produit.image_url] : [],
+    )
     setErreur('')
     setMessage('')
     setAjoutOuvert(true)
+
+    const resultat = await recupererPhotosProduit(produit.id)
+
+    if (resultat.success && resultat.data.length > 0) {
+      setPhotosProduit(resultat.data)
+      setPhotosApercus(
+        resultat.data.map((photo) => photo.url),
+      )
+    }
+
+    const variantes = await recupererVariantesProduit(produit.id)
+
+    if (variantes.success) {
+      setVariantesProduit(variantes.data)
+    } else {
+      setErreur(
+        variantes.error ||
+          'Impossible de récupérer les variantes du produit.',
+      )
+    }
   }
 
   function fermerAjout() {
     if (creationEnCours) return
 
     setAjoutOuvert(false)
-    setPhotoFichier(null)
-    setPhotoApercu('')
+    setProduitModificationId(null)
+    setPhotosFichiers([])
+    setPhotosApercus([])
+    setPhotosProduit([])
+    setVariantesProduit([])
+    setVarianteNom('')
+    setVarianteStock('0')
   }
 
   function choisirPhoto(event: ChangeEvent<HTMLInputElement>) {
-    const fichier = event.target.files?.[0]
+    const fichiers = Array.from(event.target.files || [])
 
-    if (!fichier) return
+    if (!fichiers.length) return
 
     const typesAutorises = [
       'image/jpeg',
@@ -331,21 +630,151 @@ export default function Produits() {
       'image/webp',
     ]
 
-    if (!typesAutorises.includes(fichier.type)) {
-      setErreur('Format accepté : JPG, PNG ou WEBP.')
-      event.target.value = ''
-      return
+    for (const fichier of fichiers) {
+      if (!typesAutorises.includes(fichier.type)) {
+        setErreur('Format accepté : JPG, PNG ou WEBP.')
+        event.target.value = ''
+        return
+      }
+
+      if (fichier.size > 5 * 1024 * 1024) {
+        setErreur(
+          `La photo "${fichier.name}" doit faire moins de 5 Mo.`,
+        )
+        event.target.value = ''
+        return
+      }
     }
 
-    if (fichier.size > 5 * 1024 * 1024) {
-      setErreur('La photo doit faire moins de 5 Mo.')
-      event.target.value = ''
-      return
-    }
+    setPhotosFichiers((actuels) => [
+      ...actuels,
+      ...fichiers,
+    ])
 
-    setPhotoFichier(fichier)
-    setPhotoApercu(URL.createObjectURL(fichier))
+    setPhotosApercus((actuels) => [
+      ...actuels,
+      ...fichiers.map((fichier) =>
+        URL.createObjectURL(fichier),
+      ),
+    ])
+
     setErreur('')
+    event.target.value = ''
+  }
+
+  function fichierVersDataUrl(fichier: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const lecteur = new FileReader()
+
+      lecteur.onload = () => {
+        if (typeof lecteur.result === 'string') {
+          resolve(lecteur.result)
+        } else {
+          reject(new Error('Impossible de lire la photo sélectionnée.'))
+        }
+      }
+
+      lecteur.onerror = () => {
+        reject(new Error('Impossible de lire la photo sélectionnée.'))
+      }
+
+      lecteur.readAsDataURL(fichier)
+    })
+  }
+
+  async function genererDescription() {
+    setErreur('')
+    setMessage('')
+
+    const nom = formulaire.nom.trim()
+
+    if (!nom && !photosFichiers.length) {
+      setErreur('Renseignez le nom du produit ou ajoutez une photo.')
+      return
+    }
+
+    setGenerationDescriptionEnCours(true)
+
+    try {
+      let image: string | undefined
+
+      if (photosFichiers[0]) {
+        image = await fichierVersDataUrl(photosFichiers[0])
+      }
+
+      const produit = {
+        nom,
+        categorie: formulaire.categorie.trim(),
+        sousCategorie: formulaire.sousCategorie.trim(),
+        genre: formulaire.genre.trim(),
+        prix: formulaire.prix.trim(),
+        disponibilite: formulaire.disponibilite,
+        stock: formulaire.stock.trim(),
+        caracteristiques: [
+          formulaire.poidsKg.trim()
+            ? `Poids : ${formulaire.poidsKg.trim()} kg`
+            : '',
+          formulaire.volumeCbm.trim()
+            ? `Volume : ${formulaire.volumeCbm.trim()} CBM`
+            : '',
+        ]
+          .filter(Boolean)
+          .join(' ; '),
+        description: formulaire.description.trim(),
+      }
+
+      const { data, error } = await supabase.functions.invoke(
+        'generer-description-produit',
+        {
+          body: {
+            produit,
+            ...(image ? { image } : {}),
+          },
+        },
+      )
+
+      if (error) {
+        let message = error.message || 'Le service de génération est indisponible.'
+
+        try {
+          const details = await error.context?.json?.()
+
+          if (details?.error) {
+            message = details.error
+          }
+        } catch {
+          // Le service peut ne pas retourner de JSON exploitable.
+        }
+
+        throw new Error(message)
+      }
+
+      if (!data?.success || !data?.description?.trim()) {
+        throw new Error(
+          data?.error || 'L’IA n’a pas retourné de description exploitable.',
+        )
+      }
+
+      setFormulaire((precedent) => ({
+        ...precedent,
+        nom: data.titre?.trim() || precedent.nom,
+        description: data.description.trim(),
+      }))
+
+      setMessage(
+        data.titre?.trim()
+          ? 'Titre et description générés avec succès.'
+          : 'Description générée avec succès.',
+      )
+    } catch (error) {
+      setErreur(
+        error instanceof Error
+          ? error.message
+          : 'Impossible de générer la description.',
+      )
+    } finally {
+      setGenerationDescriptionEnCours(false)
+    }
   }
 
   async function creerProduit() {
@@ -407,20 +836,20 @@ export default function Produits() {
     try {
       let imageUrl = formulaire.image.trim() || null
 
-      if (photoFichier) {
-        const upload = await televerserPhotoProduit(photoFichier)
+      if (photosFichiers[0]) {
+        const upload = await televerserPhotoProduit(photosFichiers[0])
 
         if (!upload.success) {
           throw new Error(
-            upload.error || 'Impossible de téléverser la photo.',
+            upload.error || 'Impossible de téléverser la photo principale.',
           )
         }
 
-        imageUrl = upload.data?.url || upload.url || null
+        imageUrl = upload.url || null
 
         if (!imageUrl) {
           throw new Error(
-            'La photo a été téléversée mais aucune URL publique n’a été retournée.',
+            'La photo principale a été téléversée mais aucune URL publique n’a été retournée.',
           )
         }
       }
@@ -455,11 +884,54 @@ export default function Produits() {
         )
       }
 
+      const produitId =
+        resultat.data && typeof resultat.data === 'object'
+          ? (resultat.data as { id?: string }).id
+          : undefined
+
+      if (!produitId) {
+        throw new Error(
+          'Le produit a été créé mais son identifiant est introuvable.',
+        )
+      }
+
+      if (photosFichiers.length > 0) {
+        for (let index = 0; index < photosFichiers.length; index += 1) {
+          const fichier = photosFichiers[index]
+
+          const upload =
+            index === 0
+              ? { success: true, url: imageUrl }
+              : await televerserPhotoProduit(fichier)
+
+          if (!upload.success || !upload.url) {
+            throw new Error(
+              `Impossible de téléverser la photo ${index + 1}.`,
+            )
+          }
+
+          const photo = await ajouterPhotoProduitAdmin(
+            produitId,
+            upload.url,
+            index,
+            index === 0,
+            upload.chemin,
+          )
+
+          if (!photo.success) {
+            throw new Error(
+              photo.error ||
+                `Impossible d'enregistrer la photo ${index + 1}.`,
+            )
+          }
+        }
+      }
+
       setMessage(`"${nom}" a été ajouté au catalogue.`)
       setAjoutOuvert(false)
       setFormulaire(formulaireInitial)
-      setPhotoFichier(null)
-      setPhotoApercu('')
+      setPhotosFichiers([])
+      setPhotosApercus([])
 
       await chargerProduits()
     } catch (err) {
@@ -467,6 +939,144 @@ export default function Produits() {
         err instanceof Error
           ? err.message
           : 'Erreur lors de la création du produit.',
+      )
+    } finally {
+      setCreationEnCours(false)
+    }
+  }
+
+  async function modifierProduitDepuisFormulaire() {
+    if (!produitModificationId) return
+
+    setErreur('')
+    setMessage('')
+
+    const nom = formulaire.nom.trim()
+    const description = formulaire.description.trim()
+    const prix = Number(formulaire.prix)
+
+    if (!nom) {
+      setErreur('Le nom du produit est obligatoire.')
+      return
+    }
+
+    if (!description) {
+      setErreur('La description du produit est obligatoire.')
+      return
+    }
+
+    if (!Number.isFinite(prix) || prix <= 0) {
+      setErreur('Le prix de vente doit être supérieur à 0.')
+      return
+    }
+
+    const stock =
+      formulaire.disponibilite === 'sur_commande'
+        ? 0
+        : Math.max(
+            0,
+            Math.floor(Number(formulaire.stock) || 0),
+          )
+
+    const promo = Math.min(
+      100,
+      Math.max(0, Number(formulaire.promo) || 0),
+    )
+
+    if (promo > 0 && !formulaire.prixOriginal) {
+      setErreur(
+        'Indiquez le prix original lorsqu’une promotion est appliquée.',
+      )
+      return
+    }
+
+    setCreationEnCours(true)
+
+    try {
+      const resultat = await modifierProduit(
+        produitModificationId,
+        {
+          stock,
+          disponibilite: formulaire.disponibilite,
+          poidsKg: formulaire.poidsKg,
+          volumeCbm: formulaire.volumeCbm,
+          promo,
+          prixOriginal: formulaire.prixOriginal
+            ? Number(formulaire.prixOriginal)
+            : null,
+          promoFin: formulaire.promoFin || null,
+          description,
+        },
+      )
+
+      if (!resultat.success) {
+        throw new Error(
+          resultat.error || 'Impossible de modifier le produit.',
+        )
+      }
+
+      if (photosFichiers.length > 0) {
+        const photosExistantes = await recupererPhotosProduit(
+          produitModificationId,
+        )
+
+        if (!photosExistantes.success) {
+          throw new Error(
+            photosExistantes.error ||
+              'Impossible de récupérer les photos existantes.',
+          )
+        }
+
+        const positionDepart =
+          photosExistantes.data.length > 0
+            ? Math.max(...photosExistantes.data.map((photo) => photo.position)) + 1
+            : 0
+
+        for (
+          let index = 0;
+          index < photosFichiers.length;
+          index += 1
+        ) {
+          const fichier = photosFichiers[index]
+
+          const upload = await televerserPhotoProduit(fichier)
+
+          if (!upload.success || !upload.url) {
+            throw new Error(
+              `Impossible de téléverser la nouvelle photo ${index + 1}.`,
+            )
+          }
+
+          const photo = await ajouterPhotoProduitAdmin(
+            produitModificationId,
+            upload.url,
+            positionDepart + index,
+            false,
+            upload.chemin,
+          )
+
+          if (!photo.success) {
+            throw new Error(
+              photo.error ||
+                `Impossible d'enregistrer la nouvelle photo ${index + 1}.`,
+            )
+          }
+        }
+      }
+
+      setMessage(`"${nom}" a été mis à jour.`)
+      setAjoutOuvert(false)
+      setProduitModificationId(null)
+      setFormulaire(formulaireInitial)
+      setPhotosFichiers([])
+      setPhotosApercus([])
+      setPhotosProduit([])
+      await chargerProduits()
+    } catch (err) {
+      setErreur(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors de la modification du produit.',
       )
     } finally {
       setCreationEnCours(false)
@@ -515,11 +1125,12 @@ export default function Produits() {
     const resultat = await modifierProduit(produit.id, {
       stock,
       disponibilite,
-      poidsKg: produit.poids_kg,
-      volumeCbm: produit.volume_cbm,
+      poidsKg: produit.poids_kg ?? null,
+      volumeCbm: produit.volume_cbm ?? null,
       promo: Number(produit.promo || 0),
       prixOriginal: produit.prix_original ?? null,
       promoFin: produit.promo_fin || null,
+      description: produit.description || '',
     })
 
     if (!resultat.success) {
@@ -548,6 +1159,40 @@ export default function Produits() {
     }
 
     setSauvegardeId(null)
+  }
+
+  function supprimerProduitAdmin(produit: Produit) {
+    setMessage('')
+    setErreur('')
+    setProduitASupprimer(produit)
+  }
+
+  async function confirmerSuppressionProduit() {
+    if (!produitASupprimer) return
+
+    const produit = produitASupprimer
+    const nom = produit.nom || 'ce produit'
+
+    setSuppressionId(produit.id)
+    setMessage('')
+    setErreur('')
+
+    const resultat = await supprimerProduit(produit.id)
+
+    if (!resultat.success) {
+      setErreur(
+        resultat.error ||
+          `Impossible de supprimer ${nom}.`,
+      )
+    } else {
+      setProduits((actuels) =>
+        actuels.filter((item) => item.id !== produit.id),
+      )
+      setMessage(`« ${nom} » a été supprimé.`)
+    }
+
+    setSuppressionId(null)
+    setProduitASupprimer(null)
   }
 
   const produitsFiltres = produits.filter((produit) => {
@@ -608,15 +1253,21 @@ export default function Produits() {
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-[#0284C7]">
-                Nouveau produit
+                {produitModificationId
+                  ? 'Modification du produit'
+                  : 'Nouveau produit'}
               </p>
 
               <h2 className="mt-1 text-xl font-black text-[#0B1E3D]">
-                Ajouter un article au catalogue
+                {produitModificationId
+                  ? 'Modifier le produit'
+                  : 'Ajouter un article au catalogue'}
               </h2>
 
               <p className="mt-1 text-sm text-slate-500">
-                Tous les détails seront enregistrés avec le produit.
+                {produitModificationId
+                  ? 'Modifiez les informations et les photos de ce produit.'
+                  : 'Tous les détails seront enregistrés avec le produit.'}
               </p>
             </div>
 
@@ -664,9 +1315,23 @@ export default function Produits() {
                 </label>
 
                 <label className="sm:col-span-2">
-                  <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
-                    Description *
-                  </span>
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-xs font-black uppercase tracking-wide text-slate-500">
+                      Description *
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={genererDescription}
+                      disabled={generationDescriptionEnCours || creationEnCours}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[#163B70]/20 bg-[#163B70]/5 px-3 py-2 text-xs font-bold text-[#163B70] transition hover:bg-[#163B70]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {generationDescriptionEnCours
+                        ? '⏳ Génération...'
+                        : '✨ Générer la description'}
+                    </button>
+                  </div>
+
                   <textarea
                     value={formulaire.description}
                     onChange={(e) =>
@@ -950,13 +1615,244 @@ export default function Produits() {
                   Photo du produit
                 </p>
 
-                <label className="flex min-h-56 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white">
-                  {photoApercu ? (
-                    <img
-                      src={photoApercu}
-                      alt="Aperçu du produit"
-                      className="h-full max-h-72 w-full object-contain"
-                    />
+                <div className="min-h-56 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  {photosApercus.length > 0 ? (
+                    <div className="grid w-full grid-cols-2 gap-3 p-3 sm:grid-cols-3">
+                      {photosApercus.map((src, index) => {
+                        const photoExistante = photosProduit[index]
+
+                        return (
+                          <div
+                            key={`${src}-${index}`}
+                            className="relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+                          >
+                            <img
+                              src={src}
+                              alt={`Aperçu du produit ${index + 1}`}
+                              className="h-full w-full object-contain"
+                            />
+
+                            {photoExistante?.principale && (
+                              <span className="absolute left-2 top-2 rounded-full bg-slate-900 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+                                Principale
+                              </span>
+                            )}
+
+                            {photoExistante && (
+                              <div className="absolute inset-x-2 bottom-2 flex gap-2">
+                                <button
+                                  type="button"
+                                  disabled={index === 0}
+                                  onClick={async () => {
+                                    if (index === 0) return
+
+                                    const nouvelOrdre = photosProduit.map(
+                                      (photo) => photo.id,
+                                    )
+
+                                    ;[
+                                      nouvelOrdre[index - 1],
+                                      nouvelOrdre[index],
+                                    ] = [
+                                      nouvelOrdre[index],
+                                      nouvelOrdre[index - 1],
+                                    ]
+
+                                    const resultat =
+                                      await reordonnerPhotosProduitAdmin(
+                                        photoExistante.produit_id,
+                                        nouvelOrdre,
+                                      )
+
+                                    if (!resultat.success) {
+                                      setErreur(
+                                        resultat.error ||
+                                          'Impossible de déplacer la photo.',
+                                      )
+                                      return
+                                    }
+
+                                    const recharge =
+                                      await recupererPhotosProduit(
+                                        photoExistante.produit_id,
+                                      )
+
+                                    if (recharge.success) {
+                                      setPhotosProduit(recharge.data)
+                                      setPhotosApercus(
+                                        recharge.data.map(
+                                          (photo) => photo.url,
+                                        ),
+                                      )
+                                    }
+
+                                    setMessage('Photo déplacée.')
+                                    setErreur('')
+                                  }}
+                                  className="rounded-lg bg-white/95 px-3 py-2 text-[10px] font-black text-slate-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                                  aria-label="Déplacer la photo vers la gauche"
+                                >
+                                  <ArrowLeft size={14} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={index === photosProduit.length - 1}
+                                  onClick={async () => {
+                                    if (index === photosProduit.length - 1) return
+
+                                    const nouvelOrdre = photosProduit.map(
+                                      (photo) => photo.id,
+                                    )
+
+                                    ;[
+                                      nouvelOrdre[index],
+                                      nouvelOrdre[index + 1],
+                                    ] = [
+                                      nouvelOrdre[index + 1],
+                                      nouvelOrdre[index],
+                                    ]
+
+                                    const resultat =
+                                      await reordonnerPhotosProduitAdmin(
+                                        photoExistante.produit_id,
+                                        nouvelOrdre,
+                                      )
+
+                                    if (!resultat.success) {
+                                      setErreur(
+                                        resultat.error ||
+                                          'Impossible de déplacer la photo.',
+                                      )
+                                      return
+                                    }
+
+                                    const recharge =
+                                      await recupererPhotosProduit(
+                                        photoExistante.produit_id,
+                                      )
+
+                                    if (recharge.success) {
+                                      setPhotosProduit(recharge.data)
+                                      setPhotosApercus(
+                                        recharge.data.map(
+                                          (photo) => photo.url,
+                                        ),
+                                      )
+                                    }
+
+                                    setMessage('Photo déplacée.')
+                                    setErreur('')
+                                  }}
+                                  className="rounded-lg bg-white/95 px-3 py-2 text-[10px] font-black text-slate-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                                  aria-label="Déplacer la photo vers la droite"
+                                >
+                                  <ArrowRight size={14} />
+                                </button>
+
+                                {!photoExistante.principale && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      const resultat =
+                                        await definirPhotoPrincipaleAdmin(
+                                          photoExistante.produit_id,
+                                          photoExistante.id,
+                                        )
+
+                                      if (!resultat.success) {
+                                        setErreur(
+                                          resultat.error ||
+                                            'Impossible de définir la photo principale.',
+                                        )
+                                        return
+                                      }
+
+                                      const recharge =
+                                        await recupererPhotosProduit(
+                                          photoExistante.produit_id,
+                                        )
+
+                                      if (recharge.success) {
+                                        setPhotosProduit(recharge.data)
+                                        setPhotosApercus(
+                                          recharge.data.map(
+                                            (photo) => photo.url,
+                                          ),
+                                        )
+                                      }
+
+                                      setMessage(
+                                        'Photo principale mise à jour.',
+                                      )
+                                      setErreur('')
+                                    }}
+                                    className="flex-1 rounded-lg bg-white/95 px-2 py-2 text-[10px] font-black text-slate-700 shadow-sm"
+                                  >
+                                    Principale
+                                  </button>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const resultat =
+                                      await supprimerPhotoProduitAdmin(
+                                        photoExistante.produit_id,
+                                        photoExistante.id,
+                                      )
+
+                                    if (!resultat.success) {
+                                      setErreur(
+                                        resultat.error ||
+                                          'Impossible de supprimer la photo.',
+                                      )
+                                      return
+                                    }
+
+                                    if (resultat.data?.chemin_storage) {
+                                      const suppressionStorage =
+                                        await supprimerPhotoProduit(
+                                          resultat.data.chemin_storage,
+                                        )
+
+                                      if (!suppressionStorage.success) {
+                                        setErreur(
+                                          `Photo supprimée de la base, mais impossible de supprimer le fichier Storage : ${
+                                            suppressionStorage.error ||
+                                            'erreur inconnue'
+                                          }`,
+                                        )
+                                      }
+                                    }
+
+                                    const recharge =
+                                      await recupererPhotosProduit(
+                                        photoExistante.produit_id,
+                                      )
+
+                                    if (recharge.success) {
+                                      setPhotosProduit(recharge.data)
+                                      setPhotosApercus(
+                                        recharge.data.map(
+                                          (photo) => photo.url,
+                                        ),
+                                      )
+                                    }
+
+                                    setMessage('Photo supprimée.')
+                                    setErreur('')
+                                  }}
+                                  className="rounded-lg bg-red-600 px-3 py-2 text-[10px] font-black text-white shadow-sm"
+                                >
+                                  Supprimer
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
                   ) : (
                     <div className="text-center">
                       <ImagePlus
@@ -964,20 +1860,30 @@ export default function Produits() {
                         className="mx-auto text-slate-300"
                       />
                       <p className="mt-3 text-sm font-bold text-slate-600">
-                        Choisir une photo
+                        Choisir une ou plusieurs photos
                       </p>
                       <p className="mt-1 text-xs text-slate-400">
-                        JPG, PNG ou WEBP · 5 Mo maximum
+                        JPG, PNG ou WEBP · 5 Mo maximum par photo
                       </p>
                     </div>
                   )}
 
                   <input
+                    id="photos-produit-input"
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
+                    multiple
                     onChange={choisirPhoto}
                     className="hidden"
                   />
+                </div>
+
+                <label
+                  htmlFor="photos-produit-input"
+                  className="mt-3 flex cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700 shadow-sm hover:bg-slate-50"
+                >
+                  <ImagePlus size={16} className="mr-2" />
+                  Ajouter des photos
                 </label>
 
                 <div className="mt-4">
@@ -1002,6 +1908,259 @@ export default function Produits() {
             </div>
           </div>
 
+          {produitModificationId && (
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+              <div>
+                <p className="text-xs font-black uppercase tracking-wide text-[#163B70]">
+                  Variantes / couleurs
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Gérez les couleurs ou autres variantes et leur stock individuel.
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_140px_auto]">
+                <select
+                  value={varianteNom}
+                  onChange={(e) => setVarianteNom(e.target.value)}
+                  disabled={varianteChargement}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70] focus:ring-4 focus:ring-[#163B70]/10 disabled:opacity-60"
+                >
+                  <option value="">Sélectionner une couleur</option>
+                  {COULEURS_PRODUIT.filter(
+                    (couleur) =>
+                      !variantesProduit.some(
+                        (variante) =>
+                          variante.nom.trim().toLowerCase() ===
+                          couleur.toLowerCase(),
+                      ),
+                  ).map((couleur) => (
+                    <option key={couleur} value={couleur}>
+                      {couleur}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={varianteStock}
+                  onChange={(e) => setVarianteStock(e.target.value)}
+                  disabled={varianteChargement}
+                  placeholder="Stock"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70] focus:ring-4 focus:ring-[#163B70]/10 disabled:opacity-60"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => void ajouterVariante()}
+                  disabled={
+                    varianteChargement ||
+                    !varianteNom.trim()
+                  }
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#163B70] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0B1E3D] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {varianteChargement ? (
+                    <>
+                      <RefreshCw
+                        size={16}
+                        className="animate-spin"
+                      />
+                      Ajout...
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={16} />
+                      Ajouter
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {variantesProduit.length === 0 ? (
+                <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-center">
+                  <p className="text-sm font-bold text-slate-600">
+                    Aucune variante pour ce produit.
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Ajoutez par exemple Rouge, Noir, Bleu...
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {variantesProduit.map((variante, index) => (
+                    <div
+                      key={variante.id}
+                      className="rounded-xl border border-slate-200 bg-white p-3"
+                    >
+                      <div className="grid gap-3 sm:grid-cols-[1fr_120px_auto] sm:items-end">
+                        <label>
+                          <span className="mb-1 block text-[10px] font-black uppercase tracking-wide text-slate-400">
+                            Nom
+                          </span>
+                          <select
+                            value={variante.nom}
+                            onChange={(e) =>
+                              setVariantesProduit((actuelles) =>
+                                actuelles.map((item) =>
+                                  item.id === variante.id
+                                    ? {
+                                        ...item,
+                                        nom: e.target.value,
+                                      }
+                                    : item,
+                                ),
+                              )
+                            }
+                            disabled={
+                              varianteSauvegardeId ===
+                              variante.id
+                            }
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                          >
+                            {COULEURS_PRODUIT
+                              .filter(
+                                (couleur) =>
+                                  couleur.toLowerCase() ===
+                                    variante.nom.trim().toLowerCase() ||
+                                  !variantesProduit.some(
+                                    (autre) =>
+                                      autre.id !== variante.id &&
+                                      autre.nom.trim().toLowerCase() ===
+                                        couleur.toLowerCase(),
+                                  ),
+                              )
+                              .map((couleur) => (
+                                <option key={couleur} value={couleur}>
+                                  {couleur}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+
+                        <label>
+                          <span className="mb-1 block text-[10px] font-black uppercase tracking-wide text-slate-400">
+                            Stock
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={variante.stock}
+                            onChange={(e) =>
+                              setVariantesProduit((actuelles) =>
+                                actuelles.map((item) =>
+                                  item.id === variante.id
+                                    ? {
+                                        ...item,
+                                        stock: Math.max(
+                                          0,
+                                          Math.floor(
+                                            Number(
+                                              e.target.value,
+                                            ) || 0,
+                                          ),
+                                        ),
+                                      }
+                                    : item,
+                                ),
+                              )
+                            }
+                            disabled={
+                              varianteSauvegardeId ===
+                              variante.id
+                            }
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                          />
+                        </label>
+
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void deplacerVariante(
+                                index,
+                                -1,
+                              )
+                            }
+                            disabled={
+                              index === 0 ||
+                              varianteSauvegardeId !== null
+                            }
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                            aria-label="Monter la variante"
+                          >
+                            <ArrowLeft size={15} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void deplacerVariante(
+                                index,
+                                1,
+                              )
+                            }
+                            disabled={
+                              index ===
+                                variantesProduit.length - 1 ||
+                              varianteSauvegardeId !== null
+                            }
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                            aria-label="Descendre la variante"
+                          >
+                            <ArrowRight size={15} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void sauvegarderVariante(
+                                variante,
+                              )
+                            }
+                            disabled={
+                              varianteSauvegardeId !== null
+                            }
+                            className="rounded-lg bg-[#0284C7] px-3 py-2.5 text-xs font-black text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                            aria-label={`Enregistrer ${variante.nom}`}
+                          >
+                            {varianteSauvegardeId ===
+                            variante.id ? (
+                              <RefreshCw
+                                size={15}
+                                className="animate-spin"
+                              />
+                            ) : (
+                              <Save size={15} />
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void supprimerVarianteAdmin(
+                                variante,
+                              )
+                            }
+                            disabled={
+                              varianteSauvegardeId !== null
+                            }
+                            className="rounded-lg bg-red-600 px-3 py-2.5 text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                            aria-label={`Supprimer ${variante.nom}`}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {erreur && (
             <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
               {erreur}
@@ -1020,7 +2179,14 @@ export default function Produits() {
 
             <button
               type="button"
-              onClick={creerProduit}
+              onClick={() => {
+                if (produitModificationId) {
+                  void modifierProduitDepuisFormulaire()
+                  return
+                }
+
+                void creerProduit()
+              }}
               disabled={creationEnCours}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-6 py-3 text-sm font-bold text-white hover:bg-[#0369A1] disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -1154,13 +2320,35 @@ export default function Produits() {
                           </p>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => ouvrirModification(produit)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-extrabold text-[#0B1E3D] transition hover:border-[#0284C7] hover:text-[#0284C7]"
-                        >
-                          Modifier
-                        </button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => ouvrirModification(produit)}
+                            disabled={suppressionId === produit.id}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-extrabold text-[#0B1E3D] transition hover:border-[#0284C7] hover:text-[#0284C7] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Modifier
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => supprimerProduitAdmin(produit)}
+                            disabled={suppressionId === produit.id}
+                            className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {suppressionId === produit.id ? (
+                              <RefreshCw
+                                size={15}
+                                className="animate-spin"
+                              />
+                            ) : (
+                              <Trash2 size={15} />
+                            )}
+                            {suppressionId === produit.id
+                              ? 'Suppression...'
+                              : 'Supprimer'}
+                          </button>
+                        </div>
 
                         <span
                           className={`inline-flex w-fit rounded-full px-3 py-1.5 text-xs font-extrabold ${
@@ -1438,6 +2626,86 @@ export default function Produits() {
           </div>
         )}
       </div>
+
+      {produitASupprimer && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="suppression-produit-titre"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && suppressionId !== produitASupprimer.id) {
+              setProduitASupprimer(null)
+            }
+          }}
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
+            <div className="p-6 sm:p-7">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                <Trash2 size={26} />
+              </div>
+
+              <div className="mt-5 text-center">
+                <h2
+                  id="suppression-produit-titre"
+                  className="text-xl font-black text-[#0B1E3D]"
+                >
+                  Supprimer l’article ?
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  Voulez-vous vraiment supprimer définitivement
+                  {' '}
+                  <span className="font-extrabold text-[#0B1E3D]">
+                    « {produitASupprimer.nom || 'ce produit'} »
+                  </span>
+                  {' '}?
+                </p>
+
+                <div className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-left">
+                  <p className="text-xs font-bold leading-5 text-red-700">
+                    Cette action est définitive. Le produit sera retiré de la
+                    liste des articles.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 p-5 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setProduitASupprimer(null)}
+                disabled={suppressionId === produitASupprimer.id}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-[#0B1E3D] transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Annuler
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmerSuppressionProduit}
+                disabled={suppressionId === produitASupprimer.id}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {suppressionId === produitASupprimer.id ? (
+                  <>
+                    <RefreshCw
+                      size={16}
+                      className="animate-spin"
+                    />
+                    Suppression...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    Supprimer définitivement
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

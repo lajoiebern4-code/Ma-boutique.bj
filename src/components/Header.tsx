@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import {
+  MessageCircle,
   Menu,
   ShoppingBag,
   UserRound,
@@ -21,7 +22,7 @@ const navItems = [
 export default function Header() {
   const [menuOuvert, setMenuOuvert] = useState(false)
   const { nombreArticles } = useCart()
-  const { user } = useAuth()
+  const { user, estAdmin } = useAuth()
 
   const fermerMenu = () => setMenuOuvert(false)
 
@@ -68,6 +69,14 @@ export default function Header() {
 
           <div className="flex items-center gap-2">
             <Link
+              to="/assistance"
+              className="hidden h-10 items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF]"
+            >
+              <MessageCircle size={17} />
+              Assistance
+            </Link>
+
+            <Link
               to="/suivi"
               className="hidden h-10 items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF] lg:inline-flex"
             >
@@ -76,11 +85,11 @@ export default function Header() {
             </Link>
 
             <Link
-              to={user ? '/compte' : '/connexion'}
+              to={user && !estAdmin ? '/compte' : '/connexion'}
               className="hidden h-10 items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF] sm:inline-flex"
             >
               <UserRound size={17} />
-              {user ? 'Compte' : 'Connexion'}
+              {user && !estAdmin ? 'Compte' : 'Connexion'}
             </Link>
 
             <Link
@@ -143,13 +152,22 @@ export default function Header() {
                 </NavLink>
               ))}
               <NavLink
-                to={user ? '/compte' : '/connexion'}
+                to={user && !estAdmin ? '/compte' : '/connexion'}
                 onClick={fermerMenu}
                 className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433]"
               >
-                <span>{user ? 'Mon compte' : 'Se connecter'}</span>
+                <span>{user && !estAdmin ? 'Mon compte' : 'Se connecter'}</span>
                 <UserRound size={17} />
               </NavLink>
+              <NavLink
+                to="/assistance"
+                onClick={fermerMenu}
+                className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-orange-200 bg-orange-50 px-4 text-sm font-bold text-orange-700 transition hover:bg-orange-100"
+              >
+                <span>Contacter l'assistance</span>
+                <MessageCircle size={17} />
+              </NavLink>
+
               <NavLink
                 to="/suivi"
                 onClick={fermerMenu}

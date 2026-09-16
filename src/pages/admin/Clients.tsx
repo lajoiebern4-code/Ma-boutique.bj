@@ -196,7 +196,9 @@ export default function Clients() {
           email,
           commandes: [commande],
           total: totalCommande,
-          derniereCommande: commande.created_at,
+          ...(commande.created_at
+            ? { derniereCommande: commande.created_at }
+            : {}),
         })
         continue
       }

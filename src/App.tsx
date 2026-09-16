@@ -54,6 +54,7 @@ const Livraison = lazy(() => import('./pages/admin/Livraison'))
 const Clients = lazy(() => import('./pages/admin/Clients'))
 const Avis = lazy(() => import('./pages/admin/Avis'))
 const Factures = lazy(() => import('./pages/admin/Factures'))
+const Paiements = lazy(() => import('./pages/admin/Paiements'))
 const Notifications = lazy(() => import('./pages/admin/Notifications'))
 const Annonces = lazy(() => import('./pages/admin/Annonces'))
 const Parametres = lazy(() => import('./pages/admin/Parametres'))
@@ -154,6 +155,7 @@ function App() {
               <Route path="avis" element={<Avis />} />
               <Route path="assistance" element={<AssistanceAdmin />} />
               <Route path="factures" element={<Factures />} />
+              <Route path="paiements" element={<Paiements />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="annonces" element={<Annonces />} />
               <Route path="parametres" element={<Parametres />} />

@@ -31,6 +31,54 @@ function formatPrix(prix: number) {
   return `${Number(prix || 0).toLocaleString('fr-FR')} FCFA`
 }
 
+function calculerTempsRestant(
+  dateCible: string | null,
+  maintenant = Date.now(),
+) {
+  if (!dateCible) return 0
+
+  const cible = new Date(dateCible).getTime()
+
+  if (!Number.isFinite(cible)) return 0
+
+  return Math.max(0, cible - maintenant)
+}
+
+function formaterCompteRebours(duree: number) {
+  const totalSecondes = Math.max(0, Math.floor(duree / 1000))
+  const jours = Math.floor(totalSecondes / 86400)
+  const heures = Math.floor((totalSecondes % 86400) / 3600)
+  const minutes = Math.floor((totalSecondes % 3600) / 60)
+  const secondes = totalSecondes % 60
+
+  return { jours, heures, minutes, secondes }
+}
+
+function obtenirEtatPromotion(
+  produit: Produit,
+  maintenant = Date.now(),
+) {
+  if (
+    produit.promo <= 0 ||
+    !produit.promo_debut ||
+    !produit.promo_fin
+  ) {
+    return 'aucune' as const
+  }
+
+  const debut = new Date(produit.promo_debut).getTime()
+  const fin = new Date(produit.promo_fin).getTime()
+
+  if (!Number.isFinite(debut) || !Number.isFinite(fin)) {
+    return 'aucune' as const
+  }
+
+  if (maintenant < debut) return 'programmee' as const
+  if (maintenant < fin) return 'active' as const
+
+  return 'expiree' as const
+}
+
 function convertirProduitPanier(
   produit: Produit,
   surCommande: boolean,
@@ -84,6 +132,17 @@ function CarteProduit({
 }) {
   const navigate = useNavigate()
   const [favori, setFavori] = useState(false)
+  const [maintenant, setMaintenant] = useState(Date.now())
+
+  useEffect(() => {
+    const intervalle = window.setInterval(() => {
+      setMaintenant(Date.now())
+    }, 1000)
+
+    return () => window.clearInterval(intervalle)
+  }, [])
+
+  const etatPromotion = obtenirEtatPromotion(produit, maintenant)
 
   const enStock = produit.stock > 0
   const surCommande =
@@ -141,6 +200,62 @@ function CarteProduit({
             </div>
           )}
 
+          {etatPromotion === 'active' && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[2] flex justify-center">
+              {(() => {
+                const compte = formaterCompteRebours(
+                  calculerTempsRestant(produit.promo_fin, maintenant),
+                )
+                return (
+                  <div className="flex items-center gap-1 text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)]">
+                    {compte.jours > 0 && (
+                      <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                        {String(compte.jours).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">J</small>
+                      </span>
+                    )}
+                    <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                      {String(compte.heures).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">H</small>
+                    </span>
+                    <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                      {String(compte.minutes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">M</small>
+                    </span>
+                    <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                      {String(compte.secondes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">S</small>
+                    </span>
+                  </div>
+                )
+              })()}
+            </div>
+          )}
+
+          {etatPromotion === 'programmee' && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[2] flex justify-center">
+              {(() => {
+                const compte = formaterCompteRebours(
+                  calculerTempsRestant(produit.promo_debut, maintenant),
+                )
+                return (
+                  <div className="flex items-center gap-1 text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)]">
+                    {compte.jours > 0 && (
+                      <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                        {String(compte.jours).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">J</small>
+                      </span>
+                    )}
+                    <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                      {String(compte.heures).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">H</small>
+                    </span>
+                    <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                      {String(compte.minutes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">M</small>
+                    </span>
+                    <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                      {String(compte.secondes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">S</small>
+                    </span>
+                  </div>
+                )
+              })()}
+            </div>
+          )}
+
           <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
             <div className="flex flex-wrap gap-1.5">
               {produit.nouveau && (
@@ -150,7 +265,7 @@ function CarteProduit({
                 </span>
               )}
 
-              {produit.promo > 0 && (
+              {etatPromotion === 'active' && (
                 <span className="rounded-full bg-[#FF7A1A] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
                   -{produit.promo}%
                 </span>
@@ -182,7 +297,7 @@ function CarteProduit({
                 {formatPrix(produit.prix)}
               </p>
 
-              {produit.promo > 0 && (
+              {etatPromotion === 'active' && (
                 <p className="mt-0.5 text-[11px] font-semibold text-[#94A3B8] line-through">
                   Prix habituel
                 </p>
@@ -191,30 +306,30 @@ function CarteProduit({
 
             {enStock && (
               <span className="text-[10px] font-bold text-[#94A3B8]">
-                {produit.stock} disponible{produit.stock > 1 ? 's' : ''}
+                Disponible en stock
               </span>
             )}
           </div>
 
-          <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+          <div className="mt-4 grid grid-cols-[1fr_1.12fr] gap-2">
             <button
               type="button"
               onClick={ajouterAuPanier}
               disabled={indisponible}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0052CC] px-3 text-xs font-black text-white transition-all hover:bg-[#003D99] hover:shadow-lg hover:shadow-[#0052CC]/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E8EDF3] disabled:text-[#94A3B8]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E2E5E9] bg-[#FFFEFC] px-3 text-xs font-bold text-[#171717] shadow-none transition-all duration-150 hover:border-[#D5D9DE] hover:bg-white active:scale-[0.99] disabled:cursor-not-allowed disabled:border-[#E5E7EB] disabled:bg-[#F3F4F6] disabled:text-[#9CA3AF]"
             >
-              <ShoppingCart size={16} />
-              Ajouter
+              <ShoppingCart size={17} aria-hidden="true" />
             </button>
 
             {!indisponible && (
               <button
                 type="button"
                 onClick={commander}
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#DCE3EB] bg-white text-[#0B1E3D] transition hover:border-[#0052CC] hover:text-[#0052CC]"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-[#D92D20] px-4 text-xs font-bold text-white shadow-[0_2px_8px_rgba(217,45,32,0.12)] transition-all duration-150 hover:bg-[#C6281D] active:scale-[0.99]"
                 aria-label="Commander maintenant"
               >
-                <ArrowRight size={17} />
+                <Zap size={15} />
+                <span>Commander</span>
               </button>
             )}
           </div>
@@ -317,12 +432,12 @@ export default function Catalogue() {
       const correspondCategorie =
         categorie === 'tous' ||
         produit.categorie === categorie ||
-        produit.categorie_id === categorie
+        false
 
       const correspondSousCategorie =
         sousCategorie === 'tous' ||
         produit.sous_categorie === sousCategorie ||
-        produit.sousCategorie === sousCategorie
+        false
 
       const correspondDisponibilite =
         disponibilite === 'tous' ||
@@ -521,11 +636,6 @@ export default function Catalogue() {
                 Catégories
               </h2>
             </div>
-
-            <span className="hidden text-xs font-semibold text-[#94A3B8] sm:block">
-              {produitsVisibles.length} référence
-              {produitsVisibles.length > 1 ? 's' : ''}
-            </span>
           </div>
 
           <div className="mt-5 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -685,14 +795,6 @@ export default function Catalogue() {
                   : 'Tous les produits'}
               </h2>
             </div>
-
-            {!chargement && (
-              <p className="text-xs font-bold text-[#94A3B8]">
-                {produitsFiltres.length} produit
-                {produitsFiltres.length > 1 ? 's' : ''} trouvé
-                {produitsFiltres.length > 1 ? 's' : ''}
-              </p>
-            )}
           </div>
 
           {erreur ? (

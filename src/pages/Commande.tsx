@@ -13,7 +13,13 @@ import {
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import {
+  initierPaiementAcompteInvite,
+  initierPaiementSoldeInvite,
+  enregistrerReferenceTransaction,
+  envoyerPreuvePaiement,
+  recupererMoyensPaiementActifs,
   recupererTarifsLivraison,
+  recupererVariantesProduit,
   sauvegarderCommandeV2,
 } from '../services/supabase'
 
@@ -38,6 +44,8 @@ export default function Commande() {
 
   const [nom, setNom] = useState('')
   const [telephone, setTelephone] = useState('')
+  const [erreurTelephone, setErreurTelephone] = useState('')
+  const [erreurCommande, setErreurCommande] = useState('')
   const [email, setEmail] = useState('')
 
   const [modeReception, setModeReception] =
@@ -47,57 +55,62 @@ export default function Commande() {
     useState<'especes' | 'mobile_money'>('especes')
 
   const [adresse, setAdresse] = useState('')
-  const [telephonePaiement, setTelephonePaiement] = useState('')
 
-  const [tarifsLivraison, setTarifsLivraison] = useState<any[]>([])
-  const [zoneLivraisonId, setZoneLivraisonId] = useState('')
+  const [moyensPaiement, setMoyensPaiement] = useState<any[]>([])
+  const [chargementPaiement, setChargementPaiement] = useState(false)
+  const [moyenPaiementSelectionne, setMoyenPaiementSelectionne] = useState('')
+  const [referenceTransaction, setReferenceTransaction] = useState('')
+  const [preuvePaiement, setPreuvePaiement] = useState<File | null>(null)
+
+  const [departement, setDepartement] = useState('')
+  const [commune, setCommune] = useState('')
+  const [quartier, setQuartier] = useState('')
+  const [rue, setRue] = useState('')
+  const [repere, setRepere] = useState('')
 
   const [chargement, setChargement] = useState(false)
 
+
   useEffect(() => {
+    if (etape !== 3 || modePaiement !== 'mobile_money') return
+
     let actif = true
+    setChargementPaiement(true)
 
-    recupererTarifsLivraison().then((resultat) => {
-      if (!actif) return
+    recupererMoyensPaiementActifs()
+      .then((resultat) => {
+        if (!actif) return
 
-      if (resultat.success) {
-        setTarifsLivraison(resultat.data || [])
+        setMoyensPaiement(resultat)
 
-        if (resultat.data?.length === 1) {
-          setZoneLivraisonId(resultat.data[0].id)
+        if (
+          resultat.length > 0 &&
+          !resultat.some(
+            (moyen) => moyen.code === moyenPaiementSelectionne,
+          )
+        ) {
+          setMoyenPaiementSelectionne(resultat[0].code)
         }
-      } else {
+      })
+      .catch((error) => {
+        if (!actif) return
+
         console.error(
-          'Impossible de charger les tarifs de livraison:',
-          resultat.error,
+          'Impossible de charger les moyens de paiement Mobile Money:',
+          error,
         )
-      }
-    })
+        setMoyensPaiement([])
+      })
+      .finally(() => {
+        if (actif) setChargementPaiement(false)
+      })
 
     return () => {
       actif = false
     }
-  }, [])
+  }, [etape, modePaiement])
 
-  const fraisLivraison = useMemo(() => {
-    if (modeReception !== 'livraison') return 0
-
-    const tarif = tarifsLivraison.find(
-      (item) => String(item.id) === String(zoneLivraisonId),
-    )
-
-    return Number(tarif?.tarif || 0)
-  }, [modeReception, tarifsLivraison, zoneLivraisonId])
-
-  const zoneSelectionnee = useMemo(() => {
-    return tarifsLivraison.find(
-      (item) => String(item.id) === String(zoneLivraisonId),
-    )
-  }, [tarifsLivraison, zoneLivraisonId])
-
-  const total = useMemo(() => {
-    return totalAvecReduction + fraisLivraison
-  }, [totalAvecReduction, fraisLivraison])
+  const total = totalAvecReduction
 
   const articlesStock = useMemo(
     () =>
@@ -173,12 +186,21 @@ export default function Commande() {
 
   function validerEtape1() {
     if (!nom.trim()) {
-      alert('Veuillez renseigner votre nom complet.')
+      setErreurCommande('Veuillez renseigner votre nom complet.')
       return false
     }
 
     if (!telephone.trim()) {
-      alert('Veuillez renseigner votre numéro de téléphone.')
+      setErreurTelephone('Veuillez renseigner votre numéro de téléphone.')
+      return false
+    }
+
+    if (!/^01\d{8}$/.test(telephone.trim())) {
+      setErreurTelephone('Le numéro doit contenir exactement 10 chiffres et commencer par 01.')
+      return false
+    }
+
+    if (!telephone.trim()) {
       return false
     }
 
@@ -186,14 +208,26 @@ export default function Commande() {
   }
 
   function validerEtape2() {
-    if (modeReception === 'livraison' && !zoneLivraisonId) {
-      alert('Veuillez sélectionner votre zone de livraison.')
-      return false
-    }
+    if (modeReception === 'livraison') {
+      if (!departement.trim()) {
+        setErreurCommande('Veuillez sélectionner votre département de livraison.')
+        return false
+      }
 
-    if (modeReception === 'livraison' && !adresse.trim()) {
-      alert('Veuillez renseigner votre adresse de livraison.')
-      return false
+      if (!commune.trim()) {
+        setErreurCommande('Veuillez sélectionner votre commune de livraison.')
+        return false
+      }
+
+      if (!quartier.trim()) {
+        setErreurCommande('Veuillez renseigner votre quartier.')
+        return false
+      }
+
+      if (!rue.trim()) {
+        setErreurCommande('Veuillez renseigner votre rue ou adresse précise.')
+        return false
+      }
     }
 
     return true
@@ -204,16 +238,61 @@ export default function Commande() {
       modeReception === 'livraison' &&
       modePaiement !== 'mobile_money'
     ) {
-      alert('La livraison nécessite un paiement Mobile Money.')
+      setErreurCommande('La livraison nécessite un paiement Mobile Money.')
       return false
     }
 
-    if (
-      modePaiement === 'mobile_money' &&
-      !telephonePaiement.trim()
-    ) {
-      alert('Veuillez renseigner le numéro utilisé pour le paiement.')
-      return false
+    if (modePaiement === 'mobile_money') {
+
+      if (!moyenPaiementSelectionne) {
+        setErreurCommande(
+          'Veuillez sélectionner votre moyen de paiement Mobile Money.',
+        )
+        return false
+      }
+
+      if (
+        !moyensPaiement.some(
+          (moyen) => moyen.code === moyenPaiementSelectionne,
+        )
+      ) {
+        setErreurCommande(
+          'Le moyen de paiement sélectionné n’est plus disponible. Veuillez en choisir un autre.',
+        )
+        return false
+      }
+
+      if (!referenceTransaction.trim()) {
+        setErreurCommande(
+          'Veuillez renseigner la référence de votre transaction Mobile Money.',
+        )
+        return false
+      }
+
+      if (!preuvePaiement) {
+        setErreurCommande(
+          'Veuillez joindre la preuve de votre paiement Mobile Money.',
+        )
+        return false
+      }
+
+      if (preuvePaiement.size > 5 * 1024 * 1024) {
+        setErreurCommande(
+          'La preuve de paiement ne doit pas dépasser 5 Mo.',
+        )
+        return false
+      }
+
+      if (
+        !['image/jpeg', 'image/png', 'image/webp'].includes(
+          preuvePaiement.type,
+        )
+      ) {
+        setErreurCommande(
+          'La preuve doit être une image JPG, PNG ou WebP.',
+        )
+        return false
+      }
     }
 
     return true
@@ -251,63 +330,146 @@ export default function Commande() {
       return
     }
 
+    const lignesAvecVarianteManquante = items.filter(
+      (item) =>
+        !item.produit.variante_id &&
+        Object.prototype.hasOwnProperty.call(item.produit, 'variante_nom'),
+    )
+
+    if (lignesAvecVarianteManquante.length > 0) {
+      const article = lignesAvecVarianteManquante[0]
+
+      setErreurCommande(
+        `La variante de « ${article.produit.nom} » n’est plus sélectionnée. Retournez au produit pour choisir une variante.`,
+      )
+      return
+    }
+
     const commande = {
       nomClient: nom,
       telephone,
       email,
       modeReception,
-      modePaiement:
-        modePaiement === 'mobile_money'
-          ? 'en_ligne'
-          : 'especes',
-      adresseLivraison: adresse,
-      zoneLivraisonId: zoneLivraisonId || null,
-      zoneLivraisonCode:
-        tarifsLivraison.find(
-          (tarif) =>
-            String(tarif.id) === String(zoneLivraisonId),
-        )?.code || null,
-      telephonePaiement,
+      modePaiement,
+      departementLivraison: departement || null,
+      communeLivraison: commune || null,
+      quartierLivraison: quartier || null,
+      rueLivraison: rue || null,
+      repereLivraison: repere || null,
       articles: items.map((item) => ({
         id: item.produit.id,
         qte: item.quantite,
+        variante_id: item.produit.variante_id || null,
+        variante_nom: item.produit.variante_nom || null,
       })),
     }
 
-    setChargement(true)
+      setChargement(true)
 
-    const resultat = await sauvegarderCommandeV2(commande)
+      try {
+        const resultat = await sauvegarderCommandeV2(commande)
 
-    setChargement(false)
+        if (!resultat.success) {
+          setErreurCommande(
+            resultat.error ||
+              'Impossible de créer la commande.',
+          )
+          return
+        }
 
-    if (!resultat.success) {
-      alert(
-        resultat.error ||
-          'Impossible de créer la commande.',
-      )
-      return
+        let paiementInitialise = null
+
+        if (modePaiement === 'mobile_money') {
+          if (!resultat.paiementAccesToken) {
+            throw new Error(
+              'La commande a été créée mais son accès de paiement est indisponible.',
+            )
+          }
+
+          if (Number(resultat.acompteRequis || 0) > 0) {
+            paiementInitialise = await initierPaiementAcompteInvite(
+              resultat.numeroCommande,
+              resultat.paiementAccesToken,
+              moyenPaiementSelectionne,
+            )
+          } else {
+            paiementInitialise = await initierPaiementSoldeInvite(
+              resultat.numeroCommande,
+              resultat.paiementAccesToken,
+              moyenPaiementSelectionne,
+            )
+          }
+
+          if (!paiementInitialise?.success) {
+            throw new Error(
+              paiementInitialise?.error ||
+                'Impossible d’initialiser le paiement Mobile Money.',
+            )
+          }
+
+          const paiementId = String(
+            paiementInitialise?.paiement_id || '',
+          ).trim()
+
+          if (!paiementId) {
+            throw new Error(
+              'Le paiement a été initialisé mais son identifiant est indisponible.',
+            )
+          }
+
+          await enregistrerReferenceTransaction(
+            resultat.numeroCommande,
+            resultat.paiementAccesToken,
+            paiementId,
+            referenceTransaction.trim(),
+          )
+
+          await envoyerPreuvePaiement(
+            resultat.numeroCommande,
+            resultat.paiementAccesToken,
+            paiementId,
+            preuvePaiement as File,
+          )
+        }
+
+        vider()
+
+        sessionStorage.setItem(
+          'chinashop_commande_resultat',
+          JSON.stringify({
+            commandeId: resultat.commandeId,
+            numeroCommande: resultat.numeroCommande,
+            codeSuivi: resultat.codeSuivi,
+            codeRetrait: resultat.codeRetrait,
+            total: resultat.total,
+            acompteRequis: resultat.acompteRequis,
+            acomptePaye: resultat.acomptePaye,
+            statut: resultat.statut,
+            modeReception: commande.modeReception,
+            modePaiement: commande.modePaiement,
+            telephone: commande.telephone,
+            moyenPaiement: moyenPaiementSelectionne,
+            paiementAccesToken: resultat.paiementAccesToken,
+            paiement: paiementInitialise,
+          }),
+        )
+
+        navigate('/confirmation')
+      } catch (error) {
+        console.error(
+          'Erreur inattendue lors de la confirmation de commande:',
+          error,
+        )
+
+        setErreurCommande(
+          error instanceof Error
+            ? error.message
+            : 'Une erreur inattendue est survenue lors de la création de la commande.',
+        )
+      } finally {
+        setChargement(false)
+      }
     }
-
-    vider()
-
-    sessionStorage.setItem(
-      'chinashop_commande_resultat',
-      JSON.stringify({
-        numeroCommande: resultat.numeroCommande,
-        codeSuivi: resultat.codeSuivi,
-        codeRetrait: resultat.codeRetrait,
-        total: resultat.total,
-        acompteRequis: resultat.acompteRequis,
-        acomptePaye: resultat.acomptePaye,
-        statut: resultat.statut,
-        modeReception: commande.modeReception,
-        modePaiement: commande.modePaiement,
-        telephone: commande.telephone,
-      }),
-    )
-
-    navigate('/confirmation')
-  }
 
   const etapes = [
     {
@@ -530,16 +692,32 @@ export default function Commande() {
 
                         <input
                           value={telephone}
-                          onChange={(e) => setTelephone(e.target.value)}
-                          placeholder="Ex. 97 00 00 00"
-                          inputMode="tel"
+                          onChange={(e) => {
+                            const chiffres = e.target.value.replace(/\D/g, '').slice(0, 10)
+                            setTelephone(chiffres)
+                            setErreurTelephone('')
+                          }}
+                          maxLength={10}
+                          inputMode="numeric"
+                          pattern="01[0-9]{8}"
+                          placeholder="01XXXXXXXX"
                           className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-12 pr-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:bg-white focus:ring-4 focus:ring-sky-50"
                         />
                       </div>
 
-                      <p className="mt-2 text-[11px] leading-5 text-slate-400">
-                        Ce numéro sera utilisé pour le suivi de votre commande.
-                      </p>
+                      {erreurTelephone ? (
+                          <p className="mt-2 text-[11px] font-bold leading-5 text-red-600">
+                            {erreurTelephone}
+                          </p>
+                        ) : telephone.length > 0 && !/^01\d{8}$/.test(telephone) ? (
+                          <p className="mt-2 text-[11px] font-bold leading-5 text-red-600">
+                            Le numéro doit contenir 10 chiffres et commencer par 01.
+                          </p>
+                        ) : (
+                          <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                            Format obligatoire : 01XXXXXXXX
+                          </p>
+                        )}
                     </div>
 
                     <div>
@@ -689,7 +867,7 @@ export default function Commande() {
 
                       <div className="mt-5 flex items-center gap-2">
                         <span className="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-black text-[#0284C7]">
-                          Tarif selon la zone
+                          Livraison à domicile · frais non inclus
                         </span>
                       </div>
                     </button>
@@ -698,94 +876,262 @@ export default function Commande() {
 
                   {modeReception === 'livraison' && (
                     <div className="mt-6 rounded-[26px] border border-sky-100 bg-sky-50/60 p-5 sm:p-6">
-
                       <div className="mb-5">
                         <p className="text-sm font-black text-[#0B1E3D]">
                           Informations de livraison
                         </p>
-
                         <p className="mt-1 text-xs leading-5 text-slate-500">
-                          Sélectionnez votre zone puis indiquez votre adresse complète.
+                          Indiquez précisément où vous souhaitez recevoir votre commande.
                         </p>
                       </div>
 
                       <div className="space-y-5">
-
                         <div>
                           <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
-                            Zone de livraison
+                            Département
                             <span className="ml-1 text-[#0284C7]">*</span>
                           </label>
-
                           <select
-                            value={zoneLivraisonId}
-                            onChange={(e) => setZoneLivraisonId(e.target.value)}
+                            value={departement}
+                            onChange={(e) => {
+                              setDepartement(e.target.value)
+                              setCommune("")
+                            }}
                             className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
                           >
-                            <option value="">
-                              Sélectionner une zone
-                            </option>
-
-                            {tarifsLivraison.map((tarif) => (
-                              <option
-                                key={tarif.id}
-                                value={tarif.id}
-                              >
-                                {tarif.nomZone} — {formatPrix(tarif.tarif)}
-                              </option>
-                            ))}
+                            <option value="">Sélectionner un département</option>
+                            <option value="Alibori">Alibori</option>
+                            <option value="Atacora">Atacora</option>
+                            <option value="Atlantique">Atlantique</option>
+                            <option value="Borgou">Borgou</option>
+                            <option value="Collines">Collines</option>
+                            <option value="Couffo">Couffo</option>
+                            <option value="Donga">Donga</option>
+                            <option value="Littoral">Littoral</option>
+                            <option value="Mono">Mono</option>
+                            <option value="Ouémé">Ouémé</option>
+                            <option value="Plateau">Plateau</option>
+                            <option value="Zou">Zou</option>
                           </select>
                         </div>
 
                         <div>
                           <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
-                            Adresse complète
+                            Commune
                             <span className="ml-1 text-[#0284C7]">*</span>
                           </label>
+                          <select
+                            value={commune}
+                            onChange={(e) => setCommune(e.target.value)}
+                            disabled={!departement}
+                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                          >
+                            <option value="">
+                              {departement ? "Sélectionner une commune" : "Choisissez d’abord un département"}
+                            </option>
+                            {departement === "Littoral" && <option value="Cotonou">Cotonou</option>}
+                            {departement === "Atlantique" && (
+                              <>
+                                <option value="Abomey-Calavi">Abomey-Calavi</option>
+                                <option value="Allada">Allada</option>
+                                <option value="Kpomassè">Kpomassè</option>
+                                <option value="Ouidah">Ouidah</option>
+                                <option value="Sô-Ava">Sô-Ava</option>
+                                <option value="Toffo">Toffo</option>
+                                <option value="Tori-Bossito">Tori-Bossito</option>
+                                <option value="Zè">Zè</option>
+                              </>
+                            )}
+                            {departement === "Ouémé" && (
+                              <>
+                                <option value="Adjarra">Adjarra</option>
+                                <option value="Adjohoun">Adjohoun</option>
+                                <option value="Aguégués">Aguégués</option>
+                                <option value="Akpro-Missérété">Akpro-Missérété</option>
+                                <option value="Avrankou">Avrankou</option>
+                                <option value="Bonou">Bonou</option>
+                                <option value="Dangbo">Dangbo</option>
+                                <option value="Porto-Novo">Porto-Novo</option>
+                              </>
+                            )}
+                            {departement === "Alibori" && (
+                              <>
+                                <option value="Banikoara">Banikoara</option>
+                                <option value="Gogounou">Gogounou</option>
+                                <option value="Kandi">Kandi</option>
+                                <option value="Karimama">Karimama</option>
+                                <option value="Malanville">Malanville</option>
+                                <option value="Ségbana">Ségbana</option>
+                              </>
+                            )}
+                            {departement === "Atacora" && (
+                              <>
+                                <option value="Boukoumbé">Boukoumbé</option>
+                                <option value="Cobly">Cobly</option>
+                                <option value="Kérou">Kérou</option>
+                                <option value="Kouandé">Kouandé</option>
+                                <option value="Matéri">Matéri</option>
+                                <option value="Natitingou">Natitingou</option>
+                                <option value="Péhunco">Péhunco</option>
+                                <option value="Tanguiéta">Tanguiéta</option>
+                                <option value="Toucountouna">Toucountouna</option>
+                              </>
+                            )}
+                            {departement === "Borgou" && (
+                              <>
+                                <option value="Bembèrèkè">Bembèrèkè</option>
+                                <option value="Kalalé">Kalalé</option>
+                                <option value="N’Dali">N’Dali</option>
+                                <option value="Nikki">Nikki</option>
+                                <option value="Parakou">Parakou</option>
+                                <option value="Pèrèrè">Pèrèrè</option>
+                                <option value="Sinendé">Sinendé</option>
+                                <option value="Tchaourou">Tchaourou</option>
+                              </>
+                            )}
+                            {departement === "Collines" && (
+                              <>
+                                <option value="Bantè">Bantè</option>
+                                <option value="Dassa-Zoumè">Dassa-Zoumè</option>
+                                <option value="Glazoué">Glazoué</option>
+                                <option value="Ouèssè">Ouèssè</option>
+                                <option value="Savalou">Savalou</option>
+                                <option value="Savè">Savè</option>
+                              </>
+                            )}
+                            {departement === "Couffo" && (
+                              <>
+                                <option value="Aplahoué">Aplahoué</option>
+                                <option value="Djakotomey">Djakotomey</option>
+                                <option value="Dogbo">Dogbo</option>
+                                <option value="Klouékanmè">Klouékanmè</option>
+                                <option value="Lalo">Lalo</option>
+                                <option value="Toviklin">Toviklin</option>
+                              </>
+                            )}
+                            {departement === "Donga" && (
+                              <>
+                                <option value="Bassila">Bassila</option>
+                                <option value="Copargo">Copargo</option>
+                                <option value="Djougou">Djougou</option>
+                                <option value="Ouaké">Ouaké</option>
+                              </>
+                            )}
+                            {departement === "Mono" && (
+                              <>
+                                <option value="Athiémé">Athiémé</option>
+                                <option value="Bopa">Bopa</option>
+                                <option value="Comè">Comè</option>
+                                <option value="Grand-Popo">Grand-Popo</option>
+                                <option value="Houéyogbé">Houéyogbé</option>
+                              </>
+                            )}
+                            {departement === "Plateau" && (
+                              <>
+                                <option value="Adja-Ouèrè">Adja-Ouèrè</option>
+                                <option value="Ifangni">Ifangni</option>
+                                <option value="Kétou">Kétou</option>
+                                <option value="Pobè">Pobè</option>
+                                <option value="Sakété">Sakété</option>
+                              </>
+                            )}
+                            {departement === "Zou" && (
+                              <>
+                                <option value="Abomey">Abomey</option>
+                                <option value="Agbangnizoun">Agbangnizoun</option>
+                                <option value="Bohicon">Bohicon</option>
+                                <option value="Covè">Covè</option>
+                                <option value="Djidja">Djidja</option>
+                                <option value="Ouinhi">Ouinhi</option>
+                                <option value="Zagnanado">Zagnanado</option>
+                                <option value="Za-Kpota">Za-Kpota</option>
+                                <option value="Zogbodomey">Zogbodomey</option>
+                              </>
+                            )}
+                          </select>
+                        </div>
 
-                          <textarea
-                            value={adresse}
-                            onChange={(e) => setAdresse(e.target.value)}
-                            placeholder="Quartier, rue, maison, repère..."
-                            rows={4}
-                            className="w-full resize-none rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                        <div>
+                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                            Quartier
+                            <span className="ml-1 text-[#0284C7]">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={quartier}
+                            onChange={(e) => setQuartier(e.target.value)}
+                            placeholder="Ex. Zongo, Agla, Cadjèhoun..."
+                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
                           />
                         </div>
 
+                        <div>
+                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                            Rue / adresse précise
+                            <span className="ml-1 text-[#0284C7]">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={rue}
+                            onChange={(e) => setRue(e.target.value)}
+                            placeholder="Nom de rue, maison, numéro..."
+                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                            Repère
+                            <span className="ml-1 text-[11px] font-medium text-slate-400">(facultatif)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={repere}
+                            onChange={(e) => setRepere(e.target.value)}
+                            placeholder="Ex. près de..., en face de..."
+                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                          />
+                        </div>
+
+                        <div className="rounded-2xl border border-sky-100 bg-white p-4">
+                          <p className="text-xs font-bold leading-5 text-slate-500">
+                            Les frais de livraison ne sont pas inclus dans votre commande. Ils seront convenus directement avec le livreur selon votre zone de livraison.
+                          </p>
+                        </div>
+
+                        {erreurCommande && (
+                          <p className="text-xs font-bold text-red-600">
+                            {erreurCommande}
+                          </p>
+                        )}
+
                       </div>
                     </div>
-                  )}
 
-                  <div className="mt-8 flex gap-3 border-t border-slate-100 pt-6">
-                    <button
-                      type="button"
-                      onClick={precedent}
-                      className="h-14 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
-                    >
-                      Retour
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={suivant}
-                      className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0284C7] text-sm font-black text-white shadow-lg shadow-sky-100 transition hover:bg-[#0369A1] active:scale-[0.99]"
-                    >
-                      Continuer
-                      <ArrowRight
-                        size={18}
-                        className="transition-transform group-hover:translate-x-0.5"
-                      />
-                    </button>
+                    )}
                   </div>
+                      <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <button
+                          type="button"
+                          onClick={precedent}
+                          className="inline-flex h-14 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-black text-[#0B1E3D] transition hover:border-slate-300 hover:bg-slate-50"
+                        >
+                          Retour
+                        </button>
 
-                  <p className="mt-3 text-center text-[11px] text-slate-400">
-                    Étape 2 sur 4
-                  </p>
+                        <button
+                          type="button"
+                          onClick={suivant}
+                          className="inline-flex h-14 items-center justify-center rounded-2xl bg-[#0284C7] px-8 text-sm font-black text-white shadow-lg shadow-sky-200 transition hover:bg-[#0369A1] active:scale-[0.99]"
+                        >
+                          Continuer
+                        </button>
+                      </div>
 
                 </div>
-              </div>
-            )}
-            
+
+              )}
+
             {/* ÉTAPE 3 */}
             {etape === 3 && (
               <div className="overflow-hidden rounded-[32px] bg-white shadow-[0_18px_60px_-35px_rgba(11,30,61,0.35)] ring-1 ring-slate-200">
@@ -836,7 +1182,7 @@ export default function Commande() {
 
                     <button
                       type="button"
-                      disabled={modeReception === 'livraison'}
+                      disabled={modeReception === 'livraison' || totalSurCommande > 0}
                       onClick={() => setModePaiement('especes')}
                       className={`group relative overflow-hidden rounded-[26px] border-2 p-6 text-left transition-all duration-200 ${
                         modePaiement === 'especes'
@@ -923,30 +1269,126 @@ export default function Commande() {
 
                         <div>
                           <p className="text-sm font-black text-[#0B1E3D]">
-                            Numéro utilisé pour le paiement
+                            Effectuez votre paiement Mobile Money
                           </p>
 
                           <p className="mt-1 text-xs leading-5 text-slate-500">
-                            Indiquez le numéro Mobile Money qui servira à effectuer le paiement.
+                            Vous pouvez payer depuis n’importe quel numéro Mobile Money. Utilisez l’un des numéros marchands affichés ci-dessous.
                           </p>
                         </div>
                       </div>
 
-                      <div className="relative mt-5">
-                        <Phone
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                          size={18}
-                        />
+                      {moyensPaiement.length > 0 && (
+                        <div className="mt-5 space-y-3">
+                          {moyensPaiement.map((moyen) => (
+                            <div
+                              key={moyen.id}
+                              className="rounded-2xl border border-sky-100 bg-white px-4 py-3"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <span className="text-xs font-bold text-slate-500">
+                                  {moyen.nom || moyen.code}
+                                </span>
+                                <span className="text-base font-black tracking-wide text-[#0B1E3D]">
+                                  {moyen.numero}
+                                </span>
+                              </div>
+
+                              {moyen.instructions && (
+                                <p className="mt-1 text-xs leading-5 text-slate-500">
+                                  {moyen.instructions}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-5 rounded-2xl border border-sky-100 bg-white p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                              Montant à payer
+                            </p>
+                            <p className="mt-1 text-xl font-black text-[#0B1E3D]">
+                              {formatPrix(
+                                totalSurCommande > 0
+                                  ? Math.ceil(totalSurCommande * 0.5)
+                                  : total,
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl bg-sky-50 px-3 py-2 text-[11px] font-black text-[#0284C7]">
+                            {totalSurCommande > 0 ? 'Acompte 50 %' : 'Paiement total'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                        <label className="block text-sm font-black text-[#0B1E3D]">
+                          Référence de transaction
+                        </label>
+
+                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                          Saisissez la référence indiquée sur votre reçu Mobile Money.
+                        </p>
 
                         <input
-                          value={telephonePaiement}
-                          onChange={(e) =>
-                            setTelephonePaiement(e.target.value)
+                          type="text"
+                          value={referenceTransaction}
+                          onChange={(event) =>
+                            setReferenceTransaction(event.target.value)
                           }
-                          placeholder="Ex. 97 00 00 00"
-                          inputMode="tel"
-                          className="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                          placeholder="Ex. TXN123456789"
+                          maxLength={100}
+                          className="mt-3 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition focus:border-[#0284C7] focus:bg-white"
                         />
+                      </div>
+
+                      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                        <label className="block text-sm font-black text-[#0B1E3D]">
+                          Preuve de paiement
+                        </label>
+
+                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                          Après votre transfert, joignez une capture ou photo du reçu.
+                          Formats acceptés : JPG, PNG ou WebP, 5 Mo maximum.
+                        </p>
+
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={(event) => {
+                            const fichier = event.target.files?.[0] || null
+                            setPreuvePaiement(fichier)
+                            setErreurCommande('')
+                          }}
+                          className="mt-3 block w-full text-xs font-semibold text-slate-600 file:mr-3 file:rounded-xl file:border-0 file:bg-sky-50 file:px-4 file:py-2.5 file:font-black file:text-[#0284C7] hover:file:bg-sky-100"
+                        />
+
+                        {preuvePaiement && (
+                          <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-emerald-50 px-3 py-2.5">
+                            <span className="min-w-0 truncate text-xs font-bold text-emerald-700">
+                              {preuvePaiement.name}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => setPreuvePaiement(null)}
+                              className="shrink-0 text-xs font-black text-red-600"
+                            >
+                              Retirer
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                        <p className="text-xs font-bold leading-5 text-amber-800">
+                          Votre paiement restera en attente de confirmation jusqu’à
+                          la vérification de la référence et de la preuve par ChinaShop.
+                        </p>
                       </div>
                     </div>
                   )}
@@ -987,22 +1429,18 @@ export default function Commande() {
             {/* ÉTAPE 4 */}
             {etape === 4 && (
               <div className="overflow-hidden rounded-[32px] bg-white shadow-[0_18px_60px_-35px_rgba(11,30,61,0.35)] ring-1 ring-slate-200">
-
                 <div className="border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-sky-50/60 p-6 sm:p-8">
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B1E3D] text-white shadow-lg shadow-slate-200">
                       <Check size={22} strokeWidth={3} />
                     </div>
-
                     <div>
                       <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#0284C7]">
                         Étape 04 · Vérification
                       </span>
-
                       <h2 className="mt-2 text-2xl font-black tracking-tight text-[#0B1E3D] sm:text-3xl">
                         Vérifiez votre commande
                       </h2>
-
                       <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
                         Vérifiez attentivement vos informations avant de confirmer votre commande.
                       </p>
@@ -1018,7 +1456,6 @@ export default function Commande() {
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm ring-1 ring-slate-200">
                         <User size={18} />
                       </div>
-
                       <div>
                         <p className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
                           Client
@@ -1030,14 +1467,10 @@ export default function Commande() {
                     </div>
 
                     <div className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                      <p className="font-black text-[#0B1E3D]">
-                        {nom}
-                      </p>
-
+                      <p className="font-black text-[#0B1E3D]">{nom}</p>
                       <p className="mt-1 text-sm font-medium text-slate-500">
                         {telephone}
                       </p>
-
                       {email && (
                         <p className="mt-1 text-sm font-medium text-slate-500">
                           {email}
@@ -1056,16 +1489,12 @@ export default function Commande() {
                           <MapPin size={18} />
                         )}
                       </div>
-
                       <div>
                         <p className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
                           Réception
                         </p>
-
                         <p className="mt-0.5 text-sm font-black text-[#0B1E3D]">
-                          {modeReception === 'retrait'
-                            ? 'Retrait'
-                            : 'Livraison'}
+                          {modeReception === 'retrait' ? 'Retrait' : 'Livraison'}
                         </p>
                       </div>
                     </div>
@@ -1076,7 +1505,6 @@ export default function Commande() {
                           <p className="text-sm font-semibold text-slate-600">
                             Vous récupérerez votre commande vous-même.
                           </p>
-
                           <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-black text-emerald-700">
                             Gratuit
                           </span>
@@ -1084,15 +1512,26 @@ export default function Commande() {
                       ) : (
                         <>
                           <p className="font-black text-[#0B1E3D]">
-                            {zoneSelectionnee?.nomZone || 'Zone sélectionnée'}
+                            {commune || 'Zone sélectionnée'}
                           </p>
 
                           <p className="mt-2 text-sm leading-6 text-slate-500">
-                            {adresse}
+                            {departement}, {commune}, {quartier}, {rue}
                           </p>
 
-                          <div className="mt-3 inline-flex rounded-full bg-sky-50 px-3 py-1.5 text-[11px] font-black text-[#0284C7]">
-                            Livraison à domicile
+                          {repere && (
+                            <p className="mt-2 text-xs leading-5 text-slate-400">
+                              Repère : {repere}
+                            </p>
+                          )}
+
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="rounded-full bg-sky-50 px-3 py-1.5 text-[11px] font-black text-[#0284C7]">
+                              Livraison à domicile
+                            </span>
+                            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-black text-emerald-700">
+                              Frais de livraison non inclus
+                            </span>
                           </div>
                         </>
                       )}
@@ -1129,7 +1568,6 @@ export default function Commande() {
 
                         {modePaiement === 'mobile_money' && (
                           <p className="mt-1 text-xs font-medium text-slate-500">
-                            Numéro : {telephonePaiement}
                           </p>
                         )}
                       </div>
@@ -1296,17 +1734,6 @@ export default function Commande() {
                       </div>
                     )}
 
-                    {modeReception === 'livraison' && (
-                      <div className="mt-3 flex justify-between text-sm">
-                        <span className="text-slate-300">
-                          Livraison
-                        </span>
-
-                        <span className="font-bold">
-                          {formatPrix(fraisLivraison)}
-                        </span>
-                      </div>
-                    )}
 
                     <div className="mt-6 border-t border-white/10 pt-5">
                       <div className="flex items-end justify-between gap-4">
@@ -1348,6 +1775,18 @@ export default function Commande() {
                     </div>
                   )}
 
+                    {erreurCommande && (
+                      <div
+                        role="alert"
+                        className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="mt-0.5 shrink-0 text-base">⚠️</span>
+                          <p>{erreurCommande}</p>
+                        </div>
+                      </div>
+                    )}
+
                   {/* ACTIONS */}
                   <div className="flex gap-3 border-t border-slate-100 pt-6">
                     <button
@@ -1386,7 +1825,6 @@ export default function Commande() {
                 </div>
               </div>
             )}
-
             {/* INDICATEUR MOBILE */}
             <div className="mt-5 flex items-center justify-center gap-2 lg:hidden">
               {etapes.map((item) => (

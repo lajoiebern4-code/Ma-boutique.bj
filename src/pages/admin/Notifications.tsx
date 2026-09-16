@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bell,
   RefreshCw,
@@ -11,7 +11,10 @@ import {
   AlertTriangle,
   Clock,
 } from 'lucide-react'
-import { recupererCommandesAdminV2 } from '../../services/supabase'
+import {
+  recupererCommandesAdminV2,
+  supabase,
+} from '../../services/supabase'
 
 type Commande = Record<string, any>
 
@@ -193,6 +196,8 @@ export default function Notifications() {
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState('')
   const [filtre, setFiltre] = useState('toutes')
+  const [alertesPaiement, setAlertesPaiement] = useState<NotificationItem[]>([])
+  const preuvesDejaVues = useRef(new Set<string>())
 
   const charger = useCallback(async () => {
     setChargement(true)
@@ -224,10 +229,73 @@ export default function Notifications() {
     charger()
   }, [charger])
 
+  useEffect(() => {
+    if (!supabase) return
+
+    const channel = supabase
+      .channel('admin-paiements-preuves-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'cs_paiements',
+        },
+        (payload) => {
+          const paiement = payload.new as Record<string, any>
+
+          const paiementId = String(paiement.id || '').trim()
+          const preuvePath = String(paiement.preuve_path || '').trim()
+          const preuveDate = String(
+            paiement.preuve_uploaded_at || '',
+          ).trim()
+
+          if (!paiementId || !preuvePath || !preuveDate) return
+
+          const cle = `${paiementId}:${preuveDate}`
+
+          if (preuvesDejaVues.current.has(cle)) return
+          preuvesDejaVues.current.add(cle)
+
+          const commande = commandes.find(
+            (item) =>
+              String(item.id || '') ===
+              String(paiement.commande_id || ''),
+          )
+
+          const numero = commande?.numero || 'Commande'
+          const client = commande?.nom_client || 'Client'
+
+          setAlertesPaiement((precedentes) => [
+            {
+              id: `paiement-preuve-${cle}`,
+              type: 'paiement',
+              titre: 'Nouvelle preuve de paiement reçue',
+              message: `${numero} — preuve envoyée par ${client}.`,
+              date: preuveDate,
+              commande: commande,
+            },
+            ...precedentes,
+          ])
+        },
+      )
+      .subscribe((status) => {
+        console.log(
+          '[ADMIN PAIEMENTS REALTIME]',
+          status,
+        )
+      })
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [commandes])
+
   const notifications = useMemo(() => {
-    return commandes
-      .map(creerNotification)
-      .sort((a, b) => {
+    return [
+      ...commandes.map(creerNotification),
+      ...alertesPaiement,
+    ].sort((a, b) => {
         const dateA = new Date(a.date || 0).getTime()
         const dateB = new Date(b.date || 0).getTime()
         return dateB - dateA

@@ -72,6 +72,11 @@ export default function Informations() {
     const nomPropre = nom.trim()
     const telephonePropre = telephone.trim()
 
+    if (telephonePropre && !/^01\d{8}$/.test(telephonePropre)) {
+      setErreur('Le numéro doit contenir exactement 10 chiffres et commencer par 01.')
+      return
+    }
+
     if (!nomPropre) {
       setErreur('Veuillez renseigner votre nom.')
       setMessage('')
@@ -213,9 +218,15 @@ export default function Informations() {
                 id="telephone"
                 type="tel"
                 value={telephone}
-                onChange={(event) => setTelephone(event.target.value)}
+                onChange={(event) => {
+                    const chiffres = event.target.value.replace(/\\D/g, '').slice(0, 10)
+                    setTelephone(chiffres)
+                  }}
+                  maxLength={10}
+                  inputMode="numeric"
+                  pattern="01[0-9]{8}"
+                  placeholder="01XXXXXXXX"
                 className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
-                placeholder="Votre numéro"
                 autoComplete="tel"
               />
             </div>

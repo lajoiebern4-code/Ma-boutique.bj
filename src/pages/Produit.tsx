@@ -25,6 +25,11 @@ import {
   supprimerFavori,
   type Produit,
 } from '../services/produits'
+import {
+  recupererPhotosProduit,
+  recupererVariantesProduit,
+  type ProduitVariante,
+} from '../services/supabase'
 import { useCart, type CartProduct } from '../context/CartContext'
 import { supabase } from '../lib/supabase'
 
@@ -51,6 +56,29 @@ function formaterDecompte(ms: number) {
   }
 
   return `${String(heures).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(secondes).padStart(2, '0')}s`
+}
+
+function obtenirEtatPromotion(produit: Produit) {
+  if (
+    produit.promo <= 0 ||
+    !produit.promo_debut ||
+    !produit.promo_fin
+  ) {
+    return 'aucune' as const
+  }
+
+  const maintenant = Date.now()
+  const debut = new Date(produit.promo_debut).getTime()
+  const fin = new Date(produit.promo_fin).getTime()
+
+  if (!Number.isFinite(debut) || !Number.isFinite(fin)) {
+    return 'aucune' as const
+  }
+
+  if (maintenant < debut) return 'programmee' as const
+  if (maintenant < fin) return 'active' as const
+
+  return 'expiree' as const
 }
 
 function BadgeDisponibilite({ produit }: { produit: Produit }) {
@@ -128,6 +156,33 @@ function SkeletonProduit() {
   )
 }
 
+
+const COULEURS_VISUELLES: Record<string, string> = {
+  noir: '#111827',
+  blanc: '#FFFFFF',
+  rouge: '#EF4444',
+  bleu: '#2563EB',
+  'bleu ciel': '#38BDF8',
+  'bleu marine': '#1E3A8A',
+  vert: '#22C55E',
+  'vert foncé': '#166534',
+  jaune: '#FACC15',
+  orange: '#F97316',
+  rose: '#EC4899',
+  violet: '#8B5CF6',
+  marron: '#92400E',
+  beige: '#D6B98C',
+  gris: '#9CA3AF',
+  doré: '#D4AF37',
+  argenté: '#C0C0C0',
+  bordeaux: '#7F1D1D',
+  camel: '#C19A6B',
+}
+
+function obtenirCouleurVisuelle(nom: string) {
+  return COULEURS_VISUELLES[nom.trim().toLowerCase()] || '#CBD5E1'
+}
+
 export default function Produit() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -141,6 +196,11 @@ export default function Produit() {
   const [chargementFavori, setChargementFavori] = useState(false)
   const [tempsPromo, setTempsPromo] = useState(0)
   const [imageErreur, setImageErreur] = useState(false)
+  const [photosProduit, setPhotosProduit] = useState<string[]>([])
+  const [photoSelectionnee, setPhotoSelectionnee] = useState(0)
+  const [variantesProduit, setVariantesProduit] = useState<ProduitVariante[]>([])
+  const [varianteSelectionnee, setVarianteSelectionnee] =
+    useState<ProduitVariante | null>(null)
 
   useEffect(() => {
     let actif = true
@@ -165,6 +225,71 @@ export default function Produit() {
     }
 
     chargerProduit()
+
+    return () => {
+      actif = false
+    }
+  }, [id])
+
+  useEffect(() => {
+    let actif = true
+
+    async function chargerPhotos() {
+      if (!id) {
+        setPhotosProduit([])
+        setPhotoSelectionnee(0)
+        return
+      }
+
+      const resultat = await recupererPhotosProduit(id)
+
+      if (!actif) return
+
+      if (resultat.success && resultat.data.length > 0) {
+        setPhotosProduit(resultat.data.map((photo) => photo.url))
+      } else {
+        setPhotosProduit([])
+      }
+
+      setPhotoSelectionnee(0)
+    }
+
+    chargerPhotos()
+
+    return () => {
+      actif = false
+    }
+  }, [id])
+
+  useEffect(() => {
+    let actif = true
+
+    async function chargerVariantes() {
+      if (!id) {
+        setVariantesProduit([])
+        setVarianteSelectionnee(null)
+        return
+      }
+
+      const resultat = await recupererVariantesProduit(id)
+
+      if (!actif) return
+
+      if (resultat.success) {
+        const variantes = resultat.data || []
+        setVariantesProduit(variantes)
+
+        const premiereDisponible =
+          variantes.find((variante) => variante.stock > 0) || null
+
+        setVarianteSelectionnee(premiereDisponible)
+      } else {
+        setVariantesProduit([])
+        setVarianteSelectionnee(null)
+      }
+    }
+
+    chargerVariantes()
 
     return () => {
       actif = false
@@ -209,13 +334,25 @@ export default function Produit() {
   }, [id])
 
   useEffect(() => {
-    if (!produit?.promo || !produit.promoFin) {
+    if (!produit) {
       setTempsPromo(0)
       return
     }
 
     const actualiser = () => {
-      setTempsPromo(calculerTempsRestant(produit.promoFin))
+      const etat = obtenirEtatPromotion(produit)
+
+      if (etat === 'programmee' && produit.promo_debut) {
+        setTempsPromo(calculerTempsRestant(produit.promo_debut))
+        return
+      }
+
+      if (etat === 'active' && produit.promo_fin) {
+        setTempsPromo(calculerTempsRestant(produit.promo_fin))
+        return
+      }
+
+      setTempsPromo(0)
     }
 
     actualiser()
@@ -287,8 +424,13 @@ export default function Produit() {
   const enStock = produit.stock > 0
   const surCommande =
     produit.stock <= 0 && produit.disponibilite === 'sur_commande'
+  const varianteRequise = variantesProduit.length > 0
+  const varianteIndisponible =
+    varianteRequise && (!varianteSelectionnee || varianteSelectionnee.stock <= 0)
+
   const indisponible =
-    produit.stock <= 0 && produit.disponibilite !== 'sur_commande'
+    (produit.stock <= 0 && produit.disponibilite !== 'sur_commande') ||
+    varianteIndisponible
 
   const prixActuel = Number(produit.prix || 0)
   const prixOriginal = Number(produit.prixOriginal || 0)
@@ -297,13 +439,19 @@ export default function Produit() {
       ? prixOriginal - prixActuel
       : 0
 
+  const stockPanier = varianteSelectionnee
+    ? varianteSelectionnee.stock
+    : produit.stock
+
   const produitPanier: CartProduct = {
     id: produit.id,
     nom: produit.nom,
     prix: produit.prix,
     image_url: produit.image_url || null,
-    stock: produit.stock,
+    stock: stockPanier,
     surCommande,
+    variante_id: varianteSelectionnee?.id || null,
+    variante_nom: varianteSelectionnee?.nom || null,
   }
 
   function ajouterAuPanier() {
@@ -325,9 +473,15 @@ export default function Produit() {
     setQuantite((valeur) => Math.max(1, valeur - 1))
   }
 
+  const stockProduit = varianteSelectionnee
+    ? varianteSelectionnee.stock
+    : produit.stock
+
   function augmenterQuantite() {
     setQuantite((valeur) => {
-      if (enStock) return Math.min(produit.stock, valeur + 1)
+      if (enStock || varianteSelectionnee) {
+        return Math.min(stockProduit, valeur + 1)
+      }
       return valeur + 1
     })
   }
@@ -371,7 +525,7 @@ export default function Produit() {
                   </span>
                 )}
 
-                {produit.promo > 0 && (
+                {obtenirEtatPromotion(produit) === 'active' && (
                   <span className="rounded-full bg-[#FF7A1A] px-3.5 py-2 text-[10px] font-black text-white shadow-lg">
                     -{produit.promo}% aujourd'hui
                   </span>
@@ -393,28 +547,111 @@ export default function Produit() {
                 <Heart size={19} fill={favori ? 'currentColor' : 'none'} />
               </button>
 
-              {/* Image */}
-              <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F3F6FA] via-white to-[#E8EDF3]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.95),transparent_52%)]" />
+              {/* Galerie photos */}
+              {(() => {
+                const galerie =
+                  photosProduit.length > 0
+                    ? photosProduit
+                    : produit.image_url
+                      ? [produit.image_url]
+                      : []
 
-                {produit.image_url && !imageErreur ? (
-                  <img
-                    src={produit.image_url}
-                    alt={produit.nom}
-                    onError={() => setImageErreur(true)}
-                    className="relative h-full w-full object-contain p-6 transition duration-700 hover:scale-[1.025] sm:p-12"
-                  />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400">
-                    <Package size={44} strokeWidth={1.5} />
-                    <span className="text-sm font-bold">
-                      Image non disponible
-                    </span>
-                  </div>
-                )}
-              </div>
+                const indexSecurise = Math.min(
+                  photoSelectionnee,
+                  Math.max(0, galerie.length - 1),
+                )
+
+                const photoActuelle = galerie[indexSecurise]
+
+                return (
+                  <>
+                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F3F6FA] via-white to-[#E8EDF3]">
+                      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.95),transparent_52%)]" />
+
+                      {photoActuelle && !imageErreur ? (
+                        <img
+                          src={photoActuelle}
+                          alt={`${produit.nom} - photo ${indexSecurise + 1}`}
+                          onError={() => setImageErreur(true)}
+                          className="relative h-full w-full object-contain p-6 transition duration-700 hover:scale-[1.025] sm:p-12"
+                        />
+                      ) : (
+                        <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400">
+                          <Package size={44} strokeWidth={1.5} />
+                          <span className="text-sm font-bold">
+                            Image non disponible
+                          </span>
+                        </div>
+                      )}
+
+                      {galerie.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPhotoSelectionnee(
+                                (index) =>
+                                  (index - 1 + galerie.length) %
+                                  galerie.length,
+                              )
+                            }
+                            aria-label="Photo précédente"
+                            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:bg-white"
+                          >
+                            <ArrowLeft size={18} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPhotoSelectionnee(
+                                (index) =>
+                                  (index + 1) % galerie.length,
+                              )
+                            }
+                            aria-label="Photo suivante"
+                            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:bg-white"
+                          >
+                            <ArrowRight size={18} />
+                          </button>
+
+                          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-black text-white backdrop-blur">
+                            {indexSecurise + 1} / {galerie.length}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {galerie.length > 1 && (
+                      <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
+                        {galerie.map((photo, index) => (
+                          <button
+                            key={`${photo}-${index}`}
+                            type="button"
+                            onClick={() => {
+                              setPhotoSelectionnee(index)
+                              setImageErreur(false)
+                            }}
+                            aria-label={`Afficher la photo ${index + 1}`}
+                            className={`aspect-square overflow-hidden rounded-xl border-2 bg-white transition ${
+                              index === indexSecurise
+                                ? 'border-[#0052CC] ring-2 ring-blue-100'
+                                : 'border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <img
+                              src={photo}
+                              alt={`${produit.nom} - miniature ${index + 1}`}
+                              className="h-full w-full object-contain p-1"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </div>
-
             {/* Réassurance */}
             <div className="mt-4 grid grid-cols-3 gap-2.5 sm:gap-3">
               <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
@@ -503,7 +740,7 @@ export default function Produit() {
               </div>
 
               {/* Promotion */}
-              {produit.promo > 0 && tempsPromo > 0 && (
+              {obtenirEtatPromotion(produit) === 'active' && tempsPromo > 0 && (
                 <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-[#FFF7F0]">
                   <div className="flex items-center gap-3 px-4 py-3.5">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A1A] text-white shadow-sm">
@@ -533,6 +770,75 @@ export default function Produit() {
                 </div>
               )}
 
+              {/* Variantes / couleurs */}
+              {variantesProduit.length > 0 && (
+                <div className="mt-6 rounded-2xl border border-slate-200/80 bg-[#F7F9FC] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                    Choisir une couleur
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {variantesProduit.map((variante) => {
+                      const disponible = variante.stock > 0
+                      const selectionnee =
+                        varianteSelectionnee?.id === variante.id
+
+                      return (
+                        <button
+                          key={variante.id}
+                          type="button"
+                          disabled={!disponible}
+                          onClick={() => {
+                            if (disponible) {
+                              setVarianteSelectionnee(variante)
+                              setQuantite(1)
+                            }
+                          }}
+                          aria-label={
+                            disponible
+                              ? `Couleur ${variante.nom}`
+                              : `Couleur ${variante.nom} épuisée`
+                          }
+                          className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition ${
+                            selectionnee
+                              ? 'border-[#0052CC] ring-4 ring-blue-100'
+                              : disponible
+                                ? 'border-white shadow-md hover:scale-105'
+                                : 'cursor-not-allowed border-slate-300 opacity-35 grayscale'
+                          }`}
+                        >
+                          <span
+                            className="h-8 w-8 rounded-full border border-black/10 shadow-inner"
+                            style={{
+                              backgroundColor: obtenirCouleurVisuelle(
+                                variante.nom,
+                              ),
+                            }}
+                          />
+
+                          {!disponible && (
+                            <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-slate-500" />
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              {produit.description?.trim() && (
+                <div className="mt-6 rounded-2xl border border-slate-200/80 bg-[#F7F9FC] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                    Description
+                  </p>
+
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600">
+                    {produit.description.trim()}
+                  </p>
+                </div>
+              )}
+
               {/* Quantité */}
               <div className="mt-6">
                 <div className="mb-3 flex items-center justify-between">
@@ -542,7 +848,7 @@ export default function Produit() {
 
                   {enStock && (
                     <span className="text-[10px] font-bold text-slate-400">
-                      {produit.stock} disponible{produit.stock > 1 ? 's' : ''}
+                      Disponible en stock
                     </span>
                   )}
                 </div>
@@ -565,7 +871,10 @@ export default function Produit() {
                   <button
                     type="button"
                     onClick={augmenterQuantite}
-                    disabled={enStock && quantite >= produit.stock}
+                    disabled={
+                      (enStock || varianteSelectionnee) &&
+                      quantite >= stockProduit
+                    }
                     aria-label="Augmenter la quantité"
                     className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0B1E3D] text-white shadow-sm transition hover:bg-[#0052CC] disabled:cursor-not-allowed disabled:opacity-40"
                   >
@@ -602,16 +911,13 @@ export default function Produit() {
                   type="button"
                   onClick={commanderMaintenant}
                   disabled={indisponible}
-                  className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-[#0052CC] px-5 text-sm font-black text-white shadow-[0_14px_35px_rgba(0,82,204,0.22)] transition hover:-translate-y-0.5 hover:bg-[#003D99] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] bg-[#D92D20] px-5 text-sm font-bold text-white shadow-[0_2px_10px_rgba(217,45,32,0.14)] transition-all duration-150 hover:bg-[#C6281D] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                 >
-                  <ShoppingBag size={19} />
+                  <Zap size={17} />
                   {indisponible ? 'Produit indisponible' : 'Commander maintenant'}
 
                   {!indisponible && (
-                    <ArrowRight
-                      size={17}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
+                    <span aria-hidden="true" className="text-white/70">›</span>
                   )}
                 </button>
 
@@ -619,9 +925,9 @@ export default function Produit() {
                   type="button"
                   onClick={ajouterAuPanier}
                   disabled={indisponible}
-                  className="inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl border-2 border-[#0B1E3D] bg-white px-5 text-sm font-black text-[#0B1E3D] transition hover:bg-[#0B1E3D] hover:text-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] border border-[#E2E5E9] bg-[#FFFEFC] px-5 text-sm font-bold text-[#171717] shadow-none transition-all duration-150 hover:border-[#D5D9DE] hover:bg-white active:scale-[0.99] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
                 >
-                  <ShoppingCart size={19} />
+                  <ShoppingCart size={17} />
                   Ajouter au panier
                 </button>
               </div>
