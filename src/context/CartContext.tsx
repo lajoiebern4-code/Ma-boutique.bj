@@ -14,6 +14,8 @@ export type CartProduct = {
   image_url?: string | null
   stock?: number
   surCommande?: boolean
+  variante_id?: string | null
+  variante_nom?: string | null
 }
 
 export type CartItem = {
@@ -38,6 +40,10 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 const STORAGE_KEY = 'chinashop-panier'
 
+function obtenirCleLigne(produit: CartProduct) {
+  return `${produit.id}::${produit.variante_id || ''}`
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
@@ -54,7 +60,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const ajouter = (produit: CartProduct) => {
     setItems((actuels) => {
-      const existe = actuels.find((item) => item.produit.id === produit.id)
+      const cleProduit = obtenirCleLigne(produit)
+      const existe = actuels.find(
+        (item) => obtenirCleLigne(item.produit) === cleProduit,
+      )
 
       if (existe) {
         if (!produit.surCommande) {
@@ -63,7 +72,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
 
         return actuels.map((item) =>
-          item.produit.id === produit.id
+          obtenirCleLigne(item.produit) === cleProduit
             ? { ...item, quantite: item.quantite + 1 }
             : item,
         )
@@ -80,7 +89,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const augmenter = (id: string) => {
     setItems((actuels) =>
       actuels.map((item) => {
-        if (item.produit.id !== id) return item
+        const correspond =
+          item.produit.id === id ||
+          obtenirCleLigne(item.produit) === id
+
+        if (!correspond) return item
 
         if (!item.produit.surCommande) {
           const stock = Number(item.produit.stock || 0)
@@ -95,18 +108,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const diminuer = (id: string) => {
     setItems((actuels) =>
       actuels
-        .map((item) =>
-          item.produit.id === id
+        .map((item) => {
+          const correspond =
+            item.produit.id === id ||
+            obtenirCleLigne(item.produit) === id
+
+          return correspond
             ? { ...item, quantite: item.quantite - 1 }
-            : item,
-        )
+            : item
+        })
         .filter((item) => item.quantite > 0),
     )
   }
 
   const supprimer = (id: string) => {
     setItems((actuels) =>
-      actuels.filter((item) => item.produit.id !== id),
+      actuels.filter(
+        (item) =>
+          item.produit.id !== id &&
+          obtenirCleLigne(item.produit) !== id,
+      ),
     )
   }
 

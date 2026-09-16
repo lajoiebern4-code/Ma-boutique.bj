@@ -49,8 +49,10 @@ function convertirDateInput(valeur: string | null | undefined) {
   const annee = date.getFullYear()
   const mois = String(date.getMonth() + 1).padStart(2, '0')
   const jour = String(date.getDate()).padStart(2, '0')
+  const heures = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
 
-  return `${annee}-${mois}-${jour}`
+  return `${annee}-${mois}-${jour}T${heures}:${minutes}`
 }
 
 function formatDate(valeur: string | null | undefined) {
@@ -60,10 +62,12 @@ function formatDate(valeur: string | null | undefined) {
 
   if (Number.isNaN(date.getTime())) return 'Date invalide'
 
-  return date.toLocaleDateString('fr-FR', {
+  return date.toLocaleString('fr-FR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 
@@ -94,6 +98,9 @@ export default function Annonces() {
     useState<Formulaire>(formulaireInitial)
 
   const [enregistrement, setEnregistrement] = useState(false)
+
+  const [annonceASupprimer, setAnnonceASupprimer] =
+    useState<Annonce | null>(null)
 
   async function chargerAnnonces() {
     setChargement(true)
@@ -189,10 +196,10 @@ export default function Annonces() {
       actif: formulaire.actif,
       ordre: Number(formulaire.ordre) || 0,
       dateDebut: formulaire.dateDebut
-        ? `${formulaire.dateDebut}T00:00:00`
+        ? new Date(formulaire.dateDebut).toISOString()
         : null,
       dateFin: formulaire.dateFin
-        ? `${formulaire.dateFin}T23:59:59`
+        ? new Date(formulaire.dateFin).toISOString()
         : null,
     }
 
@@ -246,12 +253,16 @@ export default function Annonces() {
     )
   }
 
-  async function supprimer(annonce: Annonce) {
-    const confirme = window.confirm(
-      `Supprimer définitivement l’annonce "${annonce.titre || annonce.message}" ?`,
-    )
+  function demanderSuppression(annonce: Annonce) {
+    setErreur('')
+    setAnnonceASupprimer(annonce)
+  }
 
-    if (!confirme) return
+  async function supprimer() {
+    if (!annonceASupprimer) return
+
+    const annonce = annonceASupprimer
+    setErreur('')
 
     const resultat = await supprimerAnnonceAdmin(annonce.id)
 
@@ -267,134 +278,199 @@ export default function Annonces() {
       ancien.filter((item) => item.id !== annonce.id),
     )
 
+    setAnnonceASupprimer(null)
     setMessage('Annonce supprimée.')
   }
 
   return (
-    <div className="min-h-full bg-slate-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-orange-600">
-                <Megaphone size={21} />
+    <div className="min-h-full bg-[#F7F8FA] p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+
+        {/* HEADER */}
+        <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-l from-sky-50 to-transparent lg:block" />
+
+          <div className="relative flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-[#0284C7] ring-1 ring-sky-100">
+                <Megaphone size={22} strokeWidth={2.3} />
               </div>
 
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-[#0B1E3D]">
-                  Annonces
-                </h1>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-black tracking-tight text-[#0B1E3D]">
+                    Annonces
+                  </h1>
 
-                <p className="mt-1 text-sm text-slate-500">
-                  Gérez les messages affichés dans la bande d’information
-                  de l’accueil.
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                    Communication
+                  </span>
+                </div>
+
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
+                  Gérez les messages visibles dans la bande d’information de votre boutique.
                 </p>
               </div>
             </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={chargerAnnonces}
+                disabled={chargement}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-[#0B1E3D] shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <RefreshCw
+                  size={16}
+                  className={chargement ? 'animate-spin' : ''}
+                />
+                Actualiser
+              </button>
+
+              <button
+                type="button"
+                onClick={ouvrirCreation}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-4 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#0369A1] hover:shadow-md"
+              >
+                <Plus size={17} />
+                Nouvelle annonce
+              </button>
+            </div>
           </div>
+        </section>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={chargerAnnonces}
-              disabled={chargement}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#0B1E3D] transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50"
-            >
-              <RefreshCw
-                size={16}
-                className={chargement ? 'animate-spin' : ''}
-              />
-              Actualiser
-            </button>
-
-            <button
-              type="button"
-              onClick={ouvrirCreation}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-4 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#0369A1]"
-            >
-              <Plus size={17} />
-              Nouvelle annonce
-            </button>
-          </div>
-        </div>
-
+        {/* ALERTES */}
         {erreur && (
-          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+          <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-sm">
             <X size={18} className="mt-0.5 shrink-0" />
             <span>{erreur}</span>
           </div>
         )}
 
         {message && !modalOuverte && (
-          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
+          <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700 shadow-sm">
             <Check size={18} className="mt-0.5 shrink-0" />
             <span>{message}</span>
           </div>
         )}
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Total
-            </p>
-            <p className="mt-2 text-3xl font-black text-[#0B1E3D]">
-              {annonces.length}
+        {/* KPI */}
+        <section className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                  Total
+                </p>
+                <p className="mt-2 text-3xl font-black tracking-tight text-[#0B1E3D]">
+                  {annonces.length}
+                </p>
+              </div>
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                <Megaphone size={19} />
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs font-semibold text-slate-400">
+              Annonces enregistrées
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Actives
-            </p>
-            <p className="mt-2 text-3xl font-black text-emerald-600">
-              {annonces.filter((annonce) => annonce.actif).length}
+          <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-600">
+                  Actives
+                </p>
+                <p className="mt-2 text-3xl font-black tracking-tight text-emerald-600">
+                  {annonces.filter((annonce) => annonce.actif).length}
+                </p>
+              </div>
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <Check size={19} />
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs font-semibold text-slate-400">
+              Potentiellement visibles
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Inactives
-            </p>
-            <p className="mt-2 text-3xl font-black text-slate-400">
-              {annonces.filter((annonce) => !annonce.actif).length}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                  Inactives
+                </p>
+                <p className="mt-2 text-3xl font-black tracking-tight text-slate-400">
+                  {annonces.filter((annonce) => !annonce.actif).length}
+                </p>
+              </div>
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                <Power size={19} />
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs font-semibold text-slate-400">
+              Actuellement masquées
             </p>
           </div>
-        </div>
+        </section>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        {/* LISTE */}
+        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+              <h2 className="text-sm font-black text-[#0B1E3D]">
+                Vos annonces
+              </h2>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">
+                Les messages sont affichés selon leur ordre de priorité.
+              </p>
+            </div>
+
+            <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500">
+              {annonces.length} {annonces.length > 1 ? 'annonces' : 'annonce'}
+            </span>
+          </div>
+
           {chargement ? (
             <div className="divide-y divide-slate-100">
               {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="animate-pulse p-5"
-                >
-                  <div className="h-4 w-1/3 rounded bg-slate-200" />
-                  <div className="mt-3 h-3 w-3/4 rounded bg-slate-100" />
+                <div key={item} className="animate-pulse p-5 sm:p-6">
+                  <div className="flex gap-4">
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-200" />
+                    <div className="min-w-0 flex-1">
+                      <div className="h-4 w-32 rounded bg-slate-200" />
+                      <div className="mt-3 h-3 w-3/4 rounded bg-slate-100" />
+                      <div className="mt-2 h-3 w-1/2 rounded bg-slate-100" />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           ) : annonces.length === 0 ? (
-            <div className="px-6 py-16 text-center">
-              <Bell
-                size={38}
-                className="mx-auto text-slate-300"
-              />
+            <div className="px-6 py-20 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-slate-300">
+                <Bell size={30} />
+              </div>
 
-              <h2 className="mt-4 text-base font-black text-[#0B1E3D]">
+              <h2 className="mt-5 text-lg font-black text-[#0B1E3D]">
                 Aucune annonce
               </h2>
 
-              <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                Créez votre première annonce. Elle pourra ensuite
-                apparaître automatiquement dans la bande d’information
-                de l’accueil.
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                Créez votre première annonce pour communiquer une information,
+                une promotion ou une nouveauté à vos clients.
               </p>
 
               <button
                 type="button"
                 onClick={ouvrirCreation}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0284C7] px-4 py-2.5 text-sm font-extrabold text-white"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0284C7] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#0369A1]"
               >
                 <Plus size={16} />
                 Créer une annonce
@@ -403,77 +479,79 @@ export default function Annonces() {
           ) : (
             <div className="divide-y divide-slate-100">
               {annonces.map((annonce) => (
-                <div
+                <article
                   key={annonce.id}
-                  className="p-5 transition hover:bg-slate-50/70"
+                  className="group p-5 transition hover:bg-slate-50/60 sm:p-6"
                 >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase ${couleurType(annonce.type)}`}
-                        >
-                          {annonce.type}
-                        </span>
-
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-[10px] font-black ${
-                            annonce.actif
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {annonce.actif ? 'Active' : 'Inactive'}
-                        </span>
-
-                        <span className="text-[10px] font-bold text-slate-400">
-                          Ordre {annonce.ordre}
-                        </span>
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex min-w-0 gap-4">
+                      <div
+                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${couleurType(annonce.type)}`}
+                      >
+                        <Megaphone size={18} />
                       </div>
 
-                      <h2 className="mt-3 text-base font-black text-[#0B1E3D]">
-                        {annonce.titre || 'Annonce sans titre'}
-                      </h2>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${couleurType(annonce.type)}`}
+                          >
+                            {annonce.type}
+                          </span>
 
-                      <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                        {annonce.message}
-                      </p>
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${
+                              annonce.actif
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-slate-100 text-slate-500'
+                            }`}
+                          >
+                            {annonce.actif ? 'Active' : 'Inactive'}
+                          </span>
 
-                      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[11px] font-semibold text-slate-400">
-                        <span>
-                          Début : {formatDate(annonce.date_debut)}
-                        </span>
+                          <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-bold text-slate-400">
+                            Priorité {annonce.ordre}
+                          </span>
+                        </div>
 
-                        <span>
-                          Fin : {formatDate(annonce.date_fin)}
-                        </span>
+                        <h3 className="mt-3 text-base font-black text-[#0B1E3D]">
+                          {annonce.titre || 'Annonce sans titre'}
+                        </h3>
+
+                        <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                          {annonce.message}
+                        </p>
+
+                        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-semibold text-slate-400">
+                          <span>
+                            Début : {formatDate(annonce.date_debut)}
+                          </span>
+
+                          <span>
+                            Fin : {formatDate(annonce.date_fin)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex shrink-0 flex-wrap gap-2">
+                    <div className="flex shrink-0 flex-wrap gap-2 lg:pt-0.5">
                       <button
                         type="button"
-                        onClick={() =>
-                          changerActivation(annonce)
-                        }
-                        className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-extrabold transition ${
+                        onClick={() => changerActivation(annonce)}
+                        className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3.5 text-xs font-extrabold transition ${
                           annonce.actif
                             ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
                             : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                         }`}
                       >
                         <Power size={14} />
-                        {annonce.actif
-                          ? 'Désactiver'
-                          : 'Activer'}
+                        {annonce.actif ? 'Désactiver' : 'Activer'}
                       </button>
 
                       <button
                         type="button"
-                        onClick={() =>
-                          ouvrirModification(annonce)
-                        }
-                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-extrabold text-[#0B1E3D] transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                        onClick={() => ouvrirModification(annonce)}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-extrabold text-[#0B1E3D] transition hover:border-sky-200 hover:bg-sky-50 hover:text-[#0284C7]"
                       >
                         <Edit3 size={14} />
                         Modifier
@@ -481,57 +559,65 @@ export default function Annonces() {
 
                       <button
                         type="button"
-                        onClick={() => supprimer(annonce)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-extrabold text-red-600 transition hover:bg-red-50"
+                        onClick={() => demanderSuppression(annonce)}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-red-100 bg-white px-3.5 text-xs font-extrabold text-red-600 transition hover:border-red-200 hover:bg-red-50"
                       >
                         <Trash2 size={14} />
                         Supprimer
                       </button>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           )}
-        </div>
+        </section>
       </div>
 
+      {/* MODALE */}
       {modalOuverte && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1E3D]/50 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
-              <div>
-                <h2 className="text-lg font-black text-[#0B1E3D]">
-                  {annonceModifiee
-                    ? 'Modifier l’annonce'
-                    : 'Nouvelle annonce'}
-                </h2>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1E3D]/60 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+          <div className="max-h-[94vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl border border-white/70 bg-white shadow-2xl sm:rounded-3xl">
+            <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur sm:px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-[#0284C7]">
+                    <Megaphone size={18} />
+                  </div>
 
-                <p className="mt-1 text-xs text-slate-500">
-                  Cette annonce pourra apparaître dans la bande
-                  d’information de l’accueil.
-                </p>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-lg font-black text-[#0B1E3D]">
+                      {annonceModifiee
+                        ? 'Modifier l’annonce'
+                        : 'Nouvelle annonce'}
+                    </h2>
+
+                    <p className="mt-0.5 text-xs font-medium text-slate-400">
+                      Préparez le message qui sera présenté à vos clients.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={fermerModal}
+                  disabled={enregistrement}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+                >
+                  <X size={19} />
+                </button>
               </div>
-
-              <button
-                type="button"
-                onClick={fermerModal}
-                disabled={enregistrement}
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
-              >
-                <X size={19} />
-              </button>
             </div>
 
             <div className="space-y-5 p-5 sm:p-6">
               {erreur && (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold leading-5 text-red-700">
                   {erreur}
                 </div>
               )}
 
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">
+                <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
                   Titre
                 </span>
 
@@ -539,68 +625,96 @@ export default function Annonces() {
                   type="text"
                   value={formulaire.titre}
                   onChange={(event) =>
-                    modifierChamp(
-                      'titre',
-                      event.target.value,
-                    )
+                    modifierChamp('titre', event.target.value)
                   }
                   placeholder="Ex. Offre spéciale"
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0B1E3D] outline-none transition focus:border-[#0284C7] focus:ring-4 focus:ring-blue-500/10"
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-500/10"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">
-                  Message *
-                </span>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
+                    Message *
+                  </span>
+
+                  <span className="text-[10px] font-semibold text-slate-400">
+                    Visible par vos clients
+                  </span>
+                </div>
 
                 <textarea
                   value={formulaire.message}
                   onChange={(event) =>
-                    modifierChamp(
-                      'message',
-                      event.target.value,
-                    )
+                    modifierChamp('message', event.target.value)
                   }
-                  rows={4}
+                  rows={5}
                   placeholder="Ex. Livraison à domicile disponible partout à Cotonou."
-                  className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold leading-6 text-[#0B1E3D] outline-none transition focus:border-[#0284C7] focus:ring-4 focus:ring-blue-500/10"
+                  className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold leading-6 text-[#0B1E3D] outline-none transition placeholder:text-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-500/10"
                 />
               </label>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">
+                  <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
                     Type
                   </span>
 
-                  <select
-                    value={formulaire.type}
-                    onChange={(event) =>
-                      modifierChamp(
-                        'type',
-                        event.target.value,
-                      )
-                    }
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-blue-500/10"
-                  >
-                    <option value="information">
-                      Information
-                    </option>
-                    <option value="promotion">
-                      Promotion
-                    </option>
-                    <option value="nouveaute">
-                      Nouveauté
-                    </option>
-                    <option value="important">
-                      Important
-                    </option>
-                  </select>
+                  <div className="grid grid-cols-2 gap-2.5">
+  {[
+    { value: 'information', label: 'Information', icon: 'ⓘ', description: 'Message général' },
+    { value: 'promotion', label: 'Promotion', icon: '↗', description: 'Offre commerciale' },
+    { value: 'nouveaute', label: 'Nouveauté', icon: '✦', description: 'Nouveau produit' },
+    { value: 'important', label: 'Important', icon: '!', description: 'Message prioritaire' },
+  ].map((option) => {
+    const actif = formulaire.type === option.value
+
+    return (
+      <button
+        key={option.value}
+        type="button"
+        onClick={() => modifierChamp('type', option.value)}
+        className={`group relative rounded-2xl border p-3 text-left transition-all duration-200 ${
+          actif
+            ? 'border-[#0284C7] bg-sky-50 shadow-md shadow-sky-500/10 ring-2 ring-[#0284C7]/10'
+            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm'
+        }`}
+      >
+        <div className="flex items-start gap-2.5">
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-black ${
+            actif
+              ? 'bg-[#0284C7] text-white'
+              : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
+          }`}>
+            {option.icon}
+          </div>
+
+          <div className="min-w-0">
+            <p className={`text-xs font-black ${
+              actif ? 'text-[#0284C7]' : 'text-[#0B1E3D]'
+            }`}>
+              {option.label}
+            </p>
+
+            <p className="mt-0.5 text-[10px] font-medium leading-4 text-slate-400">
+              {option.description}
+            </p>
+          </div>
+        </div>
+
+        {actif && (
+          <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#0284C7] text-[10px] font-black text-white">
+            ✓
+          </div>
+        )}
+      </button>
+    )
+  })}
+</div>
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">
+                  <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
                     Ordre d’affichage
                   </span>
 
@@ -609,50 +723,41 @@ export default function Annonces() {
                     min="0"
                     value={formulaire.ordre}
                     onChange={(event) =>
-                      modifierChamp(
-                        'ordre',
-                        event.target.value,
-                      )
+                      modifierChamp('ordre', event.target.value)
                     }
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-blue-500/10"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-sky-500/10"
                   />
                 </label>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">
+                  <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
                     Date de début
                   </span>
 
                   <input
-                    type="date"
+                    type="datetime-local"
                     value={formulaire.dateDebut}
                     onChange={(event) =>
-                      modifierChamp(
-                        'dateDebut',
-                        event.target.value,
-                      )
+                      modifierChamp('dateDebut', event.target.value)
                     }
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-blue-500/10"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-sky-500/10"
                   />
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">
+                  <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
                     Date de fin
                   </span>
 
                   <input
-                    type="date"
+                    type="datetime-local"
                     value={formulaire.dateFin}
                     onChange={(event) =>
-                      modifierChamp(
-                        'dateFin',
-                        event.target.value,
-                      )
+                      modifierChamp('dateFin', event.target.value)
                     }
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-blue-500/10"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none focus:border-[#0284C7] focus:ring-4 focus:ring-sky-500/10"
                   />
                 </label>
               </div>
@@ -660,14 +765,11 @@ export default function Annonces() {
               <button
                 type="button"
                 onClick={() =>
-                  modifierChamp(
-                    'actif',
-                    !formulaire.actif,
-                  )
+                  modifierChamp('actif', !formulaire.actif)
                 }
                 className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${
                   formulaire.actif
-                    ? 'border-emerald-200 bg-emerald-50'
+                    ? 'border-emerald-200 bg-emerald-50/70'
                     : 'border-slate-200 bg-slate-50'
                 }`}
               >
@@ -676,7 +778,7 @@ export default function Annonces() {
                     Annonce active
                   </p>
 
-                  <p className="mt-1 text-xs font-medium text-slate-500">
+                  <p className="mt-1 text-xs font-medium leading-5 text-slate-500">
                     {formulaire.actif
                       ? 'Elle pourra être affichée sur le site.'
                       : 'Elle restera masquée du site.'}
@@ -684,7 +786,7 @@ export default function Annonces() {
                 </div>
 
                 <div
-                  className={`flex h-7 w-12 items-center rounded-full p-1 transition ${
+                  className={`flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition ${
                     formulaire.actif
                       ? 'bg-emerald-500'
                       : 'bg-slate-300'
@@ -700,26 +802,33 @@ export default function Annonces() {
                 </div>
               </button>
 
-              <div className="rounded-2xl border border-slate-200 bg-[#F7F5F1] p-4">
-                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  Aperçu
-                </p>
+              {/* APERCU */}
+              <div className="rounded-2xl border border-slate-200 bg-[#F7F8FA] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                    Aperçu client
+                  </p>
 
-                <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
-                  <div className="flex min-h-12 items-center gap-3 px-4">
+                  <span className="text-[10px] font-semibold text-slate-400">
+                    Bande d’information
+                  </span>
+                </div>
+
+                <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="flex min-h-14 items-center gap-3 px-4">
                     <Megaphone
                       size={16}
-                      className="shrink-0 text-orange-500"
+                      className="shrink-0 text-[#0284C7]"
                     />
 
-                    <div className="min-w-0">
+                    <div className="min-w-0 text-sm leading-6">
                       {formulaire.titre && (
-                        <span className="mr-2 text-xs font-black text-[#0B1E3D]">
+                        <span className="mr-2 font-black text-[#0B1E3D]">
                           {formulaire.titre}
                         </span>
                       )}
 
-                      <span className="text-xs font-semibold text-slate-600">
+                      <span className="font-semibold text-slate-600">
                         {formulaire.message ||
                           'Votre message apparaîtra ici.'}
                       </span>
@@ -728,12 +837,12 @@ export default function Annonces() {
                 </div>
               </div>
 
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={fermerModal}
                   disabled={enregistrement}
-                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-[#0B1E3D] hover:bg-slate-50 disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-[#0B1E3D] transition hover:bg-slate-50 disabled:opacity-50"
                 >
                   Annuler
                 </button>
@@ -742,7 +851,7 @@ export default function Annonces() {
                   type="button"
                   onClick={enregistrer}
                   disabled={enregistrement}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-5 text-sm font-extrabold text-white shadow-sm hover:bg-[#0369A1] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#0369A1] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {enregistrement ? (
                     <RefreshCw
@@ -759,6 +868,67 @@ export default function Annonces() {
                       ? 'Enregistrer les modifications'
                       : 'Créer l’annonce'}
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {annonceASupprimer && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0B1E3D]/60 p-4 backdrop-blur-sm"
+          onClick={() => setAnnonceASupprimer(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl border border-white/70 bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                <Trash2 size={20} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-red-500">
+                  Confirmation
+                </p>
+
+                <h2 className="mt-1 text-lg font-black text-[#0B1E3D]">
+                  Supprimer cette annonce ?
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Cette action est définitive.
+                </p>
+
+                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <p className="text-sm font-black text-[#0B1E3D]">
+                    {annonceASupprimer.titre || 'Annonce sans titre'}
+                  </p>
+
+                  <p className="mt-1 line-clamp-3 text-xs font-medium leading-5 text-slate-500">
+                    {annonceASupprimer.message}
+                  </p>
+                </div>
+
+                <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setAnnonceASupprimer(null)}
+                    className="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-[#0B1E3D] transition hover:bg-slate-50"
+                  >
+                    Annuler
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={supprimer}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-extrabold text-white transition hover:bg-red-700"
+                  >
+                    <Trash2 size={15} />
+                    Supprimer définitivement
+                  </button>
+                </div>
               </div>
             </div>
           </div>

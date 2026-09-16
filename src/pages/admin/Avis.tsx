@@ -73,6 +73,7 @@ export default function Avis() {
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState('')
   const [selection, setSelection] = useState<Avis | null>(null)
+    const [confirmationSuppression, setConfirmationSuppression] = useState<string | null>(null)
 
   const charger = useCallback(async () => {
     setChargement(true)
@@ -116,27 +117,24 @@ export default function Avis() {
   }
 
   const supprimer = async (id: string) => {
-    if (!window.confirm('Supprimer définitivement cet avis ?')) {
-      return
+      setErreur('')
+
+      const { error } = await supabase
+        .from('cs_avis_clients')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        setErreur(error.message)
+        return
+      }
+
+      setConfirmationSuppression(null)
+      setSelection(null)
+      await charger()
     }
 
-    setErreur('')
-
-    const { error } = await supabase
-      .from('cs_avis_clients')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      setErreur(error.message)
-      return
-    }
-
-    setSelection(null)
-    await charger()
-  }
-
-  const avisFiltres = useMemo(() => {
+    const avisFiltres = useMemo(() => {
     const terme = recherche.trim().toLowerCase()
 
     return avis.filter((item) => {
@@ -267,12 +265,12 @@ export default function Avis() {
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {[
+            {([
               ['tous', 'Tous'],
               ['en_attente', 'En attente'],
               ['publie', 'Publiés'],
               ['masque', 'Masqués'],
-            ].map(([valeur, label]) => (
+            ] as Array<[string, string]>).map(([valeur, label]) => (
               <button
                 key={valeur}
                 type="button"
@@ -371,7 +369,7 @@ export default function Avis() {
                   <button
                     type="button"
                     title="Supprimer"
-                    onClick={() => supprimer(item.id)}
+                    onClick={() => setConfirmationSuppression(item.id)}
                     className="rounded-lg border border-red-100 p-2 text-red-500 hover:bg-red-50"
                   >
                     <Trash2 size={15} />
@@ -389,6 +387,51 @@ export default function Avis() {
           </div>
         )}
       </section>
+
+      {confirmationSuppression && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          onClick={() => setConfirmationSuppression(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                <Trash2 size={19} />
+              </div>
+
+              <div>
+                <h2 className="text-base font-extrabold text-[#0B1E3D]">
+                  Supprimer cet avis ?
+                </h2>
+                <p className="mt-1 text-sm leading-5 text-slate-500">
+                  Cette action est définitive. L'avis sera supprimé définitivement.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmationSuppression(null)}
+                className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50"
+              >
+                Annuler
+              </button>
+
+              <button
+                type="button"
+                onClick={() => supprimer(confirmationSuppression)}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-xs font-bold text-white hover:bg-red-700"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selection && (
         <div

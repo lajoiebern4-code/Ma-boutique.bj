@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react'
+import { useState } from 'react';
+import type { FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { LockKeyhole, Mail, ShieldCheck, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'

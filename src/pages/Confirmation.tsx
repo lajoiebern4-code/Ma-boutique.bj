@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  enregistrerReferenceTransaction,
+  envoyerPreuvePaiement,
+  recupererMoyensPaiementActifs,
+  verifierCommandePaiementInvite,
+} from '../services/supabase'
+import {
   Check,
   CheckCircle2,
+  MessageCircle,
   ChevronRight,
   ClipboardCheck,
   Copy,
@@ -13,6 +20,7 @@ import {
 } from 'lucide-react'
 
 type ResultatCommande = {
+  commandeId?: string
   numeroCommande?: string
   codeSuivi?: string
   codeRetrait?: string
@@ -23,6 +31,20 @@ type ResultatCommande = {
   modeReception?: 'livraison' | 'retrait'
   modePaiement?: 'especes' | 'en_ligne' | 'mobile_money'
   telephone?: string
+  moyenPaiement?: string
+  paiementAccesToken?: string
+  paiement?: {
+    success?: boolean
+    paiement_existant?: boolean
+    paiement_id?: string
+    commande_id?: string
+    numero?: string
+    montant?: number
+    statut?: string
+    provider?: string
+    reference_paiement?: string
+    reference_transaction?: string
+  } | null
 }
 
 function formatPrix(prix: number) {
@@ -34,8 +56,17 @@ export default function Confirmation() {
 
   const [commande, setCommande] = useState<ResultatCommande | null>(null)
   const [copie, setCopie] = useState(false)
-  const [paiementEnCours, setPaiementEnCours] = useState(false)
-  const [erreurPaiement, setErreurPaiement] = useState('')
+  const [moyensPaiement, setMoyensPaiement] = useState<any[]>([])
+  const [chargementPaiement, setChargementPaiement] = useState(false)
+  const [fichierPreuve, setFichierPreuve] = useState<File | null>(null)
+  const [envoiPreuve, setEnvoiPreuve] = useState(false)
+  const [preuveEnvoyee, setPreuveEnvoyee] = useState(false)
+  const [erreurPreuve, setErreurPreuve] = useState('')
+  const [referenceTransaction, setReferenceTransaction] = useState('')
+  const [enregistrementReference, setEnregistrementReference] = useState(false)
+  const [erreurReference, setErreurReference] = useState('')
+  const [verificationPaiement, setVerificationPaiement] = useState(false)
+  const [erreurVerificationPaiement, setErreurVerificationPaiement] = useState('')
 
   useEffect(() => {
     const brut = sessionStorage.getItem('chinashop_commande_resultat')
@@ -52,6 +83,39 @@ export default function Confirmation() {
       navigate('/catalogue', { replace: true })
     }
   }, [navigate])
+    useEffect(() => {
+      if (!commande || commande.modePaiement !== 'mobile_money') return
+
+      let actif = true
+
+      async function chargerMoyensPaiement() {
+        setChargementPaiement(true)
+
+        try {
+          const moyens = await recupererMoyensPaiementActifs()
+
+          if (actif) {
+            setMoyensPaiement(moyens)
+          }
+        } catch {
+          if (actif) {
+            setMoyensPaiement([])
+          }
+        } finally {
+          if (actif) {
+            setChargementPaiement(false)
+          }
+        }
+      }
+
+      chargerMoyensPaiement()
+
+      return () => {
+        actif = false
+      }
+    }, [commande])
+
+
 
   if (!commande) return null
 
@@ -65,11 +129,165 @@ export default function Confirmation() {
 
   const acompteRequis = Number(commande.acompteRequis || 0)
   const acomptePaye = Number(commande.acomptePaye || 0)
-  const acompteRegle = acomptePaye >= acompteRequis
 
   const paiementMobile =
     commande.modePaiement === 'en_ligne' ||
     commande.modePaiement === 'mobile_money'
+
+    const paiement = commande.paiement
+    const paiementMontant = Number(paiement?.montant || 0)
+    const referencePaiement = paiement?.reference_paiement || ''
+    const statutPaiement = paiement?.statut || ''
+    const acompteRegle =
+      acomptePaye >= acompteRequis && statutPaiement === 'paye'
+
+    const providerPaiement = String(
+      paiement?.provider || commande.moyenPaiement || '',
+    ).trim().toLowerCase()
+
+    const moyenPaiement = moyensPaiement.find(
+      (moyen) =>
+        String(moyen.code || '').trim().toLowerCase() === providerPaiement,
+    )
+
+    const numeroMarchand = moyenPaiement?.numero || ''
+    const instructionsPaiement = moyenPaiement?.instructions || ''
+
+  async function gererEnvoiPreuve() {
+    if (!commande || !paiement?.paiement_id || !commande.paiementAccesToken) {
+      setErreurPreuve(
+        'Les informations sécurisées du paiement sont indisponibles.',
+      )
+      return
+    }
+
+    if (!referenceTransaction.trim()) {
+      setErreurReference(
+        'Saisissez la référence de transaction reçue après votre paiement Mobile Money.',
+      )
+      return
+    }
+
+    if (!fichierPreuve) {
+      setErreurPreuve('Sélectionnez d’abord votre capture de paiement.')
+      return
+    }
+
+    setErreurPreuve('')
+    setErreurReference('')
+    setEnregistrementReference(true)
+    setEnvoiPreuve(true)
+
+    try {
+      await enregistrerReferenceTransaction(
+        commande.numeroCommande || '',
+        commande.paiementAccesToken,
+        paiement.paiement_id,
+        referenceTransaction.trim(),
+      )
+
+      await envoyerPreuvePaiement(
+        commande.numeroCommande || '',
+        commande.paiementAccesToken,
+        paiement.paiement_id,
+        fichierPreuve,
+      )
+
+      setPreuveEnvoyee(true)
+      setFichierPreuve(null)
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Impossible d’enregistrer la référence ou d’envoyer la preuve de paiement.'
+
+      if (message.toLowerCase().includes('référence')) {
+        setErreurReference(message)
+      } else {
+        setErreurPreuve(message)
+      }
+    } finally {
+      setEnregistrementReference(false)
+      setEnvoiPreuve(false)
+    }
+  }
+
+  async function verifierPaiementCommande() {
+    if (!commande?.numeroCommande || !commande.paiementAccesToken) {
+      setErreurVerificationPaiement(
+        'Les informations sécurisées de la commande sont indisponibles.',
+      )
+      return
+    }
+
+    setErreurVerificationPaiement('')
+    setVerificationPaiement(true)
+
+    try {
+      const resultat = await verifierCommandePaiementInvite(
+        commande.numeroCommande,
+        commande.paiementAccesToken,
+      )
+
+      const commandeVerifiee = resultat?.commande
+      const paiementVerifie = resultat?.paiement
+
+      if (!commandeVerifiee) {
+        throw new Error(
+          'Les informations de la commande sont indisponibles.',
+        )
+      }
+
+      const commandeMiseAJour: ResultatCommande = {
+        ...commande,
+        statut: commandeVerifiee.statut,
+        acompteRequis: Number(commandeVerifiee.acompte_requis || 0),
+        acomptePaye: Number(commandeVerifiee.acompte_paye || 0),
+        paiement: paiementVerifie
+          ? {
+              paiement_id: paiementVerifie.id,
+              commande_id: commandeVerifiee.id,
+              montant: Number(paiementVerifie.montant || 0),
+              statut: paiementVerifie.statut,
+              provider: paiementVerifie.provider,
+              reference_paiement: paiementVerifie.reference_paiement,
+              reference_transaction: paiementVerifie.reference_transaction,
+
+            }
+          : commande.paiement,
+      }
+
+      setCommande(commandeMiseAJour)
+
+      sessionStorage.setItem(
+        'chinashop_commande_resultat',
+        JSON.stringify(commandeMiseAJour),
+      )
+
+      const acompteConfirme =
+        Number(commandeVerifiee.acompte_paye || 0) >=
+        Number(commandeVerifiee.acompte_requis || 0)
+
+      if (acompteConfirme) {
+        const codeSuivi =
+          commandeMiseAJour.codeSuivi ||
+          commandeMiseAJour.codeRetrait ||
+          ''
+
+        if (codeSuivi) {
+          navigate(`/suivi?code=${encodeURIComponent(codeSuivi)}`)
+        }
+      }
+    } catch (error) {
+      setErreurVerificationPaiement(
+        error instanceof Error
+          ? error.message
+          : 'Impossible de vérifier le paiement de la commande.',
+      )
+    } finally {
+      setVerificationPaiement(false)
+    }
+  }
 
   async function copierCode() {
     if (!code) return
@@ -81,18 +299,6 @@ export default function Confirmation() {
     } catch {
       // Le code reste visible.
     }
-  }
-
-  function demanderPaiementAcompte() {
-    setPaiementEnCours(true)
-    setErreurPaiement('')
-
-    setTimeout(() => {
-      setPaiementEnCours(false)
-      setErreurPaiement(
-        "Le paiement de l'acompte sera disponible prochainement.",
-      )
-    }, 350)
   }
 
   return (
@@ -328,25 +534,310 @@ export default function Confirmation() {
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={demanderPaiementAcompte}
-                      disabled={paiementEnCours}
-                      className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0052CC] px-5 text-sm font-black text-white shadow-lg shadow-blue-100 transition hover:bg-[#003D99] disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <CreditCard size={18} />
+                    {commande.modePaiement === 'mobile_money' ? (
+                      <div className="mt-4 overflow-hidden rounded-2xl border border-[#0052CC]/15 bg-white shadow-sm">
+                        <div className="border-b border-slate-100 bg-[#F7F9FC] p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0052CC]/10 text-[#0052CC]">
+                              <CreditCard size={18} />
+                            </div>
 
-                      {paiementEnCours
-                        ? 'Préparation du paiement...'
-                        : `Payer l’acompte — ${formatPrix(acompteRequis)}`}
-                    </button>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-black text-[#081A33]">
+                                  Paiement Mobile Money
+                                </p>
+                                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[8px] font-black uppercase tracking-wide text-amber-700">
+                                  En attente
+                                </span>
+                              </div>
 
-                    {erreurPaiement && (
-                      <p className="mt-3 rounded-xl bg-red-50 p-3 text-xs font-bold leading-5 text-red-700">
-                        {erreurPaiement}
-                      </p>
-                    )}
-                  </>
+                              <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
+                                Effectuez le transfert puis conservez votre preuve de paiement.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {chargementPaiement ? (
+                          <div className="p-5 text-center">
+                            <p className="text-xs font-bold text-slate-500">
+                              Chargement des informations de paiement…
+                            </p>
+                          </div>
+                        ) : moyenPaiement && numeroMarchand ? (
+                          <div className="space-y-4 p-4">
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
+                                Moyen de paiement
+                              </p>
+                              <p className="mt-1 text-sm font-black text-[#081A33]">
+                                {moyenPaiement.nom}
+                              </p>
+
+                              <div className="mt-3 rounded-xl bg-[#F7F9FC] px-3 py-2.5">
+                                <p className="text-[9px] font-black uppercase tracking-wide text-slate-400">
+                                  Numéro marchand
+                                </p>
+                                <p className="mt-0.5 text-base font-black tracking-wide text-[#081A33]">
+                                  {numeroMarchand}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl bg-[#081A33] p-4 text-white">
+                              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/50">
+                                Montant exact à envoyer
+                              </p>
+                              <p className="mt-1 text-2xl font-black">
+                                {paiementMontant > 0
+                                  ? formatPrix(paiementMontant)
+                                  : 'Montant indisponible'}
+                              </p>
+                            </div>
+
+                            {referencePaiement && (
+                              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-blue-500">
+                                  Référence à indiquer
+                                </p>
+                                <p className="mt-1 break-all text-sm font-black tracking-wide text-[#081A33]">
+                                  {referencePaiement}
+                                </p>
+                                <p className="mt-1 text-[11px] font-semibold leading-5 text-blue-700">
+                                  Indiquez cette référence dans le motif du transfert si votre opérateur le permet.
+                                </p>
+                              </div>
+                            )}
+
+                            {instructionsPaiement && (
+                              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
+                                  Instructions
+                                </p>
+                                <p className="mt-1 whitespace-pre-line text-xs font-semibold leading-5 text-slate-600">
+                                  {instructionsPaiement}
+                                </p>
+                              </div>
+                            )}
+
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                              <p className="text-xs font-black text-amber-900">
+                                Paiement en attente de confirmation
+                              </p>
+                              <p className="mt-1 text-[11px] font-semibold leading-5 text-amber-800">
+                                Votre commande est enregistrée. Après réception et vérification du paiement, notre équipe validera l’acompte.
+                              </p>
+                              {statutPaiement && (
+                                <p className="mt-2 text-[9px] font-black uppercase tracking-wide text-amber-600">
+                                  Statut : {statutPaiement}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+                              <label
+                                htmlFor="reference-transaction"
+                                className="block text-[9px] font-black uppercase tracking-[0.16em] text-blue-600"
+                              >
+                                Référence de transaction
+                              </label>
+
+                              <p className="mt-1 text-[11px] font-semibold leading-5 text-blue-800">
+                                Saisissez la référence ou l’identifiant affiché sur votre reçu Mobile Money après le transfert.
+                              </p>
+
+                              <input
+                                id="reference-transaction"
+                                type="text"
+                                value={referenceTransaction}
+                                onChange={(event) => {
+                                  setReferenceTransaction(event.target.value)
+                                  setErreurReference('')
+                                }}
+                                placeholder="Ex. 123456789012"
+                                maxLength={100}
+                                disabled={envoiPreuve || preuveEnvoyee}
+                                className="mt-3 min-h-12 w-full rounded-2xl border border-blue-200 bg-white px-4 text-sm font-bold text-[#081A33] outline-none transition placeholder:text-slate-400 focus:border-[#0052CC] focus:ring-4 focus:ring-blue-100 disabled:bg-slate-100"
+                              />
+
+                              {erreurReference && (
+                                <p className="mt-2 text-[11px] font-bold text-red-600">
+                                  {erreurReference}
+                                </p>
+                              )}
+
+                              {commande.paiement?.reference_transaction && (
+                                <p className="mt-2 text-[10px] font-bold text-emerald-600">
+                                  ✓ Référence de transaction enregistrée
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                              <div className="flex items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0052CC]/10 text-[#0052CC]">
+                                  <ClipboardCheck size={18} />
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-black text-[#081A33]">
+                                    Envoyer la preuve de paiement
+                                  </p>
+                                  <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-500">
+                                    Ajoutez une capture ou une photo du reçu pour permettre à notre équipe de vérifier rapidement votre paiement.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <label className="mt-4 block cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-4 text-center transition hover:border-[#0052CC]/30 hover:bg-blue-50/30">
+                                <input
+                                  type="file"
+                                  accept="image/jpeg,image/png,image/webp"
+                                  className="sr-only"
+                                  disabled={envoiPreuve || preuveEnvoyee}
+                                  onChange={(event) => {
+                                    const fichier = event.target.files?.[0] || null
+                                    setErreurPreuve('')
+                                    setPreuveEnvoyee(false)
+
+                                    if (!fichier) {
+                                      setFichierPreuve(null)
+                                      return
+                                    }
+
+                                    if (fichier.size > 5 * 1024 * 1024) {
+                                      setFichierPreuve(null)
+                                      setErreurPreuve(
+                                        'La preuve doit faire au maximum 5 Mo.',
+                                      )
+                                      event.target.value = ''
+                                      return
+                                    }
+
+                                    const formatsAcceptes = [
+                                      'image/jpeg',
+                                      'image/png',
+                                      'image/webp',
+                                    ]
+
+                                    if (!formatsAcceptes.includes(fichier.type)) {
+                                      setFichierPreuve(null)
+                                      setErreurPreuve(
+                                        'Format accepté : JPG, PNG ou WebP.',
+                                      )
+                                      event.target.value = ''
+                                      return
+                                    }
+
+                                    setFichierPreuve(fichier)
+                                  }}
+                                />
+
+                                <p className="text-xs font-black text-[#081A33]">
+                                  {fichierPreuve
+                                    ? fichierPreuve.name
+                                    : 'Choisir une capture ou une photo'}
+                                </p>
+
+                                <p className="mt-1 text-[10px] font-semibold text-slate-400">
+                                  JPG, PNG ou WebP • 5 Mo maximum
+                                </p>
+                              </label>
+
+                              {fichierPreuve && !preuveEnvoyee && (
+                                <button
+                                  type="button"
+                                  disabled={envoiPreuve}
+                                  onClick={gererEnvoiPreuve}
+                                  className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0052CC] px-4 text-sm font-black text-white shadow-lg shadow-blue-100 transition hover:bg-[#003D99] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  <ClipboardCheck size={17} />
+                                  {envoiPreuve
+                                    ? 'Envoi de la preuve…'
+                                    : 'Envoyer la preuve'}
+                                </button>
+                              )}
+
+                              {preuveEnvoyee && (
+                                <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle2
+                                      size={17}
+                                      className="shrink-0 text-emerald-600"
+                                    />
+                                    <p className="text-xs font-black text-emerald-800">
+                                      Preuve envoyée avec succès
+                                    </p>
+                                  </div>
+                                  <p className="mt-1 text-[10px] font-semibold leading-5 text-emerald-700">
+                                    Notre équipe va vérifier votre paiement. Le statut restera en attente jusqu’à validation.
+                                  </p>
+                                </div>
+                              )}
+
+                              {erreurPreuve && (
+                                <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3">
+                                  <p className="text-[11px] font-bold leading-5 text-red-700">
+                                    {erreurPreuve}
+                                  </p>
+                                </div>
+                              )}
+
+                              <button
+                                type="button"
+                                disabled={verificationPaiement}
+                                onClick={verifierPaiementCommande}
+                                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#0052CC]/20 bg-[#F0F6FF] px-4 text-sm font-black text-[#0052CC] transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                <ClipboardCheck size={17} />
+                                {verificationPaiement
+                                  ? 'Vérification en cours…'
+                                  : 'Vérifier ma commande'}
+                              </button>
+
+                              {erreurVerificationPaiement && (
+                                <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3">
+                                  <p className="text-[11px] font-bold leading-5 text-red-700">
+                                    {erreurVerificationPaiement}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4">
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                              <p className="text-sm font-black text-amber-900">
+                                Paiement Mobile Money indisponible
+                              </p>
+                              <p className="mt-1 text-xs font-semibold leading-5 text-amber-800">
+                                Aucun numéro marchand actif n’est actuellement configuré pour ce moyen de paiement. Votre commande reste enregistrée.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-2xl border border-amber-200 bg-white/80 p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                            <CreditCard size={17} />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="text-sm font-black text-[#081A33]">
+                              Paiement de l’acompte
+                            </p>
+                            <p className="mt-1 text-xs font-semibold leading-5 text-amber-800">
+                              Votre commande est bien enregistrée et l’acompte
+                              requis est de{' '}
+                              <strong>{formatPrix(acompteRequis)}</strong>.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}                  </>
                 )}
               </section>
             )}
@@ -405,11 +896,45 @@ export default function Confirmation() {
             <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <button
                 type="button"
-                onClick={() => navigate('/suivi')}
-                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[#0052CC] px-5 text-sm font-black text-white shadow-lg shadow-blue-100 transition hover:bg-[#003D99] active:scale-[0.99]"
+                onClick={() =>
+                  navigate(
+                    commande.commandeId
+                      ? `/assistance?commandeId=${encodeURIComponent(commande.commandeId)}`
+                      : '/assistance'
+                  )
+                }
+                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-5 text-sm font-black text-orange-700 transition hover:bg-orange-100 active:scale-[0.99]"
+              >
+                <MessageCircle size={18} />
+                Contacter l'assistance
+                <ChevronRight size={17} />
+              </button>
+
+              <button
+                type="button"
+                disabled={paiementMobile && !acompteRegle}
+                onClick={() => {
+                  if (paiementMobile && !acompteRegle) return
+
+                  const codeSuivi =
+                    commande.codeSuivi || commande.codeRetrait || ''
+
+                  navigate(
+                    codeSuivi
+                      ? `/suivi?code=${encodeURIComponent(codeSuivi)}`
+                      : '/suivi'
+                  )
+                }}
+                className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-black shadow-lg transition active:scale-[0.99] ${
+                  paiementMobile && !acompteRegle
+                    ? 'cursor-not-allowed bg-slate-200 text-slate-400 shadow-none'
+                    : 'bg-[#0052CC] text-white shadow-blue-100 hover:bg-[#003D99]'
+                }`}
               >
                 <Truck size={18} />
-                Suivre ma commande
+                {paiementMobile && !acompteRegle
+                  ? 'Suivi disponible après validation du paiement'
+                  : 'Suivre ma commande'}
                 <ChevronRight size={17} />
               </button>
 

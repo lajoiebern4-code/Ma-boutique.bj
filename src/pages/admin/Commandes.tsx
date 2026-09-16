@@ -18,6 +18,7 @@ import {
   demarrerTrajetLivraison,
   enregistrerArriveeLivraison,
   terminerTrajetLivraison,
+  notifierMiseAJourSuivi,
 } from '../../services/supabase'
 
 type LigneCommande = {
@@ -31,6 +32,11 @@ type LigneCommande = {
   image_url?: string
   categorie?: string
   description?: string
+}
+
+type CommandeDetailleeRPC = {
+  commande?: Partial<Commande>
+  lignes?: LigneCommande[]
 }
 
 type Commande = {
@@ -54,6 +60,7 @@ type Commande = {
   acompte_requis?: number
   acompte_paye?: number
   type_commande?: string
+  type_parcours?: string
   livraison_statut?: string
   point_depart?: string
   point_destination?: string
@@ -154,7 +161,7 @@ export default function Commandes() {
 
     async function executerProchaineAction(commande: Commande) {
       if (!commande.numero) {
-        alert('Numéro de commande introuvable.')
+        setErreur('Numéro de commande introuvable.')
         return
       }
 
@@ -166,8 +173,97 @@ export default function Commandes() {
         commande.livraison_statut || 'non_planifiee',
       ).toLowerCase()
 
+      console.log('[DEBUG PROCHAINE ACTION]', {
+        numero: commande.numero,
+        statut: commande.statut,
+        statut_normalise: statut,
+        type_parcours: commande.type_parcours,
+        mode_reception: commande.mode_reception,
+      })
+
       try {
         setStatutEnCours(commande.numero)
+
+        // Nouveau parcours sur commande : utiliser exclusivement le moteur V2
+        if (String(commande.type_parcours || '').toLowerCase() === 'sur_commande') {
+          if (statut === 'acompte_requis') {
+            await changerStatut(commande, 'acompte_confirme')
+            return
+          }
+
+          if (statut === 'acompte_confirme') {
+            await changerStatut(commande, 'achat_fournisseur')
+            return
+          }
+
+          if (statut === 'achat_fournisseur') {
+            await changerStatut(commande, 'preparation_chine')
+            return
+          }
+
+          if (statut === 'preparation_chine') {
+            await changerStatut(commande, 'chargee')
+            return
+          }
+
+          if (statut === 'chargee') {
+            await changerStatut(commande, 'partie_chine')
+            return
+          }
+
+          if (statut === 'partie_chine') {
+            await changerStatut(commande, 'en_transit')
+            return
+          }
+
+          if (statut === 'en_transit') {
+            await changerStatut(commande, 'arrivee_cotonou')
+            return
+          }
+
+          if (statut === 'arrivee_cotonou') {
+            await changerStatut(commande, 'solde_requis')
+            return
+          }
+
+          if (statut === 'solde_requis') {
+            await changerStatut(commande, 'solde_confirme')
+            return
+          }
+
+          if (statut === 'solde_confirme') {
+            await changerStatut(commande, 'pret')
+            return
+          }
+
+          if (statut === 'pret') {
+            if (commande.mode_reception === 'retrait') {
+              setConfirmationRetrait(true)
+              setCodeRetraitSaisi('')
+              return
+            }
+
+            if (commande.mode_reception === 'livraison') {
+              await changerStatut(commande, 'livraison_en_cours')
+              return
+            }
+          }
+
+          if (statut === 'livraison_en_cours') {
+            await changerStatut(commande, 'livree')
+            return
+          }
+
+          setErreur('Aucune prochaine action disponible pour cette commande.')
+          return
+        }
+
+        // Parcours classique
+        // Nouveau parcours sur commande : paiement reçu → en acheminement
+        if (statut === 'paiement_recu') {
+          await changerStatut(commande, 'en_acheminement')
+          return
+        }
 
         // Commande reçue → Confirmée
         if (
@@ -259,11 +355,11 @@ export default function Commandes() {
           return
         }
 
-        alert(
+        setErreur(
           'Aucune prochaine action disponible pour cette commande.',
         )
       } catch (error) {
-        alert(
+        setErreur(
           error instanceof Error
             ? error.message
             : 'Impossible d’effectuer la prochaine action.',
@@ -278,7 +374,7 @@ export default function Commandes() {
     action: 'programmer' | 'demarrer' | 'arrivee' | 'terminer',
   ) {
     if (!commande.numero) {
-      alert('Numéro de commande introuvable.')
+      setErreur('Numéro de commande introuvable.')
       return
     }
 
@@ -358,10 +454,14 @@ export default function Commandes() {
         )
       }
 
+      if (commande.code_suivi) {
+        await notifierMiseAJourSuivi(commande.code_suivi)
+      }
+
       const actualisee = await recupererCommandesAdminDetaillees()
 
       if (actualisee.success) {
-        const commandesDetaillees = (actualisee.data || []).map((item) => ({
+        const commandesDetaillees = (actualisee.data || []).map((item: CommandeDetailleeRPC) => ({
           ...(item.commande || {}),
           lignes: Array.isArray(item.lignes) ? item.lignes : [],
         }))
@@ -369,7 +469,7 @@ export default function Commandes() {
         setCommandes(commandesDetaillees)
 
         const nouvelleCommande = commandesDetaillees.find(
-          (item) =>
+          (item: Commande) =>
             item.numero === commande.numero,
         )
 
@@ -380,7 +480,7 @@ export default function Commandes() {
     } catch (err) {
       console.error('Erreur action livraison:', err)
 
-      alert(
+      setErreur(
         err instanceof Error
           ? err.message
           : 'Une erreur est survenue.',
@@ -421,7 +521,7 @@ export default function Commandes() {
 
       if (actualisee.success) {
         const commandesDetaillees = (actualisee.data || []).map(
-          (item) => ({
+          (item: CommandeDetailleeRPC) => ({
             ...(item.commande || {}),
             lignes: Array.isArray(item.lignes)
               ? item.lignes
@@ -432,7 +532,7 @@ export default function Commandes() {
         setCommandes(commandesDetaillees)
 
         const nouvelleCommande = commandesDetaillees.find(
-          (item) => item.numero === numeroCommande,
+          (item: Commande) => item.numero === numeroCommande,
         )
 
         if (nouvelleCommande) {
@@ -466,7 +566,7 @@ export default function Commandes() {
       setErreur(resultat.error || 'Impossible de récupérer les commandes.')
       setCommandes([])
     } else {
-      const commandesDetaillees = (resultat.data || []).map((item) => ({
+      const commandesDetaillees = (resultat.data || []).map((item: CommandeDetailleeRPC) => ({
         ...(item.commande || {}),
         lignes: Array.isArray(item.lignes) ? item.lignes : [],
       }))
@@ -1037,6 +1137,12 @@ export default function Commandes() {
                 )}
 
                 <div className="mt-4">
+                  <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                    <div>DEBUG statut : {String(commandeSelectionnee.statut || 'NULL')}</div>
+                    <div>DEBUG parcours : {String(commandeSelectionnee.type_parcours || 'NULL')}</div>
+                    <div>DEBUG réception : {String(commandeSelectionnee.mode_reception || 'NULL')}</div>
+                    <div>DEBUG numéro : {String(commandeSelectionnee.numero || 'NULL')}</div>
+                  </div>
                     <button
                       type="button"
                       disabled={
@@ -1059,6 +1165,37 @@ export default function Commandes() {
                               commandeSelectionnee.livraison_statut ||
                                 'non_planifiee',
                             ).toLowerCase()
+
+                            if (
+                              String(
+                                commandeSelectionnee.type_parcours || '',
+                              ).toLowerCase() === 'sur_commande'
+                            ) {
+                              const actionsSurCommande: Record<string, string> = {
+                                acompte_requis: 'Acompte en attente',
+                                acompte_confirme: 'Lancer l’achat fournisseur',
+                                achat_fournisseur: 'Préparer la commande en Chine',
+                                preparation_chine: 'Marquer comme chargée',
+                                chargee: 'Marquer comme partie de Chine',
+                                partie_chine: 'Marquer en transit',
+                                en_transit: 'Confirmer l’arrivée à Cotonou',
+                                arrivee_cotonou: 'Demander le solde',
+                                solde_requis: 'Solde en attente',
+                                solde_confirme: 'Marquer comme prête',
+                                pret:
+                                  String(
+                                    commandeSelectionnee.mode_reception || '',
+                                  ).toLowerCase() === 'retrait'
+                                    ? 'Confirmer le retrait'
+                                    : 'Démarrer la livraison',
+                                livraison_en_cours: 'Marquer comme livrée',
+                              }
+
+                              return (
+                                actionsSurCommande[statut] ||
+                                'Prochaine action'
+                              )
+                            }
 
                             if (
                               statut === 'livree' ||
@@ -1086,14 +1223,18 @@ export default function Commandes() {
 
                             if (
                               statut === 'pret' &&
-                              commandeSelectionnee.mode_reception === 'retrait'
+                              String(
+                                commandeSelectionnee.mode_reception || '',
+                              ).toLowerCase() === 'retrait'
                             ) {
                               return 'Confirmer le retrait'
                             }
 
                             if (
                               statut === 'pret' &&
-                              commandeSelectionnee.mode_reception === 'livraison'
+                              String(
+                                commandeSelectionnee.mode_reception || '',
+                              ).toLowerCase() === 'livraison'
                             ) {
                               return trajet === 'non_planifiee'
                                 ? 'Programmer la livraison'

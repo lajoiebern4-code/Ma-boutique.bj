@@ -337,11 +337,11 @@ export default function Nouveautes() {
                   </div>
 
                   <div className="mt-6 space-y-3">
-                    {[
+                    {([
                       ['01', 'Nouveaux produits', Sparkles],
                       ['02', 'Disponibles en stock', CheckCircle2],
                       ['03', 'Sur commande', Clock3],
-                    ].map(([n, label, Icon]) => {
+                    ] as const).map(([n, label, Icon]) => {
                       const StepIcon = Icon as typeof CheckCircle2
 
                       return (

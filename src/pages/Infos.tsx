@@ -275,13 +275,13 @@ export default function Infos() {
                     </div>
 
                     <div className="mt-6 space-y-3">
-                      {[
+                      {([
                         ['01', 'Produit sélectionné', Search],
                         ['02', 'Commande enregistrée', FileText],
                         ['03', 'Préparation', Box],
                         ['04', 'Acheminement', Truck],
                         ['05', 'Réception', Check],
-                      ].map(([n, label, Icon]) => {
+                      ] as const).map(([n, label, Icon]) => {
                         const StepIcon = Icon as typeof Check
 
                         return (

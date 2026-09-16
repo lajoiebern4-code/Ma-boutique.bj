@@ -15,7 +15,22 @@ export function AuthProvider({ children }) {
     }
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const utilisateur = sessionData?.session?.user || null
+
+      console.log('===== DEBUG ADMIN =====')
+      console.log('UID SESSION:', utilisateur?.id || 'AUCUN')
+      console.log('EMAIL SESSION:', utilisateur?.email || 'AUCUN')
+      window.__CS_AUTH_DEBUG__ = {
+        uid: utilisateur?.id || 'AUCUN',
+        email: utilisateur?.email || 'AUCUN',
+      }
+
       const { data, error } = await supabase.rpc('cs_est_admin')
+
+      console.log('RPC cs_est_admin:', data)
+      console.log('RPC erreur:', error || 'AUCUNE')
+      console.log('======================')
 
       if (error) {
         console.error('Erreur vérification admin:', error)

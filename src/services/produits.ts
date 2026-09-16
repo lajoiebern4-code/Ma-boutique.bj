@@ -16,6 +16,7 @@ export type Produit = {
   promo: number
   nouveau: boolean
   date_ajout: string | null
+  promo_debut: string | null
   promo_fin: string | null
 }
 
@@ -37,6 +38,7 @@ type ProduitRow = {
         promo: number | null
         nouveau: boolean | null
         date_ajout: string | null
+        promo_debut: string | null
         promo_fin: string | null
       }
     | {
@@ -49,6 +51,7 @@ type ProduitRow = {
         promo: number | null
         nouveau: boolean | null
         date_ajout: string | null
+        promo_debut: string | null
         promo_fin: string | null
       }[]
     | null
@@ -75,6 +78,7 @@ function transformerProduit(produit: ProduitRow): Produit {
     promo: Number(details?.promo ?? 0),
     nouveau: details?.nouveau === true,
     date_ajout: details?.date_ajout ?? null,
+    promo_debut: details?.promo_debut ?? null,
     promo_fin: details?.promo_fin ?? null,
   }
 }
@@ -99,6 +103,7 @@ export async function obtenirProduits(): Promise<Produit[]> {
         promo,
         nouveau,
         date_ajout,
+        promo_debut,
         promo_fin
       )
     `)

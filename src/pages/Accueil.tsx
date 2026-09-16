@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
   BadgeCheck,
@@ -15,12 +15,72 @@ import {
   Sparkles,
   Truck,
   WalletCards,
+  Zap,
 } from 'lucide-react'
+import {
+  recupererAnnoncesActives,
+  type Annonce,
+} from '../services/supabase'
 import { obtenirProduits, type Produit } from '../services/produits'
 import { useCart } from '../context/CartContext'
 
 function formatPrix(prix: number) {
   return `${Number(prix || 0).toLocaleString('fr-FR')} FCFA`
+}
+
+function calculerTempsRestant(dateCible: string | null) {
+  if (!dateCible) return 0
+
+  const cible = new Date(dateCible).getTime()
+  if (!Number.isFinite(cible)) return 0
+
+  return Math.max(0, cible - Date.now())
+}
+
+function formaterCompteRebours(duree: number) {
+  const totalSecondes = Math.max(0, Math.floor(duree / 1000))
+  const jours = Math.floor(totalSecondes / 86400)
+  const heures = Math.floor((totalSecondes % 86400) / 3600)
+  const minutes = Math.floor((totalSecondes % 3600) / 60)
+  const secondes = totalSecondes % 60
+
+  return { jours, heures, minutes, secondes }
+}
+
+function formaterHeurePromotion(dateCible: string | null) {
+  if (!dateCible) return ''
+
+  const date = new Date(dateCible)
+
+  if (!Number.isFinite(date.getTime())) return ''
+
+  return date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function obtenirEtatPromotion(produit: Produit) {
+  if (
+    produit.promo <= 0 ||
+    !produit.promo_debut ||
+    !produit.promo_fin
+  ) {
+    return 'aucune' as const
+  }
+
+  const maintenant = Date.now()
+  const debut = new Date(produit.promo_debut).getTime()
+  const fin = new Date(produit.promo_fin).getTime()
+
+  if (!Number.isFinite(debut) || !Number.isFinite(fin)) {
+    return 'aucune' as const
+  }
+
+  if (maintenant < debut) return 'programmee' as const
+  if (maintenant < fin) return 'active' as const
+
+  return 'expiree' as const
 }
 
 function BadgeDisponibilite({ produit }: { produit: Produit }) {
@@ -40,17 +100,97 @@ function BadgeDisponibilite({ produit }: { produit: Produit }) {
   )
 }
 
+const styleTitreAnnonce = `
+.titre-annonce-anime {
+  display: inline-block;
+  animation: titreAnnonce 1.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes titreAnnonce {
+  0%, 100% {
+    color: #FFFFFF;
+    text-shadow: 0 0 0 transparent;
+    transform: scale(1);
+  }
+  50% {
+    color: #FF8A3D;
+    text-shadow:
+      0 0 5px rgba(255, 138, 61, 0.9),
+      0 0 14px rgba(255, 138, 61, 0.65);
+    transform: scale(1.06);
+  }
+}
+`
+
 function BandeauPremium() {
+  const [annonces, setAnnonces] = useState<Annonce[]>([])
+
+  useEffect(() => {
+    let actif = true
+
+    async function charger() {
+      const resultat = await recupererAnnoncesActives()
+
+      if (actif && resultat.success) {
+        setAnnonces(resultat.data || [])
+      }
+    }
+
+    void charger()
+
+    return () => {
+      actif = false
+    }
+  }, [])
+
+  if (annonces.length === 0) {
+    return (
+      <div className="overflow-hidden bg-[#081A33] text-white">
+        <div className="flex min-h-[42px] items-center overflow-hidden">
+          <div className="flex shrink-0 items-center gap-2 whitespace-nowrap px-4 text-[11px] font-semibold sm:text-xs">
+            <Sparkles size={13} className="shrink-0 text-[#FF8A3D]" />
+            <span>
+              Commandez simplement • Livraison ou retrait au Bénin
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const contenu = annonces.map((annonce) => (
+    <span
+      key={annonce.id}
+      className="inline-flex shrink-0 items-center gap-2 px-10 text-[11px] font-semibold sm:text-xs"
+    >
+      <Sparkles
+        size={13}
+        className="shrink-0 text-[#FF8A3D]"
+      />
+      <span>
+        {annonce.titre && (
+  <span className="mr-1 inline-block font-black titre-annonce-anime">
+    {annonce.titre} —
+  </span>
+)}
+        {annonce.message}
+      </span>
+    </span>
+  ))
+
   return (
-    <div className="bg-[#081A33] text-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center text-[11px] font-semibold sm:text-xs">
-        <Sparkles size={13} className="text-[#FF8A3D]" />
-        <span>Commandez simplement • Livraison ou retrait au Bénin</span>
+    <div className="overflow-hidden bg-[#081A33] text-white">
+        <style>{styleTitreAnnonce}</style>
+      <div className="relative flex min-h-[42px] items-center overflow-hidden">
+        <div className="flex w-max shrink-0 items-center whitespace-nowrap animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused]">
+          {contenu}
+          {contenu}
+        </div>
       </div>
     </div>
   )
 }
-
 function HeroPremium() {
   const [recherche, setRecherche] = useState('')
 
@@ -213,7 +353,18 @@ function Categories() {
 }
 
 function ProduitsVedette() {
+  const [maintenant, setMaintenant] = useState(Date.now())
+
+  useEffect(() => {
+    const intervalle = window.setInterval(() => {
+      setMaintenant(Date.now())
+    }, 1000)
+
+    return () => window.clearInterval(intervalle)
+  }, [])
+
   const { ajouter } = useCart()
+  const navigate = useNavigate()
   const [produits, setProduits] = useState<Produit[]>([])
   const [chargement, setChargement] = useState(true)
 
@@ -223,7 +374,7 @@ function ProduitsVedette() {
     async function charger() {
       try {
         const resultat = await obtenirProduits()
-        if (actif) setProduits(resultat.slice(0, 8))
+        if (actif) setProduits(resultat)
       } catch (erreur) {
         console.error('Erreur de chargement:', erreur)
       } finally {
@@ -296,10 +447,70 @@ function ProduitsVedette() {
                     <BadgeDisponibilite produit={produit} />
                   </div>
 
-                  {produit.promo > 0 && (
-                    <span className="absolute right-3 top-3 rounded-full bg-[#FF7A1A] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
-                      -{produit.promo}%
-                    </span>
+                  {obtenirEtatPromotion(produit) === 'active' && (
+                    <>
+                      <span className="absolute right-3 top-3 rounded-full bg-[#FF7A1A] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
+                        -{produit.promo}%
+                      </span>
+                      <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[2] flex justify-center">
+                        {(() => {
+                          const compte = formaterCompteRebours(
+                            calculerTempsRestant(produit.promo_fin),
+                          )
+                          return (
+                            <div className="flex items-center gap-1 text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)]">
+                              {compte.jours > 0 && (
+                                <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                  {String(compte.jours).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">J</small>
+                                </span>
+                              )}
+                              <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                {String(compte.heures).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">H</small>
+                              </span>
+                              <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                {String(compte.minutes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">M</small>
+                              </span>
+                              <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                {String(compte.secondes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">S</small>
+                              </span>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                    </>
+                  )}
+
+                  {obtenirEtatPromotion(produit) === 'programmee' && (
+                    <>
+                      <span className="absolute right-3 top-3 rounded-full bg-[#0052CC] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
+                        Promotion à venir
+                      </span>
+                      <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[2] flex justify-center">
+                        {(() => {
+                          const compte = formaterCompteRebours(
+                            calculerTempsRestant(produit.promo_debut),
+                          )
+                          return (
+                            <div className="flex items-center gap-1 text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)]">
+                              {compte.jours > 0 && (
+                                <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                  {String(compte.jours).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">J</small>
+                                </span>
+                              )}
+                              <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                {String(compte.heures).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">H</small>
+                              </span>
+                              <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                {String(compte.minutes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">M</small>
+                              </span>
+                              <span className="min-w-[25px] rounded-[3px] bg-[#E53935] px-1.5 py-0.5 text-center text-sm font-black tabular-nums text-white shadow-sm">
+                                {String(compte.secondes).padStart(2, '0')}<small className="ml-0.5 text-[9px] font-bold uppercase">S</small>
+                              </span>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                    </>
                   )}
                 </Link>
 
@@ -320,24 +531,48 @@ function ProduitsVedette() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() =>
-                      ajouter({
-                        id: produit.id,
-                        nom: produit.nom,
-                        prix: produit.prix,
-                        image_url: produit.image_url || null,
-                        stock: produit.stock,
-                        surCommande:
-                          produit.stock <= 0 &&
-                          produit.disponibilite === 'sur_commande',
-                      })
-                    }
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#081A33] py-3 text-xs font-black text-white transition hover:bg-[#0052CC] active:scale-[0.98]"
-                  >
-                    <ShoppingBag size={15} />
-                    Ajouter au panier
-                  </button>
+                  <div className="mt-4 grid grid-cols-[1fr_1.12fr] gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        ajouter({
+                          id: produit.id,
+                          nom: produit.nom,
+                          prix: produit.prix,
+                          image_url: produit.image_url || null,
+                          stock: produit.stock,
+                          surCommande:
+                            produit.stock <= 0 &&
+                            produit.disponibilite === 'sur_commande',
+                        })
+                      }
+                      aria-label="Ajouter au panier"
+                      className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-[#E2E5E9] bg-[#FFFEFC] px-3 text-[#171717] shadow-none transition-all duration-150 hover:border-[#D5D9DE] hover:bg-white active:scale-[0.99]"
+                    >
+                      <ShoppingBag size={17} aria-hidden="true" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        ajouter({
+                          id: produit.id,
+                          nom: produit.nom,
+                          prix: produit.prix,
+                          image_url: produit.image_url || null,
+                          stock: produit.stock,
+                          surCommande:
+                            produit.stock <= 0 &&
+                            produit.disponibilite === 'sur_commande',
+                        })
+                        navigate('/commande')
+                      }}
+                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-[#D92D20] px-4 text-xs font-bold text-white shadow-[0_2px_8px_rgba(217,45,32,0.12)] transition-all duration-150 hover:bg-[#C6281D] active:scale-[0.99]"
+                    >
+                      <Zap size={15} aria-hidden="true" />
+                      <span>Commander</span>
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -540,8 +775,11 @@ function TemoignagesPremium() {
     return () => window.clearInterval(intervalle)
   }, [temoignages.length])
 
-  const temoignage = temoignages[index]
+  const temoignage = temoignages[index] ?? temoignages[0]
 
+  if (!temoignage) {
+    return null
+  }
   return (
     <section className="bg-[#081A33] py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
