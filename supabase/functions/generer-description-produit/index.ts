@@ -11,6 +11,20 @@ const SUPABASE_ANON_KEY =
 const AI_URL = Deno.env.get("PRODUCT_DESCRIPTION_AI_URL") || "";
 const AI_SECRET = Deno.env.get("PRODUCT_DESCRIPTION_AI_SECRET") || "";
 
+async function empreinteSecret(secret: string) {
+  const data = new TextEncoder().encode(secret);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+console.log(
+  "PRODUCT_DESCRIPTION_AI_SECRET_HASH",
+  await empreinteSecret(AI_SECRET),
+);
+
+
 function response(
   body: unknown,
   status = 200,
