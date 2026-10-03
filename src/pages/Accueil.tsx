@@ -172,66 +172,67 @@ function BandeauPremium() {
 
     async function charger() {
       const resultat = await recupererAnnoncesActives()
-
       if (actif && resultat.success) {
         setAnnonces(resultat.data || [])
       }
     }
 
     void charger()
-
     return () => {
       actif = false
     }
   }, [])
 
-  if (annonces.length === 0) {
-    return (
-      <div className="overflow-hidden border-b border-[#E8E3EF] bg-[#FAF9FC] text-[#18151F]">
-        <div className="flex min-h-[42px] items-center overflow-hidden">
-          <div className="flex shrink-0 items-center gap-2 whitespace-nowrap px-4 text-[11px] font-semibold sm:text-xs">
-            <Sparkles size={13} className="shrink-0 text-[#FF8A3D]" />
-            <span>
-              Commandez simplement • Livraison ou retrait au Bénin
-            </span>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const liste = annonces.length > 0 ? annonces : [{
+    id: 'defaut',
+    titre: 'Bienvenue',
+    message: 'Commandez simplement • Livraison ou retrait au Bénin',
+  } as Annonce]
 
-  const contenu = annonces.map((annonce) => (
+  const contenu = liste.map((annonce) => (
     <span
       key={annonce.id}
-      className="inline-flex shrink-0 items-center gap-2 px-10 text-[11px] font-semibold sm:text-xs"
+      className="inline-flex shrink-0 items-center gap-2.5 px-8 text-[12px] font-semibold sm:text-[13px]"
     >
-      <Sparkles
-        size={13}
-        className="shrink-0 text-[#FF8A3D]"
-      />
-      <span>
-        {annonce.titre && (
-  <span className="mr-1 inline-block font-black titre-annonce-anime">
-    {annonce.titre} —
-  </span>
-)}
+      <Sparkles size={13} className="shrink-0 text-[#FFB47A]" />
+      {annonce.titre && (
+        <span className="shrink-0 text-[11px] font-black uppercase tracking-[0.14em] text-[#FFB47A] sm:text-[12px]">
+          {annonce.titre}
+        </span>
+      )}
+      {annonce.titre && annonce.message && (
+        <span className="h-3 w-px shrink-0 bg-white/20" />
+      )}
+      <span className="whitespace-nowrap text-white/90">
         {annonce.message}
       </span>
+      <span className="ml-4 h-1 w-1 shrink-0 rounded-full bg-white/25" />
     </span>
   ))
 
   return (
-    <div className="overflow-hidden border-b border-[#E8E3EF] bg-[#FAF9FC] text-[#18151F]">
-        <style>{styleTitreAnnonce}</style>
-      <div className="relative flex min-h-[42px] items-center overflow-hidden">
-        <div className="flex w-max shrink-0 items-center whitespace-nowrap animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused]">
+    <div className="relative overflow-hidden bg-gradient-to-r from-[#1E1B2E] via-[#2A2344] to-[#3B2D5F] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_50%,rgba(118,84,198,0.25),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_50%,rgba(139,109,209,0.2),transparent_60%)]" />
+
+      <div className="relative flex min-h-[46px] items-center overflow-hidden">
+        <div className="flex w-max shrink-0 animate-[marquee_40s_linear_infinite] items-center whitespace-nowrap hover:[animation-play-state:paused]">
           {contenu}
           {contenu}
         </div>
       </div>
+
+      <style>{`
+        @keyframes marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
     </div>
   )
 }
+
+
 function HeroPremium() {
   const [recherche, setRecherche] = useState('')
   const heroReveal = useRevealOnScroll()
