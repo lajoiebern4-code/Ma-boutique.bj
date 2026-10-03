@@ -273,7 +273,7 @@ export default function Notifications() {
               titre: 'Nouvelle preuve de paiement reçue',
               message: `${numero} — preuve envoyée par ${client}.`,
               date: preuveDate,
-              commande: commande,
+              ...(commande ? { commande } : {}),
             },
             ...precedentes,
           ])

@@ -160,7 +160,7 @@ const faq = [
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs font-black uppercase tracking-[0.18em] text-[#FF7A1A]">
+    <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
       {children}
     </p>
   )
@@ -176,16 +176,16 @@ function InfoCard({
   texte: string
 }) {
   return (
-    <article className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF7F0] text-[#FF7A1A] transition group-hover:scale-105">
+    <article className="group rounded-[14px] border border-[#E8E3EF] bg-white p-6 shadow-sm transition duration-300 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+      <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] transition group-hover:scale-105">
         <Icon size={22} />
       </div>
 
-      <h3 className="mt-5 text-base font-black text-[#081A33]">
+      <h3 className="mt-5 text-base font-black text-[#18151F]">
         {titre}
       </h3>
 
-      <p className="mt-2 text-sm leading-6 text-slate-500">
+      <p className="mt-2 text-sm leading-6 text-[#6F687A]">
         {texte}
       </p>
     </article>
@@ -196,31 +196,31 @@ export default function Infos() {
   const [faqOuverte, setFaqOuverte] = useState<number | null>(null)
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#F7F9FC] text-[#081A33]">
+    <main className="min-h-screen overflow-hidden bg-[#FAF9FC] text-[#18151F]">
 
       {/* HERO DOCUMENTAIRE */}
-      <section className="relative overflow-hidden bg-[#071A35]">
-          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[#0052CC]/25 blur-3xl" />
-          <div className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-[#FF7A1A]/15 blur-3xl" />
+      <section className="relative overflow-hidden bg-[#FAF9FC]">
+          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[#7654C6]/25 blur-3xl" />
+          <div className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-[#7654C6]/15 blur-3xl" />
           <div className="absolute inset-x-0 bottom-0 h-px bg-white/10" />
 
           <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:py-24">
             <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
 
               <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/75 shadow-lg shadow-black/10 backdrop-blur">
-                  <BadgeCheck size={15} className="text-[#FF7A1A]" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#6F687A] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                  <BadgeCheck size={15} className="text-[#7654C6]" />
                   Guide officiel ChinaShop-Bénin
                 </div>
 
-                <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-[-0.035em] text-white sm:text-5xl lg:text-6xl">
+                <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-[-0.035em] text-[#18151F] sm:text-5xl lg:text-6xl">
                   Tout comprendre
-                  <span className="block text-[#FF7A1A]">
+                  <span className="block text-[#7654C6]">
                     avant de commander.
                   </span>
                 </h1>
 
-                <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                <p className="mt-6 max-w-2xl text-sm leading-7 text-[#6F687A] sm:text-base">
                   Retrouvez ici les informations essentielles sur les produits,
                   la commande, le paiement, la livraison, le retrait, l’acompte
                   et le suivi de votre commande.
@@ -229,7 +229,7 @@ export default function Infos() {
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <Link
                     to="/catalogue"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#FF7A1A] px-6 text-sm font-black text-white shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5 hover:bg-[#F06D0A] hover:shadow-xl"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] px-6 text-sm font-black text-white  transition-all hover:bg-[#6544B3] hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
                   >
                     Découvrir les produits
                     <ArrowRight size={17} />
@@ -237,39 +237,39 @@ export default function Infos() {
 
                   <Link
                     to="/suivi"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/[0.08] px-6 text-sm font-black text-white backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/15"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-6 text-sm font-black text-[#18151F] transition-all hover:bg-[#F1ECFA]"
                   >
                     <Truck size={17} />
                     Suivre une commande
                   </Link>
                 </div>
 
-                <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9A93A5]">
                   <span>Commande</span>
-                  <span className="h-1 w-1 rounded-full bg-[#FF7A1A]" />
+                  <span className="h-1 w-1 rounded-full bg-[#7654C6]" />
                   <span>Paiement</span>
-                  <span className="h-1 w-1 rounded-full bg-[#0052CC]" />
+                  <span className="h-1 w-1 rounded-full bg-[#7654C6]" />
                   <span>Livraison & retrait</span>
                 </div>
               </div>
 
               <div className="relative mx-auto w-full max-w-lg lg:ml-auto">
-                <div className="absolute -inset-4 rounded-[2.5rem] bg-white/[0.03] blur-xl" />
+                <div className="absolute -inset-4 rounded-[14px] bg-[#F1ECFA] blur-xl" />
 
-                <div className="relative rounded-[2rem] border border-white/10 bg-white/[0.07] p-3 shadow-2xl shadow-black/30 backdrop-blur">
-                  <div className="rounded-[1.5rem] bg-[#F7F9FC] p-5 sm:p-6">
+                <div className="relative rounded-[14px] border border-[#E8E3EF] bg-white p-3 shadow-[0_8px_24px_rgba(24,21,31,0.08)]  backdrop-blur">
+                  <div className="rounded-[14px] bg-[#FAF9FC] p-5 sm:p-6">
 
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                           Parcours client
                         </p>
-                        <p className="mt-1 text-xl font-black tracking-tight text-[#081A33]">
+                        <p className="mt-1 text-xl font-black tracking-tight text-[#18151F]">
                           De l’achat au retrait
                         </p>
                       </div>
 
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FFE8D6] text-[#FF7A1A]">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                         <ShoppingBag size={21} />
                       </div>
                     </div>
@@ -287,31 +287,31 @@ export default function Infos() {
                         return (
                           <div
                             key={String(n)}
-                            className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3.5 shadow-sm"
+                            className="flex items-center gap-3 rounded-[10px] border border-[#E8E3EF] bg-white p-3.5 shadow-sm"
                           >
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#081A33] text-xs font-black text-white">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-xs font-black text-[#7654C6]">
                               {n}
                             </span>
 
-                            <span className="flex-1 text-sm font-bold text-[#081A33]">
+                            <span className="flex-1 text-sm font-bold text-[#18151F]">
                               {label}
                             </span>
 
                             <StepIcon
                               size={17}
-                              className="text-[#FF7A1A]"
+                              className="text-[#7654C6]"
                             />
                           </div>
                         )
                       })}
                     </div>
 
-                    <div className="mt-5 flex items-center gap-3 rounded-2xl bg-[#081A33] px-4 py-3">
+                    <div className="mt-5 flex items-center gap-3 rounded-[10px] border border-[#E8E3EF] bg-[#F1ECFA] px-4 py-3">
                       <ShieldCheck
                         size={19}
-                        className="shrink-0 text-emerald-300"
+                        className="shrink-0 text-[#15803D]"
                       />
-                      <p className="text-xs font-bold leading-5 text-white">
+                      <p className="text-xs font-bold leading-5 text-[#18151F]">
                         Les informations importantes sont affichées avant la validation.
                       </p>
                     </div>
@@ -325,7 +325,7 @@ export default function Infos() {
         </section>
 
       {/* BARRE DOCUMENT */}
-      <section className="border-b border-slate-200 bg-white">
+      <section className="border-b border-[#E8E3EF] bg-white">
         <div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:grid-cols-3 sm:px-6">
           {[
             ['Commande', 'Informations claires'],
@@ -334,12 +334,12 @@ export default function Infos() {
           ].map(([titre, texte]) => (
             <div
               key={titre}
-              className="flex items-center gap-3 rounded-2xl bg-[#F7F9FC] px-4 py-3"
+              className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] px-4 py-3"
             >
               <Check size={18} className="text-emerald-600" />
               <div>
-                <p className="text-xs font-black text-[#081A33]">{titre}</p>
-                <p className="text-xs text-slate-500">{texte}</p>
+                <p className="text-xs font-black text-[#18151F]">{titre}</p>
+                <p className="text-xs text-[#6F687A]">{texte}</p>
               </div>
             </div>
           ))}
@@ -357,7 +357,7 @@ export default function Infos() {
             </h2>
           </div>
 
-          <div className="space-y-4 text-sm leading-7 text-slate-600">
+          <div className="space-y-4 text-sm leading-7 text-[#6F687A]">
             <p>
               ChinaShop-Bénin permet de commander différents types de produits
               depuis une interface unique. L’objectif est de rendre visibles
@@ -371,9 +371,9 @@ export default function Infos() {
               différent.
             </p>
 
-            <div className="rounded-3xl border border-[#FF7A1A]/15 bg-[#FFF7F0] p-5 text-[#081A33]">
+            <div className="rounded-[14px] border border-[#7654C6]/15 bg-[#F1ECFA] p-5 text-[#18151F]">
               <div className="flex gap-3">
-                <Info className="mt-0.5 shrink-0 text-[#FF7A1A]" size={20} />
+                <Info className="mt-0.5 shrink-0 text-[#7654C6]" size={20} />
                 <p className="text-sm leading-6">
                   <strong>Point important :</strong> vérifiez toujours le
                   produit, la quantité, le mode de réception, la zone de
@@ -386,7 +386,7 @@ export default function Infos() {
       </section>
 
       {/* SERVICES */}
-      <section className="border-y border-slate-200 bg-white">
+      <section className="border-y border-[#E8E3EF] bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <SectionLabel>Les fondamentaux</SectionLabel>
 
@@ -416,7 +416,7 @@ export default function Infos() {
             Comment fonctionne une commande ?
           </h2>
 
-          <p className="mt-4 text-sm leading-7 text-slate-500">
+          <p className="mt-4 text-sm leading-7 text-[#6F687A]">
             Voici le parcours logique d’une commande, de la sélection du
             produit jusqu’à sa réception.
           </p>
@@ -429,14 +429,14 @@ export default function Infos() {
             return (
               <article
                 key={item.numero}
-                className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white p-6 shadow-sm transition duration-300 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#081A33] text-white">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                     <Icon size={21} />
                   </div>
 
-                  <span className="text-4xl font-black text-slate-100">
+                  <span className="text-4xl font-black text-[#E8E3EF]">
                     {item.numero}
                   </span>
                 </div>
@@ -445,7 +445,7 @@ export default function Infos() {
                   {item.titre}
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-slate-500">
+                <p className="mt-2 text-sm leading-6 text-[#6F687A]">
                   {item.texte}
                 </p>
               </article>
@@ -455,24 +455,24 @@ export default function Infos() {
       </section>
 
       {/* STOCK / COMMANDE */}
-      <section className="bg-[#081A33]">
+      <section className="bg-[#FAF9FC]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="grid gap-8 lg:grid-cols-2">
 
-            <article className="rounded-[2rem] border border-white/10 bg-white/5 p-7">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
+            <article className="rounded-[14px] border border-[#E8E3EF] bg-white p-7">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-emerald-400/10 text-[#15803D]">
                 <PackageCheck size={23} />
               </div>
 
-              <p className="mt-6 text-xs font-black uppercase tracking-widest text-emerald-300">
+              <p className="mt-6 text-xs font-black uppercase tracking-widest text-[#15803D]">
                 Disponibilité immédiate
               </p>
 
-              <h3 className="mt-2 text-2xl font-black text-white">
+              <h3 className="mt-2 text-2xl font-black text-[#18151F]">
                 Article en stock
               </h3>
 
-              <p className="mt-4 text-sm leading-7 text-slate-300">
+              <p className="mt-4 text-sm leading-7 text-[#6F687A]">
                 Lorsqu’un produit est disponible en stock, il peut être traité
                 directement selon les conditions de préparation et de
                 réception applicables.
@@ -485,38 +485,38 @@ export default function Infos() {
                   'Préparation',
                   'Livraison ou retrait',
                 ].map((x) => (
-                  <div key={x} className="flex items-center gap-3 text-sm text-white">
-                    <Check size={17} className="text-emerald-300" />
+                  <div key={x} className="flex items-center gap-3 text-sm text-[#18151F]">
+                    <Check size={17} className="text-[#15803D]" />
                     {x}
                   </div>
                 ))}
               </div>
             </article>
 
-            <article className="rounded-[2rem] border border-[#FF7A1A]/20 bg-[#FF7A1A]/10 p-7">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF7A1A]/10 text-[#FF8A3D]">
+            <article className="rounded-[14px] border border-[#7654C6]/20 bg-[#7654C6]/10 p-7">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                 <Clock3 size={23} />
               </div>
 
-              <p className="mt-6 text-xs font-black uppercase tracking-widest text-[#FF8A3D]">
+              <p className="mt-6 text-xs font-black uppercase tracking-widest text-[#7654C6]">
                 Approvisionnement
               </p>
 
-              <h3 className="mt-2 text-2xl font-black text-white">
+              <h3 className="mt-2 text-2xl font-black text-[#18151F]">
                 Article sur commande
               </h3>
 
-              <p className="mt-4 text-sm leading-7 text-slate-300">
+              <p className="mt-4 text-sm leading-7 text-[#6F687A]">
                 Un article sur commande nécessite un approvisionnement avant
                 son traitement. Son délai peut donc être différent d’un
                 produit déjà disponible.
               </p>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-black/10 p-4">
-                <p className="text-sm font-bold text-white">
+              <div className="mt-6 rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] p-4">
+                <p className="text-sm font-bold text-[#18151F]">
                   Acompte possible
                 </p>
-                <p className="mt-1 text-xs leading-5 text-slate-300">
+                <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                   Lorsqu’un acompte est requis, son montant apparaît dans le
                   parcours de commande avant ou après l’enregistrement selon
                   les règles applicables.
@@ -537,7 +537,7 @@ export default function Infos() {
             Livraison ou retrait ?
           </h2>
 
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#6F687A]">
             Le choix du mode de réception modifie les conditions de votre
             commande. Faites votre choix en fonction de votre situation.
           </p>
@@ -545,21 +545,21 @@ export default function Infos() {
 
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
 
-          <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
+          <article className="rounded-[14px] border border-[#E8E3EF] bg-white p-7 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-[#0052CC]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                 <Truck size={26} />
               </div>
 
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-[#0052CC]">
+                <p className="text-xs font-black uppercase tracking-widest text-[#7654C6]">
                   Option 01
                 </p>
                 <h3 className="text-xl font-black">Livraison</h3>
               </div>
             </div>
 
-            <p className="mt-6 text-sm leading-7 text-slate-500">
+            <p className="mt-6 text-sm leading-7 text-[#6F687A]">
               Votre commande est acheminée vers l’adresse indiquée. Vous devez
               sélectionner une zone de livraison et fournir une adresse
               suffisamment précise.
@@ -572,7 +572,7 @@ export default function Infos() {
                 'Frais selon la zone',
                 'Paiement en ligne requis',
               ].map((x) => (
-                <div key={x} className="flex items-center gap-3 rounded-xl bg-[#F8FAFC] p-3 text-sm font-bold">
+                <div key={x} className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3 text-sm font-bold">
                   <Check size={16} className="text-emerald-600" />
                   {x}
                 </div>
@@ -580,21 +580,21 @@ export default function Infos() {
             </div>
           </article>
 
-          <article className="rounded-[2rem] border border-[#FF7A1A]/15 bg-white p-7 shadow-sm">
+          <article className="rounded-[14px] border border-[#7654C6]/15 bg-white p-7 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF7F0] text-[#FF7A1A]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                 <MapPin size={26} />
               </div>
 
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-[#FF7A1A]">
+                <p className="text-xs font-black uppercase tracking-widest text-[#7654C6]">
                   Option 02
                 </p>
                 <h3 className="text-xl font-black">Retrait</h3>
               </div>
             </div>
 
-            <p className="mt-6 text-sm leading-7 text-slate-500">
+            <p className="mt-6 text-sm leading-7 text-[#6F687A]">
               Vous choisissez de récupérer votre commande au point de retrait
               prévu. Cette option ne nécessite pas de frais de livraison.
             </p>
@@ -606,8 +606,8 @@ export default function Infos() {
                 'Paiement en espèces possible',
                 'Code de retrait à conserver',
               ].map((x) => (
-                <div key={x} className="flex items-center gap-3 rounded-xl bg-[#FFF7F0] p-3 text-sm font-bold">
-                  <Check size={16} className="text-[#FF7A1A]" />
+                <div key={x} className="flex items-center gap-3 rounded-[10px] bg-[#F1ECFA] p-3 text-sm font-bold">
+                  <Check size={16} className="text-[#7654C6]" />
                   {x}
                 </div>
               ))}
@@ -618,7 +618,7 @@ export default function Infos() {
       </section>
 
       {/* PAIEMENT */}
-      <section className="border-y border-slate-200 bg-white">
+      <section className="border-y border-[#E8E3EF] bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
@@ -628,7 +628,7 @@ export default function Infos() {
                 Comprendre les modes de paiement.
               </h2>
 
-              <p className="mt-4 text-sm leading-7 text-slate-500">
+              <p className="mt-4 text-sm leading-7 text-[#6F687A]">
                 Le mode de paiement disponible dépend du mode de réception
                 choisi.
               </p>
@@ -665,9 +665,9 @@ export default function Infos() {
 
       {/* ACOMPTE */}
       <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
-        <div className="rounded-[2rem] border border-[#FF7A1A]/30 bg-[#FFF7F0] p-7 sm:p-10">
+        <div className="rounded-[14px] border border-[#7654C6]/30 bg-[#F1ECFA] p-7 sm:p-10">
           <div className="flex flex-col gap-6 sm:flex-row">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#FFE8D6] text-[#F06D0A]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
               <Banknote size={26} />
             </div>
 
@@ -678,7 +678,7 @@ export default function Infos() {
                 Pourquoi un acompte peut apparaître ?
               </h2>
 
-              <p className="mt-4 text-sm leading-7 text-[#081A33]/75">
+              <p className="mt-4 text-sm leading-7 text-[#18151F]/75">
                 Certains articles nécessitant un approvisionnement peuvent
                 entraîner une demande d’acompte. Le montant requis est affiché
                 dans le récapitulatif de la commande lorsque cette règle
@@ -693,9 +693,9 @@ export default function Infos() {
                 ].map(([n, text]) => (
                   <div
                     key={n}
-                    className="rounded-2xl bg-white/70 p-4"
+                    className="rounded-[10px] bg-white/70 p-4"
                   >
-                    <p className="text-xs font-black text-[#F06D0A]">{n}</p>
+                    <p className="text-xs font-black text-[#7654C6]">{n}</p>
                     <p className="mt-1 text-sm font-black">{text}</p>
                   </div>
                 ))}
@@ -706,54 +706,54 @@ export default function Infos() {
       </section>
 
       {/* CODES */}
-      <section className="bg-[#081A33]">
+      <section className="bg-[#FAF9FC]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="text-center">
             <SectionLabel>Identification</SectionLabel>
 
-            <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-black text-[#18151F] sm:text-4xl">
               Gardez précieusement vos codes.
             </h2>
 
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-300">
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#6F687A]">
               Ces informations permettent de retrouver plus facilement votre
               commande.
             </p>
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <article className="rounded-[2rem] border border-white/10 bg-white/5 p-7 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0052CC]/10 text-blue-100">
+            <article className="rounded-[14px] border border-[#E8E3EF] bg-white p-7 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-[#7654C6]/10 text-[#8B6DD1]">
                 <Truck size={25} />
               </div>
 
-              <p className="mt-5 text-xs font-black uppercase tracking-widest text-blue-100">
+              <p className="mt-5 text-xs font-black uppercase tracking-widest text-[#8B6DD1]">
                 Livraison
               </p>
 
-              <p className="mt-2 text-3xl font-black tracking-widest text-white">
+              <p className="mt-2 text-3xl font-black tracking-widest text-[#18151F]">
                 CS-XXXXXX
               </p>
 
-              <p className="mt-3 text-sm leading-6 text-slate-400">
+              <p className="mt-3 text-sm leading-6 text-[#9A93A5]">
                 Code de suivi associé à une commande en livraison.
               </p>
             </article>
 
-            <article className="rounded-[2rem] border border-white/10 bg-white/5 p-7 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FF7A1A]/10 text-[#FF8A3D]">
+            <article className="rounded-[14px] border border-[#E8E3EF] bg-white p-7 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                 <MapPin size={25} />
               </div>
 
-              <p className="mt-5 text-xs font-black uppercase tracking-widest text-[#FF8A3D]">
+              <p className="mt-5 text-xs font-black uppercase tracking-widest text-[#7654C6]">
                 Retrait
               </p>
 
-              <p className="mt-2 text-3xl font-black tracking-widest text-white">
+              <p className="mt-2 text-3xl font-black tracking-widest text-[#18151F]">
                 CR-XXXXXX
               </p>
 
-              <p className="mt-3 text-sm leading-6 text-slate-400">
+              <p className="mt-3 text-sm leading-6 text-[#9A93A5]">
                 Code associé au retrait de votre commande.
               </p>
             </article>
@@ -795,10 +795,10 @@ export default function Infos() {
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-slate-200 bg-white">
+      <section className="border-t border-[#E8E3EF] bg-white">
         <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF7F0] text-[#FF7A1A]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
               <HelpCircle size={23} />
             </div>
 
@@ -816,10 +816,10 @@ export default function Infos() {
               return (
                 <div
                   key={item.q}
-                  className={`overflow-hidden rounded-2xl border transition ${
+                  className={`overflow-hidden rounded-[10px] border transition ${
                     ouvert
-                      ? 'border-[#FF7A1A]/30 bg-[#FFF7F0]/50'
-                      : 'border-slate-200 bg-white'
+                      ? 'border-[#7654C6]/30 bg-[#F1ECFA]/50'
+                      : 'border-[#E8E3EF] bg-white'
                   }`}
                 >
                   <button
@@ -830,21 +830,21 @@ export default function Infos() {
                     className="flex w-full items-center justify-between gap-4 p-5 text-left"
                     aria-expanded={ouvert}
                   >
-                    <span className="text-sm font-black text-[#081A33]">
+                    <span className="text-sm font-black text-[#18151F]">
                       {item.q}
                     </span>
 
                     <ChevronDown
                       size={19}
-                      className={`shrink-0 text-[#FF7A1A] transition ${
+                      className={`shrink-0 text-[#7654C6] transition ${
                         ouvert ? 'rotate-180' : ''
                       }`}
                     />
                   </button>
 
                   {ouvert && (
-                    <div className="border-t border-[#FF7A1A]/15 px-5 pb-5 pt-4">
-                      <p className="text-sm leading-7 text-slate-600">
+                    <div className="border-t border-[#7654C6]/15 px-5 pb-5 pt-4">
+                      <p className="text-sm leading-7 text-[#6F687A]">
                         {item.a}
                       </p>
                     </div>
@@ -858,19 +858,19 @@ export default function Infos() {
 
       {/* CONTACT / CTA */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#081A33] to-[#0052CC] px-6 py-12 text-center sm:px-10">
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#FF7A1A]/20 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[14px] bg-[#FAF9FC] border border-[#E8E3EF] px-6 py-12 text-center sm:px-10">
+          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#F1ECFA] blur-3xl" />
 
           <div className="relative">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-[#FF7A1A]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
               <ShoppingBag size={25} />
             </div>
 
-            <h2 className="mt-5 text-3xl font-black text-white sm:text-4xl">
+            <h2 className="mt-5 text-3xl font-black text-[#18151F] sm:text-4xl">
               Vous êtes prêt ?
             </h2>
 
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[#6F687A]">
               Consultez le catalogue, choisissez vos produits et suivez les
               étapes affichées jusqu’à la confirmation.
             </p>
@@ -878,7 +878,7 @@ export default function Infos() {
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 to="/catalogue"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#FF7A1A] px-6 text-sm font-black text-white transition hover:bg-[#FF7A1A]"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] px-6 text-sm font-black text-white transition hover:bg-[#6544B3]"
               >
                 Explorer le catalogue
                 <ArrowRight size={17} />
@@ -886,7 +886,7 @@ export default function Infos() {
 
               <Link
                 to="/suivi"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-6 text-sm font-black text-white transition hover:bg-white/15"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-6 text-sm font-black text-[#18151F] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
               >
                 <Truck size={17} />
                 Suivre ma commande
@@ -897,14 +897,14 @@ export default function Infos() {
       </section>
 
       {/* NOTE FINALE */}
-      <section className="border-t border-slate-200 bg-white">
+      <section className="border-t border-[#E8E3EF] bg-white">
         <div className="mx-auto max-w-4xl px-4 py-8 text-center sm:px-6">
-          <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-400">
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-[#9A93A5]">
             <Phone size={14} />
             Besoin d’informations supplémentaires ?
           </div>
 
-          <p className="mt-2 text-xs leading-6 text-slate-400">
+          <p className="mt-2 text-xs leading-6 text-[#9A93A5]">
             Les conditions affichées dans le parcours de commande font foi
             pour les informations calculées au moment de votre achat.
           </p>

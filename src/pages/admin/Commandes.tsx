@@ -244,7 +244,7 @@ export default function Commandes() {
             }
 
             if (commande.mode_reception === 'livraison') {
-              await changerStatut(commande, 'livraison_en_cours')
+              await executerActionLivraison(commande, 'programmer')
               return
             }
           }
@@ -255,13 +255,6 @@ export default function Commandes() {
           }
 
           setErreur('Aucune prochaine action disponible pour cette commande.')
-          return
-        }
-
-        // Parcours classique
-        // Nouveau parcours sur commande : paiement reçu → en acheminement
-        if (statut === 'paiement_recu') {
-          await changerStatut(commande, 'en_acheminement')
           return
         }
 

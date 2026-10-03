@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   enregistrerReferenceTransaction,
-  envoyerPreuvePaiement,
   recupererMoyensPaiementActifs,
   verifierCommandePaiementInvite,
 } from '../services/supabase'
@@ -58,10 +57,6 @@ export default function Confirmation() {
   const [copie, setCopie] = useState(false)
   const [moyensPaiement, setMoyensPaiement] = useState<any[]>([])
   const [chargementPaiement, setChargementPaiement] = useState(false)
-  const [fichierPreuve, setFichierPreuve] = useState<File | null>(null)
-  const [envoiPreuve, setEnvoiPreuve] = useState(false)
-  const [preuveEnvoyee, setPreuveEnvoyee] = useState(false)
-  const [erreurPreuve, setErreurPreuve] = useState('')
   const [referenceTransaction, setReferenceTransaction] = useState('')
   const [enregistrementReference, setEnregistrementReference] = useState(false)
   const [erreurReference, setErreurReference] = useState('')
@@ -153,65 +148,6 @@ export default function Confirmation() {
     const numeroMarchand = moyenPaiement?.numero || ''
     const instructionsPaiement = moyenPaiement?.instructions || ''
 
-  async function gererEnvoiPreuve() {
-    if (!commande || !paiement?.paiement_id || !commande.paiementAccesToken) {
-      setErreurPreuve(
-        'Les informations sécurisées du paiement sont indisponibles.',
-      )
-      return
-    }
-
-    if (!referenceTransaction.trim()) {
-      setErreurReference(
-        'Saisissez la référence de transaction reçue après votre paiement Mobile Money.',
-      )
-      return
-    }
-
-    if (!fichierPreuve) {
-      setErreurPreuve('Sélectionnez d’abord votre capture de paiement.')
-      return
-    }
-
-    setErreurPreuve('')
-    setErreurReference('')
-    setEnregistrementReference(true)
-    setEnvoiPreuve(true)
-
-    try {
-      await enregistrerReferenceTransaction(
-        commande.numeroCommande || '',
-        commande.paiementAccesToken,
-        paiement.paiement_id,
-        referenceTransaction.trim(),
-      )
-
-      await envoyerPreuvePaiement(
-        commande.numeroCommande || '',
-        commande.paiementAccesToken,
-        paiement.paiement_id,
-        fichierPreuve,
-      )
-
-      setPreuveEnvoyee(true)
-      setFichierPreuve(null)
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Impossible d’enregistrer la référence ou d’envoyer la preuve de paiement.'
-
-      if (message.toLowerCase().includes('référence')) {
-        setErreurReference(message)
-      } else {
-        setErreurPreuve(message)
-      }
-    } finally {
-      setEnregistrementReference(false)
-      setEnvoiPreuve(false)
-    }
-  }
-
   async function verifierPaiementCommande() {
     if (!commande?.numeroCommande || !commande.paiementAccesToken) {
       setErreurVerificationPaiement(
@@ -254,7 +190,7 @@ export default function Confirmation() {
               reference_transaction: paiementVerifie.reference_transaction,
 
             }
-          : commande.paiement,
+          : commande.paiement ?? null,
       }
 
       setCommande(commandeMiseAJour)
@@ -275,7 +211,7 @@ export default function Confirmation() {
           ''
 
         if (codeSuivi) {
-          navigate(`/suivi?code=${encodeURIComponent(codeSuivi)}`)
+          navigate(`/suivi?code=${encodeURIComponent(codeSuivi)}&paiement_acces_token=${encodeURIComponent(commandeMiseAJour.paiementAccesToken || "")}`)
         }
       }
     } catch (error) {
@@ -302,7 +238,7 @@ export default function Confirmation() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F9FC] px-3 py-4 sm:px-5 sm:py-7">
+    <main className="min-h-screen bg-[#FAF9FC] px-3 py-4 sm:px-5 sm:py-7">
       <div className="mx-auto max-w-5xl">
 
         {/* HEADER */}
@@ -312,41 +248,41 @@ export default function Confirmation() {
             onClick={() => navigate('/catalogue')}
             className="group flex items-center gap-2"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#081A33] text-white shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#18151F] text-white shadow-sm">
               <ShoppingBag size={19} />
             </span>
 
             <span className="hidden text-left sm:block">
-              <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
                 ChinaShop
               </span>
-              <span className="block text-sm font-black text-[#081A33]">
+              <span className="block text-sm font-black text-[#18151F]">
                 Bénin
               </span>
             </span>
           </button>
 
-          <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
+          <div className="flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-3 py-2 shadow-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
+            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#6F687A]">
               Commande sécurisée
             </span>
           </div>
         </header>
 
         {/* SUCCESS HERO */}
-        <section className="relative overflow-hidden rounded-[30px] bg-[#081A33] px-5 py-8 text-white shadow-[0_20px_60px_rgba(8,26,51,0.16)] sm:rounded-[36px] sm:px-10 sm:py-11">
-          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#0052CC]/30 blur-3xl" />
-          <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[#FF7A1A]/15 blur-3xl" />
+        <section className="relative overflow-hidden rounded-[14px] bg-[#18151F] px-5 py-8 text-white shadow-[0_20px_60px_rgba(24,21,31,0.12)] sm:rounded-[14px] sm:px-10 sm:py-11">
+          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#7654C6]/30 blur-3xl" />
+          <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[#7654C6]/15 blur-3xl" />
 
           <div className="relative">
             <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left">
-              <div className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-[25px] bg-emerald-400/10 ring-1 ring-emerald-300/20">
+              <div className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-[14px] bg-emerald-400/10 ring-1 ring-emerald-300/20">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400">
                   <Check
                     size={31}
                     strokeWidth={3}
-                    className="text-[#081A33]"
+                    className="text-[#18151F]"
                   />
                 </div>
               </div>
@@ -360,7 +296,7 @@ export default function Confirmation() {
                   Merci pour votre commande !
                 </h1>
 
-                <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-300 sm:text-sm">
+                <p className="mt-2 max-w-2xl text-xs leading-5 text-[#9A93A5] sm:text-sm">
                   Votre commande a bien été enregistrée. Gardez précieusement
                   votre numéro et votre code.
                 </p>
@@ -368,8 +304,8 @@ export default function Confirmation() {
             </div>
 
             {/* ORDER NUMBER */}
-            <div className="mt-7 rounded-[24px] border border-white/10 bg-white/[0.06] p-4 sm:p-5">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+            <div className="mt-7 rounded-[14px] border border-white/10 bg-white/[0.06] p-4 sm:p-5">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
                 Numéro de commande
               </p>
 
@@ -393,20 +329,20 @@ export default function Confirmation() {
           <div className="space-y-4">
 
             {/* CODE PRINCIPAL */}
-            <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+            <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
+              <div className="border-b border-[#E8E3EF] px-5 py-4 sm:px-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#0052CC]">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
                       Votre identifiant
                     </p>
 
-                    <h2 className="mt-1 text-lg font-black text-[#081A33]">
+                    <h2 className="mt-1 text-lg font-black text-[#18151F]">
                       {estRetrait ? 'Code de retrait' : 'Code de suivi'}
                     </h2>
                   </div>
 
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F0F6FF] text-[#0052CC]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                     {estRetrait ? (
                       <Package size={20} />
                     ) : (
@@ -417,12 +353,12 @@ export default function Confirmation() {
               </div>
 
               <div className="p-5 sm:p-7">
-                <div className="rounded-[24px] bg-[#F7F9FC] px-4 py-6 text-center ring-1 ring-slate-100 sm:px-6">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <div className="rounded-[14px] bg-[#FAF9FC] px-4 py-6 text-center ring-1 ring-[#E8E3EF] sm:px-6">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
                     Code à conserver
                   </p>
 
-                  <p className="mt-3 break-all text-3xl font-black tracking-[0.12em] text-[#0052CC] sm:text-4xl">
+                  <p className="mt-3 break-all text-3xl font-black tracking-[0.12em] text-[#7654C6] sm:text-4xl">
                     {code || '—'}
                   </p>
 
@@ -430,7 +366,7 @@ export default function Confirmation() {
                     <button
                       type="button"
                       onClick={copierCode}
-                      className="mx-auto mt-5 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-5 text-xs font-black text-[#081A33] shadow-sm ring-1 ring-slate-200 transition hover:bg-[#F0F6FF] active:scale-[0.98]"
+                      className="mx-auto mt-5 flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-white px-5 text-xs font-black text-[#18151F] shadow-sm ring-1 ring-[#E8E3EF] transition hover:bg-[#F1ECFA] active:scale-[0.98]"
                     >
                       {copie ? (
                         <>
@@ -450,15 +386,15 @@ export default function Confirmation() {
                   )}
                 </div>
 
-                <div className="mt-4 flex items-start gap-3 rounded-2xl bg-[#FFF8F2] p-4">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#FF7A1A]/10">
+                <div className="mt-4 flex items-start gap-3 rounded-[10px] bg-[#F1ECFA] p-4">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[#7654C6]/10">
                     <ClipboardCheck
                       size={16}
-                      className="text-[#FF7A1A]"
+                      className="text-[#7654C6]"
                     />
                   </div>
 
-                  <p className="text-xs font-semibold leading-5 text-slate-600">
+                  <p className="text-xs font-semibold leading-5 text-[#6F687A]">
                     {estRetrait
                       ? 'Présentez ce code lors du retrait de votre commande.'
                       : 'Conservez ce code pour suivre l’avancement de votre livraison.'}
@@ -467,425 +403,105 @@ export default function Confirmation() {
               </div>
             </section>
 
-            {/* ACOMPTE */}
-            {acompteRequis > 0 && (
-              <section
-                className={`overflow-hidden rounded-[28px] border p-5 shadow-sm sm:p-6 ${
-                  acompteRegle
-                    ? 'border-emerald-100 bg-emerald-50'
-                    : 'border-amber-100 bg-amber-50'
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                      acompteRegle
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}
-                  >
-                    <CreditCard size={21} />
-                  </div>
+            {/* RÉSUMÉ DE LA COMMANDE */}
+            <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#7654C6]/10 text-[#7654C6]">
+                  <CheckCircle2 size={19} />
+                </div>
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
+                    Détails de la commande
+                  </p>
+                  <h2 className="text-lg font-black text-[#18151F]">
+                    Votre commande est prête à être suivie
+                  </h2>
+                </div>
+              </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2
-                        className={`text-lg font-black ${
-                          acompteRegle
-                            ? 'text-emerald-900'
-                            : 'text-amber-900'
-                        }`}
-                      >
-                        {acompteRegle
-                          ? 'Acompte reçu'
-                          : 'Acompte à régler'}
-                      </h2>
+              <p className="mt-4 text-sm font-medium leading-6 text-[#6F687A]">
+                Retrouvez ici les informations essentielles de votre commande.
+                Utilisez votre code pour suivre son évolution.
+              </p>
 
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[8px] font-black uppercase tracking-wide ${
-                          acompteRegle
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-amber-100 text-amber-700'
-                        }`}
-                      >
-                        {acompteRegle ? 'Réglé' : 'En attente'}
-                      </span>
-                    </div>
-
-                    <p
-                      className={`mt-1 text-sm ${
-                        acompteRegle
-                          ? 'text-emerald-700'
-                          : 'text-amber-700'
-                      }`}
-                    >
-                      Montant requis :{' '}
-                      <strong>{formatPrix(acompteRequis)}</strong>
-                    </p>
-                  </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-[10px] bg-[#FAF9FC] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
+                    Montant total
+                  </p>
+                  <p className="mt-1 text-lg font-black text-[#18151F]">
+                    {formatPrix(Number(commande.total || 0))}
+                  </p>
                 </div>
 
-                {!acompteRegle && (
-                  <>
-                    <div className="mt-5 rounded-2xl bg-white/70 p-4">
-                      <p className="text-xs font-semibold leading-5 text-amber-800">
-                        Votre commande est enregistrée. L’acompte doit être
-                        réglé avant le traitement des articles sur commande.
-                      </p>
-                    </div>
+                <div className="rounded-[10px] bg-[#FAF9FC] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
+                    Réception
+                  </p>
+                  <p className="mt-1 text-sm font-black text-[#18151F]">
+                    {commande.modeReception === 'livraison'
+                      ? 'Livraison à domicile'
+                      : 'Retrait'}
+                  </p>
+                </div>
 
-                    {commande.modePaiement === 'mobile_money' ? (
-                      <div className="mt-4 overflow-hidden rounded-2xl border border-[#0052CC]/15 bg-white shadow-sm">
-                        <div className="border-b border-slate-100 bg-[#F7F9FC] p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0052CC]/10 text-[#0052CC]">
-                              <CreditCard size={18} />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-sm font-black text-[#081A33]">
-                                  Paiement Mobile Money
-                                </p>
-                                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[8px] font-black uppercase tracking-wide text-amber-700">
-                                  En attente
-                                </span>
-                              </div>
-
-                              <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
-                                Effectuez le transfert puis conservez votre preuve de paiement.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {chargementPaiement ? (
-                          <div className="p-5 text-center">
-                            <p className="text-xs font-bold text-slate-500">
-                              Chargement des informations de paiement…
-                            </p>
-                          </div>
-                        ) : moyenPaiement && numeroMarchand ? (
-                          <div className="space-y-4 p-4">
-                            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
-                                Moyen de paiement
-                              </p>
-                              <p className="mt-1 text-sm font-black text-[#081A33]">
-                                {moyenPaiement.nom}
-                              </p>
-
-                              <div className="mt-3 rounded-xl bg-[#F7F9FC] px-3 py-2.5">
-                                <p className="text-[9px] font-black uppercase tracking-wide text-slate-400">
-                                  Numéro marchand
-                                </p>
-                                <p className="mt-0.5 text-base font-black tracking-wide text-[#081A33]">
-                                  {numeroMarchand}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="rounded-2xl bg-[#081A33] p-4 text-white">
-                              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/50">
-                                Montant exact à envoyer
-                              </p>
-                              <p className="mt-1 text-2xl font-black">
-                                {paiementMontant > 0
-                                  ? formatPrix(paiementMontant)
-                                  : 'Montant indisponible'}
-                              </p>
-                            </div>
-
-                            {referencePaiement && (
-                              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-blue-500">
-                                  Référence à indiquer
-                                </p>
-                                <p className="mt-1 break-all text-sm font-black tracking-wide text-[#081A33]">
-                                  {referencePaiement}
-                                </p>
-                                <p className="mt-1 text-[11px] font-semibold leading-5 text-blue-700">
-                                  Indiquez cette référence dans le motif du transfert si votre opérateur le permet.
-                                </p>
-                              </div>
-                            )}
-
-                            {instructionsPaiement && (
-                              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
-                                  Instructions
-                                </p>
-                                <p className="mt-1 whitespace-pre-line text-xs font-semibold leading-5 text-slate-600">
-                                  {instructionsPaiement}
-                                </p>
-                              </div>
-                            )}
-
-                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                              <p className="text-xs font-black text-amber-900">
-                                Paiement en attente de confirmation
-                              </p>
-                              <p className="mt-1 text-[11px] font-semibold leading-5 text-amber-800">
-                                Votre commande est enregistrée. Après réception et vérification du paiement, notre équipe validera l’acompte.
-                              </p>
-                              {statutPaiement && (
-                                <p className="mt-2 text-[9px] font-black uppercase tracking-wide text-amber-600">
-                                  Statut : {statutPaiement}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
-                              <label
-                                htmlFor="reference-transaction"
-                                className="block text-[9px] font-black uppercase tracking-[0.16em] text-blue-600"
-                              >
-                                Référence de transaction
-                              </label>
-
-                              <p className="mt-1 text-[11px] font-semibold leading-5 text-blue-800">
-                                Saisissez la référence ou l’identifiant affiché sur votre reçu Mobile Money après le transfert.
-                              </p>
-
-                              <input
-                                id="reference-transaction"
-                                type="text"
-                                value={referenceTransaction}
-                                onChange={(event) => {
-                                  setReferenceTransaction(event.target.value)
-                                  setErreurReference('')
-                                }}
-                                placeholder="Ex. 123456789012"
-                                maxLength={100}
-                                disabled={envoiPreuve || preuveEnvoyee}
-                                className="mt-3 min-h-12 w-full rounded-2xl border border-blue-200 bg-white px-4 text-sm font-bold text-[#081A33] outline-none transition placeholder:text-slate-400 focus:border-[#0052CC] focus:ring-4 focus:ring-blue-100 disabled:bg-slate-100"
-                              />
-
-                              {erreurReference && (
-                                <p className="mt-2 text-[11px] font-bold text-red-600">
-                                  {erreurReference}
-                                </p>
-                              )}
-
-                              {commande.paiement?.reference_transaction && (
-                                <p className="mt-2 text-[10px] font-bold text-emerald-600">
-                                  ✓ Référence de transaction enregistrée
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                              <div className="flex items-start gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0052CC]/10 text-[#0052CC]">
-                                  <ClipboardCheck size={18} />
-                                </div>
-
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-black text-[#081A33]">
-                                    Envoyer la preuve de paiement
-                                  </p>
-                                  <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-500">
-                                    Ajoutez une capture ou une photo du reçu pour permettre à notre équipe de vérifier rapidement votre paiement.
-                                  </p>
-                                </div>
-                              </div>
-
-                              <label className="mt-4 block cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-4 text-center transition hover:border-[#0052CC]/30 hover:bg-blue-50/30">
-                                <input
-                                  type="file"
-                                  accept="image/jpeg,image/png,image/webp"
-                                  className="sr-only"
-                                  disabled={envoiPreuve || preuveEnvoyee}
-                                  onChange={(event) => {
-                                    const fichier = event.target.files?.[0] || null
-                                    setErreurPreuve('')
-                                    setPreuveEnvoyee(false)
-
-                                    if (!fichier) {
-                                      setFichierPreuve(null)
-                                      return
-                                    }
-
-                                    if (fichier.size > 5 * 1024 * 1024) {
-                                      setFichierPreuve(null)
-                                      setErreurPreuve(
-                                        'La preuve doit faire au maximum 5 Mo.',
-                                      )
-                                      event.target.value = ''
-                                      return
-                                    }
-
-                                    const formatsAcceptes = [
-                                      'image/jpeg',
-                                      'image/png',
-                                      'image/webp',
-                                    ]
-
-                                    if (!formatsAcceptes.includes(fichier.type)) {
-                                      setFichierPreuve(null)
-                                      setErreurPreuve(
-                                        'Format accepté : JPG, PNG ou WebP.',
-                                      )
-                                      event.target.value = ''
-                                      return
-                                    }
-
-                                    setFichierPreuve(fichier)
-                                  }}
-                                />
-
-                                <p className="text-xs font-black text-[#081A33]">
-                                  {fichierPreuve
-                                    ? fichierPreuve.name
-                                    : 'Choisir une capture ou une photo'}
-                                </p>
-
-                                <p className="mt-1 text-[10px] font-semibold text-slate-400">
-                                  JPG, PNG ou WebP • 5 Mo maximum
-                                </p>
-                              </label>
-
-                              {fichierPreuve && !preuveEnvoyee && (
-                                <button
-                                  type="button"
-                                  disabled={envoiPreuve}
-                                  onClick={gererEnvoiPreuve}
-                                  className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0052CC] px-4 text-sm font-black text-white shadow-lg shadow-blue-100 transition hover:bg-[#003D99] disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                  <ClipboardCheck size={17} />
-                                  {envoiPreuve
-                                    ? 'Envoi de la preuve…'
-                                    : 'Envoyer la preuve'}
-                                </button>
-                              )}
-
-                              {preuveEnvoyee && (
-                                <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
-                                  <div className="flex items-center gap-2">
-                                    <CheckCircle2
-                                      size={17}
-                                      className="shrink-0 text-emerald-600"
-                                    />
-                                    <p className="text-xs font-black text-emerald-800">
-                                      Preuve envoyée avec succès
-                                    </p>
-                                  </div>
-                                  <p className="mt-1 text-[10px] font-semibold leading-5 text-emerald-700">
-                                    Notre équipe va vérifier votre paiement. Le statut restera en attente jusqu’à validation.
-                                  </p>
-                                </div>
-                              )}
-
-                              {erreurPreuve && (
-                                <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3">
-                                  <p className="text-[11px] font-bold leading-5 text-red-700">
-                                    {erreurPreuve}
-                                  </p>
-                                </div>
-                              )}
-
-                              <button
-                                type="button"
-                                disabled={verificationPaiement}
-                                onClick={verifierPaiementCommande}
-                                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#0052CC]/20 bg-[#F0F6FF] px-4 text-sm font-black text-[#0052CC] transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                <ClipboardCheck size={17} />
-                                {verificationPaiement
-                                  ? 'Vérification en cours…'
-                                  : 'Vérifier ma commande'}
-                              </button>
-
-                              {erreurVerificationPaiement && (
-                                <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3">
-                                  <p className="text-[11px] font-bold leading-5 text-red-700">
-                                    {erreurVerificationPaiement}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="p-4">
-                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                              <p className="text-sm font-black text-amber-900">
-                                Paiement Mobile Money indisponible
-                              </p>
-                              <p className="mt-1 text-xs font-semibold leading-5 text-amber-800">
-                                Aucun numéro marchand actif n’est actuellement configuré pour ce moyen de paiement. Votre commande reste enregistrée.
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="mt-4 rounded-2xl border border-amber-200 bg-white/80 p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                            <CreditCard size={17} />
-                          </div>
-
-                          <div className="min-w-0">
-                            <p className="text-sm font-black text-[#081A33]">
-                              Paiement de l’acompte
-                            </p>
-                            <p className="mt-1 text-xs font-semibold leading-5 text-amber-800">
-                              Votre commande est bien enregistrée et l’acompte
-                              requis est de{' '}
-                              <strong>{formatPrix(acompteRequis)}</strong>.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}                  </>
-                )}
-              </section>
-            )}
+                <div className="rounded-[10px] bg-[#FAF9FC] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
+                    Paiement
+                  </p>
+                  <p className="mt-1 text-sm font-black text-[#18151F]">
+                    {commande.modePaiement === 'mobile_money'
+                      ? 'Mobile Money'
+                      : commande.modePaiement || 'À confirmer'}
+                  </p>
+                </div>
+              </div>
+            </section>
 
             {/* PROCHAINES ÉTAPES */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#0052CC]/10 text-[#0052CC]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#7654C6]/10 text-[#7654C6]">
                   <CheckCircle2 size={19} />
                 </div>
 
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                     Maintenant
                   </p>
-                  <h2 className="text-lg font-black text-[#081A33]">
+                  <h2 className="text-lg font-black text-[#18151F]">
                     Que se passe-t-il ensuite ?
                   </h2>
                 </div>
               </div>
 
               <div className="mt-5 space-y-3">
-                <div className="flex items-center gap-3 rounded-2xl bg-[#F7F9FC] p-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0052CC] text-[10px] font-black text-white">
+                <div className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#7654C6] text-[10px] font-black text-white">
                     1
                   </span>
 
-                  <p className="text-xs font-semibold text-slate-600">
+                  <p className="text-xs font-semibold text-[#6F687A]">
                     Votre commande est enregistrée dans notre système.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-2xl bg-[#F7F9FC] p-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FF7A1A] text-[10px] font-black text-white">
+                <div className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#7654C6] text-[10px] font-black text-white">
                     2
                   </span>
 
-                  <p className="text-xs font-semibold text-slate-600">
+                  <p className="text-xs font-semibold text-[#6F687A]">
                     Nous préparons vos articles selon leur disponibilité.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-2xl bg-[#F7F9FC] p-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#081A33] text-[10px] font-black text-white">
+                <div className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#18151F] text-[10px] font-black text-white">
                     3
                   </span>
 
-                  <p className="text-xs font-semibold text-slate-600">
+                  <p className="text-xs font-semibold text-[#6F687A]">
                     Vous pourrez suivre l’évolution de votre commande.
                   </p>
                 </div>
@@ -893,7 +509,7 @@ export default function Confirmation() {
             </section>
 
             {/* ACTIONS */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-6">
               <button
                 type="button"
                 onClick={() =>
@@ -903,7 +519,7 @@ export default function Confirmation() {
                       : '/assistance'
                   )
                 }
-                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-5 text-sm font-black text-orange-700 transition hover:bg-orange-100 active:scale-[0.99]"
+                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-5 text-sm font-black text-[#18151F] transition hover:bg-[#F1ECFA] active:scale-[0.99]"
               >
                 <MessageCircle size={18} />
                 Contacter l'assistance
@@ -921,14 +537,14 @@ export default function Confirmation() {
 
                   navigate(
                     codeSuivi
-                      ? `/suivi?code=${encodeURIComponent(codeSuivi)}`
+                      ? `/suivi?code=${encodeURIComponent(codeSuivi)}&paiement_acces_token=${encodeURIComponent(commande?.paiementAccesToken || "")}`
                       : '/suivi'
                   )
                 }}
-                className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-black shadow-lg transition active:scale-[0.99] ${
+                className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-black transition active:scale-[0.99] ${
                   paiementMobile && !acompteRegle
-                    ? 'cursor-not-allowed bg-slate-200 text-slate-400 shadow-none'
-                    : 'bg-[#0052CC] text-white shadow-blue-100 hover:bg-[#003D99]'
+                    ? 'cursor-not-allowed bg-[#E8E3EF] text-[#9A93A5] shadow-none'
+                    : 'bg-[#7654C6] text-white  hover:bg-[#6544B3]'
                 }`}
               >
                 <Truck size={18} />
@@ -941,13 +557,13 @@ export default function Confirmation() {
               <button
                 type="button"
                 onClick={() => navigate('/catalogue')}
-                className="mt-3 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-[#081A33] transition hover:bg-slate-50 active:scale-[0.99]"
+                className="mt-3 flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-5 text-sm font-black text-[#18151F] transition hover:bg-[#FAF9FC] active:scale-[0.99]"
               >
                 <ShoppingBag size={18} />
                 Continuer mes achats
               </button>
 
-              <p className="mt-5 text-center text-[10px] font-medium leading-5 text-slate-400">
+              <p className="mt-5 text-center text-[10px] font-medium leading-5 text-[#9A93A5]">
                 Besoin d'aide ? Conservez votre numéro de commande et votre
                 code pour toute demande.
               </p>
@@ -956,9 +572,9 @@ export default function Confirmation() {
 
           {/* RÉSUMÉ */}
           <aside className="h-fit space-y-4 lg:sticky lg:top-5">
-            <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-              <div className="bg-[#081A33] px-5 py-5 text-white">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+            <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
+              <div className="bg-[#18151F] px-5 py-5 text-white">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
                   Récapitulatif
                 </p>
 
@@ -969,28 +585,28 @@ export default function Confirmation() {
 
               <div className="p-4">
                 {/* TOTAL */}
-                <div className="rounded-[22px] bg-[#F0F6FF] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#0052CC]">
+                <div className="rounded-[14px] bg-[#F1ECFA] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#7654C6]">
                     Total
                   </p>
 
-                  <p className="mt-1 text-2xl font-black tracking-tight text-[#081A33]">
+                  <p className="mt-1 text-2xl font-black tracking-tight text-[#18151F]">
                     {formatPrix(Number(commande.total || 0))}
                   </p>
                 </div>
 
                 {/* RECEPTION */}
-                <div className="mt-3 rounded-[22px] bg-[#F7F9FC] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                <div className="mt-3 rounded-[14px] bg-[#FAF9FC] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                     Réception
                   </p>
 
                   <div className="mt-2 flex items-center gap-3">
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                      className={`flex h-9 w-9 items-center justify-center rounded-[10px] ${
                         estRetrait
-                          ? 'bg-orange-100 text-[#FF7A1A]'
-                          : 'bg-blue-100 text-[#0052CC]'
+                          ? 'bg-orange-100 text-[#7654C6]'
+                          : 'bg-[#F1ECFA] text-[#7654C6]'
                       }`}
                     >
                       {estRetrait ? (
@@ -1001,11 +617,11 @@ export default function Confirmation() {
                     </div>
 
                     <div>
-                      <p className="text-sm font-black text-[#081A33]">
+                      <p className="text-sm font-black text-[#18151F]">
                         {estRetrait ? 'Retrait' : 'Livraison'}
                       </p>
 
-                      <p className="text-[10px] font-semibold text-slate-400">
+                      <p className="text-[10px] font-semibold text-[#9A93A5]">
                         {estRetrait
                           ? 'Retrait en point prévu'
                           : 'Livraison à domicile'}
@@ -1015,64 +631,55 @@ export default function Confirmation() {
                 </div>
 
                 {/* PAIEMENT */}
-                <div className="mt-3 rounded-[22px] bg-[#F7F9FC] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                <div className="mt-3 rounded-[14px] bg-[#FAF9FC] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                     Paiement
                   </p>
 
                   <div className="mt-2 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-[#0052CC]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                       <CreditCard size={17} />
                     </div>
 
-                    <p className="text-sm font-black text-[#081A33]">
+                    <p className="text-sm font-black text-[#18151F]">
                       {paiementMobile ? 'Mobile Money' : 'Espèces'}
                     </p>
                   </div>
                 </div>
 
-                {/* STATUT */}
-                <div className="mt-3 flex items-center justify-between gap-3 rounded-[22px] bg-[#F7F9FC] p-4">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
-                      Statut
-                    </p>
+                {/* SUIVI */}
+                <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
+                      <Truck size={17} />
+                    </div>
 
-                    <p className="mt-1 text-sm font-black text-[#081A33]">
-                      {commande.statut === 'acompte_requis'
-                        ? 'Acompte requis'
-                        : 'Commande reçue'}
-                    </p>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#7654C6]">
+                        Suivi de votre commande
+                      </p>
+                      <p className="mt-1 text-xs font-bold text-[#6F687A]">
+                        Votre code vous permet de suivre son évolution à chaque étape.
+                      </p>
+                    </div>
                   </div>
-
-                  <span
-                    className={`shrink-0 rounded-full px-3 py-1.5 text-[8px] font-black uppercase tracking-wide ${
-                      commande.statut === 'acompte_requis'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-emerald-100 text-emerald-700'
-                    }`}
-                  >
-                    {commande.statut === 'acompte_requis'
-                      ? 'En attente'
-                      : 'Confirmée'}
-                  </span>
                 </div>
               </div>
             </section>
 
             {/* CONFIANCE */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+            <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-emerald-50 text-emerald-600">
                   <CheckCircle2 size={19} />
                 </div>
 
                 <div>
-                  <p className="text-sm font-black text-[#081A33]">
+                  <p className="text-sm font-black text-[#18151F]">
                     Commande sécurisée
                   </p>
 
-                  <p className="mt-1 text-[10px] font-medium leading-5 text-slate-400">
+                  <p className="mt-1 text-[10px] font-medium leading-5 text-[#9A93A5]">
                     Vos informations et les détails de votre commande sont
                     enregistrés de manière sécurisée.
                   </p>
@@ -1083,7 +690,7 @@ export default function Confirmation() {
         </div>
 
         {/* FOOTER */}
-        <p className="px-3 py-6 text-center text-[9px] font-bold uppercase tracking-[0.15em] text-slate-300">
+        <p className="px-3 py-6 text-center text-[9px] font-bold uppercase tracking-[0.15em] text-[#9A93A5]">
           ChinaShop-Bénin · Merci pour votre confiance
         </p>
       </div>

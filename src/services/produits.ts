@@ -7,6 +7,8 @@ export type Produit = {
   prixOriginal: number | null
   stock: number
   disponibilite: string
+  poids_kg: number | null
+  volume_cbm: number | null
   actif: boolean
   description: string
   image_url: string
@@ -26,6 +28,8 @@ type ProduitRow = {
   prix: number
   stock: number
   disponibilite: string
+  poids_kg: number | null
+  volume_cbm: number | null
   actif: boolean
   cs_produit_details:
     | {
@@ -69,6 +73,8 @@ function transformerProduit(produit: ProduitRow): Produit {
     prixOriginal: details?.prix_original ?? null,
     stock: produit.stock,
     disponibilite: produit.disponibilite,
+    poids_kg: produit.poids_kg ?? null,
+    volume_cbm: produit.volume_cbm ?? null,
     actif: produit.actif,
     description: details?.description ?? '',
     image_url: details?.image_url ?? '',
@@ -92,6 +98,8 @@ export async function obtenirProduits(): Promise<Produit[]> {
       prix,
       stock,
       disponibilite,
+      poids_kg,
+      volume_cbm,
       actif,
       cs_produit_details (
         description,
@@ -127,44 +135,6 @@ export async function obtenirProduits(): Promise<Produit[]> {
   }
 }
 
-export async function obtenirProduit(id: string): Promise<Produit | null> {
-  const { data, error } = await supabase
-    .from('cs_produits')
-    .select(`
-      id,
-      nom,
-      prix,
-      stock,
-      disponibilite,
-      actif,
-      cs_produit_details (
-        description,
-        image_url,
-        prix_original,
-        categorie,
-        sous_categorie,
-        genre,
-        promo,
-        nouveau,
-        date_ajout,
-        promo_fin
-      )
-    `)
-    .eq('id', id)
-    .eq('actif', true)
-    .maybeSingle()
-
-  if (error) {
-    console.error('Erreur chargement produit:', error)
-    throw new Error('Impossible de charger le produit')
-  }
-
-  if (!data) {
-    return null
-  }
-
-  return transformerProduit(data as ProduitRow)
-}
 
 export async function estFavori(produitId: string, userId: string) {
   const { data, error } = await supabase
@@ -239,6 +209,8 @@ export async function obtenirFavoris(userId: string) {
       prix,
       stock,
       disponibilite,
+      poids_kg,
+      volume_cbm,
       actif,
       cs_produit_details (
         description,

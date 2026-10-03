@@ -73,9 +73,6 @@ function enregistrerVisiteurLocal(visitor: AssistanceVisitor) {
   )
 }
 
-export function supprimerVisiteurLocal() {
-  sessionStorage.removeItem(VISITOR_STORAGE_KEY)
-}
 
 async function obtenirUtilisateurConnecte() {
   const { data, error } = await supabase.auth.getSession()

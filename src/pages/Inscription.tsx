@@ -106,16 +106,16 @@ export default function Inscription() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-180px)] bg-[#F7F5F1] px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
-      <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(11,30,61,0.12)] lg:grid-cols-[0.85fr_1.15fr]">
+    <main className="min-h-[calc(100vh-180px)] bg-[#FAF9FC] px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
+      <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] lg:grid-cols-[0.85fr_1.15fr]">
 
-        <div className="relative hidden overflow-hidden bg-[#0B1E3D] p-10 text-white lg:flex lg:flex-col lg:justify-between">
-          <div className="absolute -right-28 -top-28 h-80 w-80 rounded-full bg-orange-500/20 blur-3xl" />
-          <div className="absolute -bottom-28 -left-28 h-80 w-80 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="relative hidden overflow-hidden bg-[#18151F] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+          <div className="absolute -right-28 -top-28 h-80 w-80 rounded-full bg-[#7654C6]/20 blur-3xl" />
+          <div className="absolute -bottom-28 -left-28 h-80 w-80 rounded-full bg-[#7654C6]/10 blur-3xl" />
 
           <div className="relative">
             <div className="mb-10 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 shadow-lg">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#7654C6] shadow-sm">
                 <Sparkles size={21} strokeWidth={2.5} />
               </div>
               <div>
@@ -124,7 +124,7 @@ export default function Inscription() {
               </div>
             </div>
 
-            <p className="mb-4 text-xs font-black uppercase tracking-[0.25em] text-orange-400">
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.25em] text-[#8B6DD1]">
               Nouveau client
             </p>
 
@@ -145,7 +145,7 @@ export default function Inscription() {
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
-                    <Check size={14} className="text-orange-400" />
+                    <Check size={14} className="text-[#8B6DD1]" />
                   </div>
                   <span className="text-sm font-semibold text-white/75">{item}</span>
                 </div>
@@ -153,7 +153,7 @@ export default function Inscription() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+          <div className="relative rounded-[10px] border border-white/10 bg-white/[0.06] p-4">
             <p className="text-xs font-bold uppercase tracking-wider text-white/40">
               Bon à savoir
             </p>
@@ -167,24 +167,24 @@ export default function Inscription() {
           <div className="mx-auto max-w-xl">
             <div className="mb-7 lg:hidden">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0B1E3D] text-orange-400">
+                <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#18151F] text-[#8B6DD1]">
                   <Sparkles size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-[#0B1E3D]">ChinaShop-Benin</p>
-                  <p className="text-xs font-medium text-slate-400">Créer mon compte</p>
+                  <p className="text-sm font-black text-[#18151F]">ChinaShop-Benin</p>
+                  <p className="text-xs font-medium text-[#9A93A5]">Créer mon compte</p>
                 </div>
               </div>
             </div>
 
             <div className="mb-8">
-              <p className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-orange-600">
+              <p className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-[#7654C6]">
                 Inscription
               </p>
-              <h1 className="text-3xl font-black tracking-tight text-[#0B1E3D] sm:text-4xl">
+              <h1 className="text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
                 Créez votre compte.
               </h1>
-              <p className="mt-3 max-w-lg text-sm leading-6 text-slate-500">
+              <p className="mt-3 max-w-lg text-sm leading-6 text-[#6F687A]">
                 Quelques informations suffisent pour rejoindre votre espace
                 client ChinaShop-Benin.
               </p>
@@ -192,14 +192,14 @@ export default function Inscription() {
 
             <form onSubmit={inscrire} className="space-y-5">
               <div>
-                <label htmlFor="nom" className="mb-2 block text-sm font-black text-[#0B1E3D]">
+                <label htmlFor="nom" className="mb-2 block text-sm font-black text-[#18151F]">
                   Nom
                 </label>
 
                 <div className="relative">
                   <UserRound
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5]"
                   />
                   <input
                     id="nom"
@@ -209,20 +209,20 @@ export default function Inscription() {
                     onChange={(e) => setNom(e.target.value)}
                     placeholder="Votre nom"
                     disabled={chargement}
-                    className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+                    className="h-14 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-11 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] focus:border-[#8B6DD1] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-black text-[#0B1E3D]">
+                <label htmlFor="email" className="mb-2 block text-sm font-black text-[#18151F]">
                   Adresse e-mail
                 </label>
 
                 <div className="relative">
                   <Mail
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5]"
                   />
                   <input
                     id="email"
@@ -232,21 +232,21 @@ export default function Inscription() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="vous@exemple.com"
                     disabled={chargement}
-                    className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+                    className="h-14 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-11 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] focus:border-[#8B6DD1] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                   />
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-orange-100 bg-orange-50/70 p-4">
+              <div className="rounded-[10px] border border-[#E8E3EF] bg-[#F1ECFA] p-4">
                 <div className="mb-3 flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                     <Gift size={18} />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-[#0B1E3D]">
+                    <p className="text-sm font-black text-[#18151F]">
                       Vous avez un code de parrainage ?
                     </p>
-                    <p className="mt-0.5 text-xs leading-5 text-slate-500">
+                    <p className="mt-0.5 text-xs leading-5 text-[#6F687A]">
                       Facultatif. Vous pourrez le renseigner si quelqu'un vous a invité.
                     </p>
                   </div>
@@ -259,20 +259,20 @@ export default function Inscription() {
                   onChange={(e) => setCodeParrainage(e.target.value)}
                   placeholder="Ex. CS-PARRAIN"
                   disabled={chargement}
-                  className="h-12 w-full rounded-xl border border-orange-200 bg-white px-4 text-sm font-bold uppercase tracking-wide text-[#0B1E3D] outline-none transition placeholder:normal-case placeholder:tracking-normal placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-bold uppercase tracking-wide text-[#18151F] outline-none transition placeholder:normal-case placeholder:tracking-normal placeholder:text-[#9A93A5] focus:border-[#8B6DD1] focus:ring-4 focus:ring-[#F1ECFA]"
                 />
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="mot-de-passe" className="mb-2 block text-sm font-black text-[#0B1E3D]">
+                  <label htmlFor="mot-de-passe" className="mb-2 block text-sm font-black text-[#18151F]">
                     Mot de passe
                   </label>
 
                   <div className="relative">
                     <LockKeyhole
                       size={18}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5]"
                     />
 
                     <input
@@ -283,7 +283,7 @@ export default function Inscription() {
                       onChange={(e) => setMotDePasse(e.target.value)}
                       placeholder="8 caractères minimum"
                       disabled={chargement}
-                      className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-12 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+                      className="h-14 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-11 pr-12 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] focus:border-[#8B6DD1] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                     />
 
                     <button
@@ -291,7 +291,7 @@ export default function Inscription() {
                       onClick={() => setVoirMotDePasse((v) => !v)}
                       aria-label={voirMotDePasse ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                       disabled={chargement}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-slate-400 hover:bg-slate-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-[#9A93A5] hover:bg-[#F1ECFA]"
                     >
                       {voirMotDePasse ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -299,14 +299,14 @@ export default function Inscription() {
                 </div>
 
                 <div>
-                  <label htmlFor="confirmation" className="mb-2 block text-sm font-black text-[#0B1E3D]">
+                  <label htmlFor="confirmation" className="mb-2 block text-sm font-black text-[#18151F]">
                     Confirmation
                   </label>
 
                   <div className="relative">
                     <LockKeyhole
                       size={18}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5]"
                     />
 
                     <input
@@ -317,7 +317,7 @@ export default function Inscription() {
                       onChange={(e) => setConfirmation(e.target.value)}
                       placeholder="Retapez le mot de passe"
                       disabled={chargement}
-                      className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-12 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+                      className="h-14 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-11 pr-12 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] focus:border-[#8B6DD1] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                     />
 
                     <button
@@ -325,7 +325,7 @@ export default function Inscription() {
                       onClick={() => setVoirConfirmation((v) => !v)}
                       aria-label={voirConfirmation ? 'Masquer la confirmation' : 'Afficher la confirmation'}
                       disabled={chargement}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-slate-400 hover:bg-slate-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-[#9A93A5] hover:bg-[#F1ECFA]"
                     >
                       {voirConfirmation ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -336,7 +336,7 @@ export default function Inscription() {
               {erreur && (
                 <div
                   role="alert"
-                  className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold leading-5 text-red-700"
+                  className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold leading-5 text-red-700"
                 >
                   {erreur}
                 </div>
@@ -345,7 +345,7 @@ export default function Inscription() {
               {message && (
                 <div
                   role="status"
-                  className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold leading-5 text-emerald-700"
+                  className="rounded-[10px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold leading-5 text-emerald-700"
                 >
                   {message}
                 </div>
@@ -354,25 +354,25 @@ export default function Inscription() {
               <button
                 type="submit"
                 disabled={chargement}
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-[#0B1E3D] px-5 text-sm font-black text-white shadow-[0_10px_30px_rgba(11,30,61,0.20)] transition hover:-translate-y-0.5 hover:bg-[#142b50] disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-14 w-full items-center justify-center rounded-[10px] bg-[#18151F] px-5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition  hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {chargement ? 'Création du compte…' : 'Créer mon compte'}
               </button>
             </form>
 
-            <div className="mt-8 rounded-2xl bg-[#F7F5F1] p-4 text-center">
-              <p className="text-sm text-slate-500">
+            <div className="mt-8 rounded-[10px] bg-[#FAF9FC] p-4 text-center">
+              <p className="text-sm text-[#6F687A]">
                 Vous avez déjà un compte ?
               </p>
               <Link
                 to="/connexion"
-                className="mt-1 inline-block text-sm font-black text-orange-600 transition hover:text-orange-700"
+                className="mt-1 inline-block text-sm font-black text-[#7654C6] transition hover:text-[#6544B3]"
               >
                 Se connecter →
               </Link>
             </div>
 
-            <p className="mt-6 text-center text-xs leading-5 text-slate-400">
+            <p className="mt-6 text-center text-xs leading-5 text-[#9A93A5]">
               Vous pouvez toujours commander sans créer de compte.
             </p>
           </div>

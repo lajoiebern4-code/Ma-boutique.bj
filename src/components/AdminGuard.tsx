@@ -15,7 +15,16 @@ export default function AdminGuard() {
   }
 
   if (!user || !estAdmin) {
-    return <Navigate to="/admin-cs2026/login" replace />
+    return (
+      <div className="min-h-screen bg-slate-100 p-6">
+        <div className="mx-auto max-w-lg rounded-2xl bg-white p-6 shadow-sm">
+          <h1 className="text-lg font-bold text-slate-900">Diagnostic admin</h1>
+          <p className="mt-3 text-sm text-slate-600">Session présente : {user ? 'OUI' : 'NON'}</p>
+          <p className="mt-1 break-all text-sm text-slate-600">UID : {user?.id || 'AUCUN'}</p>
+          <p className="mt-1 text-sm text-slate-600">Est admin : {estAdmin ? 'OUI' : 'NON'}</p>
+        </div>
+      </div>
+    )
   }
 
   return <Outlet />
