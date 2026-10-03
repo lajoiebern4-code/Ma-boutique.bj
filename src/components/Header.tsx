@@ -27,31 +27,31 @@ export default function Header() {
   const fermerMenu = () => setMenuOuvert(false)
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
-    `rounded-lg px-4 py-2 text-sm font-bold transition-all duration-300 ${
+    `rounded-[14px] px-4 py-2 text-sm font-bold transition-colors duration-200 ${
       isActive
-        ? 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white shadow-lg shadow-blue-500/25'
-        : 'text-gray-600 hover:bg-gray-100 hover:text-[#0052CC]'
+        ? 'bg-[#7654C6] text-white shadow-[0_4px_14px_rgba(118,84,198,0.18)]'
+        : 'text-[#6F687A] hover:bg-[#F1ECFA] hover:text-[#6544B3]'
     }`
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="border-b border-gray-200/80 bg-white/95 backdrop-blur-xl">
+      <div className="border-b border-[#E8E3EF]/80 bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
             to="/"
             onClick={fermerMenu}
-            className="shrink-0 transition-opacity hover:opacity-80"
+            className="shrink-0 transition-opacity hover:opacity-90"
           >
             <div className="flex items-baseline">
-              <span className="text-2xl font-black tracking-tight text-[#001433]">
+              <span className="text-2xl font-black tracking-tight text-[#18151F]">
                 ChinaShop
               </span>
-              <span className="text-2xl font-black tracking-tight text-[#FF7A1A]">
+              <span className="text-2xl font-black tracking-tight text-[#7654C6]">
                 -Bénin
               </span>
             </div>
             <p className="mt-0.5 flex items-center gap-1 text-[8px] font-bold uppercase tracking-[0.2em] text-gray-400">
-              <Sparkles size={10} className="text-[#FF7A1A]" />
+              <Sparkles size={10} className="text-[#7654C6]" />
               Chine · Bénin
             </p>
           </Link>
@@ -70,7 +70,7 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Link
               to="/assistance"
-              className="hidden h-10 items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF]"
+              className="hidden h-10 items-center gap-2 rounded-lg border border-[#E8E3EF] px-4 text-sm font-bold text-[#18151F] transition-all duration-300 hover:border-[#D8CBEF] hover:bg-[#F1ECFA]"
             >
               <MessageCircle size={17} />
               Assistance
@@ -78,7 +78,7 @@ export default function Header() {
 
             <Link
               to="/suivi"
-              className="hidden h-10 items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF] lg:inline-flex"
+              className="hidden h-10 items-center gap-2 rounded-lg border border-[#E8E3EF] px-4 text-sm font-bold text-[#18151F] transition-all duration-300 hover:border-[#D8CBEF] hover:bg-[#F1ECFA] lg:inline-flex"
             >
               <PackageSearch size={17} />
               Suivi
@@ -86,7 +86,7 @@ export default function Header() {
 
             <Link
               to={user && !estAdmin ? '/compte' : '/connexion'}
-              className="hidden h-10 items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF] sm:inline-flex"
+              className="hidden h-10 items-center gap-2 rounded-lg border border-[#E8E3EF] px-4 text-sm font-bold text-[#18151F] transition-all duration-300 hover:border-[#D8CBEF] hover:bg-[#F1ECFA] sm:inline-flex"
             >
               <UserRound size={17} />
               {user && !estAdmin ? 'Compte' : 'Connexion'}
@@ -96,14 +96,14 @@ export default function Header() {
               to="/panier"
               className={`relative flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-bold transition-all duration-300 active:scale-95 ${
                 nombreArticles > 0
-                  ? 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white shadow-lg shadow-blue-500/25 hover:shadow-xl'
-                  : 'border border-gray-200 text-[#001433] hover:border-[#0052CC] hover:bg-[#EBF5FF]'
+                  ? 'bg-[#7654C6] text-white shadow-[0_4px_14px_rgba(24,21,31,0.06)] hover:shadow-[0_6px_18px_rgba(24,21,31,0.09)]'
+                  : 'border border-[#E8E3EF] text-[#18151F] hover:border-[#D8CBEF] hover:bg-[#F1ECFA]'
               }`}
             >
               <ShoppingBag size={18} strokeWidth={2.2} />
               <span className="hidden sm:inline">Panier</span>
               {nombreArticles > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#FF7A1A] to-[#FF9C4D] px-1 text-[9px] font-bold text-white shadow-lg">
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#7654C6] px-1 text-[9px] font-bold text-white shadow-[0_4px_14px_rgba(24,21,31,0.06)]">
                   {nombreArticles > 99 ? '99+' : nombreArticles}
                 </span>
               )}
@@ -111,7 +111,7 @@ export default function Header() {
 
             <button
               onClick={() => setMenuOuvert(!menuOuvert)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-[#001433] transition-all duration-300 hover:border-[#0052CC] hover:bg-[#EBF5FF] md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#E8E3EF] text-[#18151F] transition-all duration-300 hover:border-[#D8CBEF] hover:bg-[#F1ECFA] md:hidden"
               aria-label={menuOuvert ? 'Fermer' : 'Ouvrir'}
             >
               {menuOuvert ? <X size={20} /> : <Menu size={20} />}
@@ -120,7 +120,7 @@ export default function Header() {
         </div>
 
         {menuOuvert && (
-          <div className="border-t border-gray-200 bg-white md:hidden">
+          <div className="border-t border-[#E8E3EF] bg-white md:hidden">
             <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
               <NavLink
                 to="/"
@@ -128,8 +128,8 @@ export default function Header() {
                 className={({ isActive }) =>
                   `flex min-h-11 items-center justify-between rounded-lg px-4 text-sm font-bold ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-[#7654C6] text-white'
+                      : 'text-gray-600 hover:bg-[#FAF9FC]'
                   }`
                 }
               >
@@ -143,8 +143,8 @@ export default function Header() {
                   className={({ isActive }) =>
                     `flex min-h-11 items-center justify-between rounded-lg px-4 text-sm font-bold ${
                       isActive
-                        ? 'bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] text-white'
-                        : 'text-gray-600 hover:bg-gray-50'
+                        ? 'bg-[#7654C6] text-white'
+                        : 'text-gray-600 hover:bg-[#FAF9FC]'
                     }`
                   }
                 >
@@ -154,7 +154,7 @@ export default function Header() {
               <NavLink
                 to={user && !estAdmin ? '/compte' : '/connexion'}
                 onClick={fermerMenu}
-                className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-gray-200 px-4 text-sm font-bold text-[#001433]"
+                className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-[#E8E3EF] px-4 text-sm font-bold text-[#18151F]"
               >
                 <span>{user && !estAdmin ? 'Mon compte' : 'Se connecter'}</span>
                 <UserRound size={17} />
@@ -162,7 +162,7 @@ export default function Header() {
               <NavLink
                 to="/assistance"
                 onClick={fermerMenu}
-                className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-orange-200 bg-orange-50 px-4 text-sm font-bold text-orange-700 transition hover:bg-orange-100"
+                className="mt-1 flex min-h-11 items-center justify-between rounded-lg border border-[#E8DDFB] bg-[#F1ECFA] px-4 text-sm font-bold text-[#6544B3] transition hover:bg-[#E8DDFB]"
               >
                 <span>Contacter l'assistance</span>
                 <MessageCircle size={17} />
@@ -171,7 +171,7 @@ export default function Header() {
               <NavLink
                 to="/suivi"
                 onClick={fermerMenu}
-                className="mt-1 flex min-h-11 items-center justify-between rounded-lg bg-gradient-to-r from-[#0052CC] to-[#1A6BFF] px-4 text-sm font-bold text-white shadow-lg shadow-blue-500/25"
+                className="mt-1 flex min-h-11 items-center justify-between rounded-lg bg-[#7654C6] px-4 text-sm font-bold text-white shadow-[0_4px_14px_rgba(24,21,31,0.06)]"
               >
                 <span>Suivre ma commande</span>
                 <PackageSearch size={17} />

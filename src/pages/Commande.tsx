@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Copy,
   CreditCard,
   MapPin,
   Package,
@@ -18,8 +19,8 @@ import {
   enregistrerReferenceTransaction,
   envoyerPreuvePaiement,
   recupererMoyensPaiementActifs,
-  recupererTarifsLivraison,
   recupererVariantesProduit,
+  calculerCommandeV2,
   sauvegarderCommandeV2,
 } from '../services/supabase'
 
@@ -60,6 +61,7 @@ export default function Commande() {
   const [chargementPaiement, setChargementPaiement] = useState(false)
   const [moyenPaiementSelectionne, setMoyenPaiementSelectionne] = useState('')
   const [referenceTransaction, setReferenceTransaction] = useState('')
+  const [numeroCopie, setNumeroCopie] = useState<string | null>(null)
   const [preuvePaiement, setPreuvePaiement] = useState<File | null>(null)
 
   const [departement, setDepartement] = useState('')
@@ -70,12 +72,48 @@ export default function Commande() {
 
   const [chargement, setChargement] = useState(false)
 
+  const [calculServeur, setCalculServeur] = useState<{
+    total: number
+    montantSurCommande: number
+    fraisTransportChine: number
+    acompteRequis: number
+  } | null>(null)
+
 
   useEffect(() => {
     if (etape !== 3 || modePaiement !== 'mobile_money') return
 
     let actif = true
     setChargementPaiement(true)
+
+    calculerCommandeV2(
+      items.map((item) => ({
+        produit_id: item.produit.id,
+        quantite: item.quantite,
+        variante_id: item.produit.variante_id ?? null,
+        variante_nom: item.produit.variante_nom ?? null,
+        type_transport: item.produit.type_transport ?? null,
+      })),
+      modeReception,
+      'RETRAIT',
+    )
+      .then((calcul) => {
+        if (!actif) return
+
+        setCalculServeur({
+          total: calcul.total,
+          montantSurCommande: calcul.montantSurCommande,
+          fraisTransportChine: calcul.fraisTransportChine,
+          acompteRequis: calcul.acompteRequis,
+        })
+      })
+      .catch((error) => {
+        if (!actif) return
+        console.error(
+          'Impossible de calculer le montant serveur de la commande:',
+          error,
+        )
+      })
 
     recupererMoyensPaiementActifs()
       .then((resultat) => {
@@ -89,7 +127,7 @@ export default function Commande() {
             (moyen) => moyen.code === moyenPaiementSelectionne,
           )
         ) {
-          setMoyenPaiementSelectionne(resultat[0].code)
+          setMoyenPaiementSelectionne(resultat[0]!.code)
         }
       })
       .catch((error) => {
@@ -111,6 +149,22 @@ export default function Commande() {
   }, [etape, modePaiement])
 
   const total = totalAvecReduction
+
+  const transportSurCommande = items.some(
+    (item) =>
+      item.produit.surCommande === true &&
+      (item.produit.categorie === 'telephones' ||
+        item.produit.sous_categorie === 'ordinateur' ||
+        item.produit.type_transport === 'avion'),
+  )
+    ? 'avion'
+    : items.some(
+          (item) =>
+            item.produit.surCommande === true &&
+            item.produit.type_transport === 'bateau',
+        )
+      ? 'bateau'
+      : null
 
   const articlesStock = useMemo(
     () =>
@@ -157,25 +211,25 @@ export default function Commande() {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-screen bg-[#F7F9FC] px-4 py-10">
-        <div className="mx-auto max-w-xl rounded-[28px] bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <main className="min-h-screen bg-[#FAF9FC] px-4 py-10">
+        <div className="mx-auto max-w-xl rounded-[14px] bg-white p-8 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
           <ShoppingBag
-            className="mx-auto text-slate-300"
+            className="mx-auto text-[#9A93A5]"
             size={50}
           />
 
-          <h1 className="mt-5 text-2xl font-black text-[#0B1E3D]">
+          <h1 className="mt-5 text-2xl font-black text-[#18151F]">
             Votre panier est vide
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-[#6F687A]">
             Ajoutez des articles avant de continuer votre commande.
           </p>
 
           <button
             type="button"
             onClick={() => navigate('/catalogue')}
-            className="mt-6 rounded-2xl bg-[#0284C7] px-7 py-3 text-sm font-black text-white"
+            className="mt-6 rounded-[10px] bg-[#7654C6] px-6 py-3 text-sm font-bold text-white"
           >
             Voir le catalogue
           </button>
@@ -340,7 +394,7 @@ export default function Commande() {
       const article = lignesAvecVarianteManquante[0]
 
       setErreurCommande(
-        `La variante de « ${article.produit.nom} » n’est plus sélectionnée. Retournez au produit pour choisir une variante.`,
+        `La variante de « ${article!.produit.nom} » n’est plus sélectionnée. Retournez au produit pour choisir une variante.`,
       )
       return
     }
@@ -361,12 +415,32 @@ export default function Commande() {
         qte: item.quantite,
         variante_id: item.produit.variante_id || null,
         variante_nom: item.produit.variante_nom || null,
+        type_transport: item.produit.type_transport || null,
       })),
     }
 
       setChargement(true)
 
       try {
+        const calcul = await calculerCommandeV2(
+          commande.articles.map((article) => ({
+            produit_id: article.id,
+            quantite: article.qte,
+            variante_id: article.variante_id,
+            variante_nom: article.variante_nom,
+            type_transport: article.type_transport,
+          })),
+          commande.modeReception,
+          'RETRAIT',
+        )
+
+        setCalculServeur({
+          total: calcul.total,
+          montantSurCommande: calcul.montantSurCommande,
+          fraisTransportChine: calcul.fraisTransportChine,
+          acompteRequis: calcul.acompteRequis,
+        })
+
         const resultat = await sauvegarderCommandeV2(commande)
 
         if (!resultat.success) {
@@ -499,13 +573,13 @@ export default function Commande() {
   ]
 
   return (
-    <main className="min-h-screen bg-[#F7F9FC] px-4 py-6 sm:px-6 sm:py-10">
+    <main className="min-h-screen bg-[#FAF9FC] px-4 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl">
 
         <button
           type="button"
           onClick={() => navigate('/panier')}
-          className="group mb-7 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-500 shadow-sm transition hover:border-slate-300 hover:text-[#0B1E3D]"
+          className="group mb-7 inline-flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2 text-xs font-black text-[#6F687A] shadow-sm transition hover:border-[#DCD5E8] hover:text-[#18151F]"
         >
           <ArrowLeft
             size={15}
@@ -515,17 +589,17 @@ export default function Commande() {
         </button>
 
         {/* HEADER */}
-        <div className="relative mb-8 overflow-hidden rounded-[32px] bg-[#0B1E3D] px-6 py-7 text-white shadow-xl shadow-slate-200 sm:px-8 sm:py-8">
-          <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#0284C7]/20 blur-2xl" />
+        <div className="relative mb-8 overflow-hidden rounded-[14px] bg-[#211C29] px-6 py-7 text-white shadow-[0_8px_24px_rgba(24,21,31,0.06)] sm:px-8 sm:py-8">
+          <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#7654C6]/20 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-24 left-1/3 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
 
           <div className="relative flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15 backdrop-blur-sm">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[10px] bg-white/10 ring-1 ring-white/15 backdrop-blur-sm">
               <ShoppingBag size={25} />
             </div>
 
             <div>
-              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-sky-300">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#D8CCF0]">
                 ChinaShop-Bénin
               </p>
 
@@ -533,7 +607,7 @@ export default function Commande() {
                 Finaliser ma commande
               </h1>
 
-              <p className="mt-1.5 text-sm text-slate-300">
+              <p className="mt-1.5 text-sm text-[#9A93A5]">
                 Quelques étapes pour confirmer votre commande.
               </p>
             </div>
@@ -542,112 +616,110 @@ export default function Commande() {
 
         <div className="grid gap-6 lg:grid-cols-[270px_1fr] lg:gap-8">
 
-          {/* ÉCHELLE */}
-          <aside className="h-fit rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-6">
+          {/* PROGRESSION */}
+          <div className="lg:col-span-2 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:px-7">
             <div className="mb-5 flex items-center justify-between">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
-                Progression
-              </p>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
+                  Progression
+                </p>
+                <p className="mt-1 text-sm font-bold text-[#18151F]">
+                  Étape {etape} sur 4
+                </p>
+              </div>
 
-              <span className="rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-black text-[#0284C7]">
-                {etape}/4
+              <span className="rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[10px] font-black text-[#7654C6]">
+                {Math.round((etape / 4) * 100)}%
               </span>
             </div>
 
-            <div className="relative">
-              <div className="absolute left-[20px] top-5 bottom-5 w-px bg-slate-100" />
+            <div className="flex items-start">
+              {etapes.map((item, index) => {
+                const Icon = item.icon
+                const actif = etape === item.numero
+                const termine = etape > item.numero
+                const dernier = index === etapes.length - 1
 
-              <div
-                className="absolute left-[20px] top-5 w-px bg-[#0284C7] transition-all duration-500"
-                style={{
-                  height:
-                    etape === 1
-                      ? '0%'
-                      : etape === 2
-                        ? '33%'
-                        : etape === 3
-                          ? '66%'
-                          : '100%',
-                }}
-              />
-
-              <div className="relative space-y-7">
-                {etapes.map((item) => {
-                  const Icon = item.icon
-                  const actif = etape === item.numero
-                  const termine = etape > item.numero
-
-                  return (
+                return (
+                  <div
+                    key={item.numero}
+                    className="flex min-w-0 flex-1 items-start"
+                  >
                     <button
-                      key={item.numero}
                       type="button"
                       onClick={() => {
                         if (item.numero < etape) {
                           setEtape(item.numero as Etape)
                         }
                       }}
-                      className="group relative flex w-full items-center gap-3 text-left"
+                      className="group flex min-w-0 flex-col items-center text-center"
                     >
                       <div
-                        className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-white text-sm font-black transition ${
+                        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-4 border-white text-sm font-black ring-1 transition-all duration-300 ${
                           termine
-                            ? 'bg-[#0284C7] text-white shadow-sm'
+                            ? 'bg-emerald-500 text-white ring-emerald-500 shadow-md shadow-emerald-100'
                             : actif
-                              ? 'bg-[#0B1E3D] text-white shadow-lg shadow-slate-200'
-                              : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'
+                              ? 'bg-[#18151F] text-white ring-[#18151F] shadow-lg shadow-[0_8px_24px_rgba(24,21,31,0.08)] scale-105'
+                              : 'bg-[#F1ECFA] text-[#9A93A5] ring-[#E8E3EF]'
                         }`}
                       >
                         {termine ? (
-                          <Check size={16} strokeWidth={3} />
+                          <Check size={17} strokeWidth={3.5} />
                         ) : (
-                          <Icon size={16} />
+                          <Icon size={17} />
                         )}
                       </div>
 
-                      <div>
-                        <p
-                          className={`text-sm font-black ${
-                            actif || termine
-                              ? 'text-[#0B1E3D]'
-                              : 'text-slate-400'
-                          }`}
-                        >
-                          {item.numero}. {item.titre}
-                        </p>
-
-                        <p className="mt-0.5 text-[11px] leading-4 text-slate-400">
-                          {item.description}
-                        </p>
-                      </div>
+                      <p
+                        className={`mt-2 max-w-[90px] text-[11px] font-black leading-4 transition-colors ${
+                          termine || actif
+                            ? 'text-[#18151F]'
+                            : 'text-[#9A93A5]'
+                        }`}
+                      >
+                        {item.numero}. {item.titre}
+                      </p>
                     </button>
-                  )
-                })}
-              </div>
+
+                    {!dernier && (
+                      <div className="mt-[22px] h-1 min-w-3 flex-1 overflow-hidden rounded-full bg-[#F1ECFA]">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            etape > item.numero
+                              ? 'w-full bg-emerald-500'
+                              : 'w-0'
+                          }`}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-          </aside>
+          </div>
 
           {/* FORMULAIRE */}
           <section>
 
             {/* ÉTAPE 1 */}
             {etape === 1 && (
-              <div className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-6 py-7 sm:px-8 sm:py-8">
+              <div className="overflow-hidden rounded-[30px] border border-[#E8E3EF] bg-white shadow-sm">
+                <div className="border-b border-[#E8E3EF] px-6 py-7 sm:px-8 sm:py-8">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-[#0284C7]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                       <User size={20} />
                     </div>
 
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0284C7]">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
                         Étape 01
                       </span>
 
-                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#0B1E3D] sm:text-[27px]">
+                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#18151F] sm:text-[27px]">
                         Vos informations
                       </h2>
 
-                      <p className="mt-1.5 max-w-xl text-sm leading-6 text-slate-500">
+                      <p className="mt-1.5 max-w-xl text-sm leading-6 text-[#6F687A]">
                         Indiquez vos coordonnées pour que nous puissions vous contacter concernant votre commande.
                       </p>
                     </div>
@@ -658,14 +730,14 @@ export default function Commande() {
                   <div className="space-y-5">
 
                     <div>
-                      <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                      <label className="mb-2.5 block text-xs font-black text-[#18151F]">
                         Nom complet
-                        <span className="ml-1 text-[#0284C7]">*</span>
+                        <span className="ml-1 text-[#7654C6]">*</span>
                       </label>
 
                       <div className="group relative">
                         <User
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition group-focus-within:text-[#0284C7]"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#7654C6]"
                           size={18}
                         />
 
@@ -673,20 +745,20 @@ export default function Commande() {
                           value={nom}
                           onChange={(e) => setNom(e.target.value)}
                           placeholder="Ex. Jean Dupont"
-                          className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-12 pr-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:bg-white focus:ring-4 focus:ring-sky-50"
+                          className="h-12 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                      <label className="mb-2.5 block text-xs font-black text-[#18151F]">
                         Numéro de téléphone
-                        <span className="ml-1 text-[#0284C7]">*</span>
+                        <span className="ml-1 text-[#7654C6]">*</span>
                       </label>
 
                       <div className="group relative">
                         <Phone
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition group-focus-within:text-[#0284C7]"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#7654C6]"
                           size={18}
                         />
 
@@ -701,7 +773,7 @@ export default function Commande() {
                           inputMode="numeric"
                           pattern="01[0-9]{8}"
                           placeholder="01XXXXXXXX"
-                          className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-12 pr-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:bg-white focus:ring-4 focus:ring-sky-50"
+                          className="h-12 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                         />
                       </div>
 
@@ -714,16 +786,16 @@ export default function Commande() {
                             Le numéro doit contenir 10 chiffres et commencer par 01.
                           </p>
                         ) : (
-                          <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                          <p className="mt-2 text-[11px] leading-5 text-[#9A93A5]">
                             Format obligatoire : 01XXXXXXXX
                           </p>
                         )}
                     </div>
 
                     <div>
-                      <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                      <label className="mb-2.5 block text-xs font-black text-[#18151F]">
                         E-mail
-                        <span className="ml-1 font-medium text-slate-400">
+                        <span className="ml-1 font-medium text-[#9A93A5]">
                           (facultatif)
                         </span>
                       </label>
@@ -733,21 +805,21 @@ export default function Commande() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre@email.com"
                         type="email"
-                        className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:bg-white focus:ring-4 focus:ring-sky-50"
+                        className="h-12 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                       />
 
-                      <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                      <p className="mt-2 text-[11px] leading-5 text-[#9A93A5]">
                         Pour recevoir les informations importantes liées à votre commande.
                       </p>
                     </div>
 
                   </div>
 
-                  <div className="mt-8 border-t border-slate-100 pt-6">
+                  <div className="mt-8 border-t border-[#E8E3EF] pt-6">
                     <button
                       type="button"
                       onClick={suivant}
-                      className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#0284C7] text-sm font-black text-white shadow-lg shadow-sky-100 transition hover:bg-[#0369A1] active:scale-[0.99]"
+                      className="group flex h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
                     >
                       Continuer
                       <ArrowRight
@@ -756,7 +828,7 @@ export default function Commande() {
                       />
                     </button>
 
-                    <p className="mt-3 text-center text-[11px] text-slate-400">
+                    <p className="mt-3 text-center text-[11px] text-[#9A93A5]">
                       Étape 1 sur 4
                     </p>
                   </div>
@@ -766,11 +838,11 @@ export default function Commande() {
             
             {/* ÉTAPE 2 */}
             {etape === 2 && (
-              <div className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
 
-                <div className="border-b border-slate-100 px-6 py-7 sm:px-8 sm:py-8">
+                <div className="border-b border-[#E8E3EF] px-5 py-5 sm:px-7 sm:py-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-[#0284C7]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                       {modeReception === 'livraison' ? (
                         <MapPin size={20} />
                       ) : (
@@ -779,15 +851,15 @@ export default function Commande() {
                     </div>
 
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0284C7]">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
                         Étape 02
                       </span>
 
-                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#0B1E3D] sm:text-[27px]">
+                      <h2 className="mt-1.5 text-xl font-black tracking-tight text-[#18151F] sm:text-[23px]">
                         Mode de réception
                       </h2>
 
-                      <p className="mt-1.5 text-sm leading-6 text-slate-500">
+                      <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                         Choisissez comment vous souhaitez recevoir votre commande.
                       </p>
                     </div>
@@ -796,7 +868,7 @@ export default function Commande() {
 
                 <div className="px-6 py-7 sm:px-8 sm:py-8">
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2.5 sm:grid-cols-2">
 
                     <button
                       type="button"
@@ -804,32 +876,32 @@ export default function Commande() {
                         setModeReception('retrait')
                         setModePaiement('especes')
                       }}
-                      className={`group relative overflow-hidden rounded-[26px] border-2 p-5 text-left transition-all sm:p-6 ${
+                      className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left transition-all sm:p-4 ${
                         modeReception === 'retrait'
-                          ? 'border-[#0284C7] bg-sky-50 shadow-lg shadow-sky-100/70'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md'
+                          ? 'border-[#7654C6] bg-[#F1ECFA]/80 shadow-sm shadow-[0_8px_24px_rgba(118,84,198,0.12)]'
+                          : 'border-[#E8E3EF] bg-white hover:border-[#DCD5E8] hover:shadow-sm'
                       }`}
                     >
                       {modeReception === 'retrait' && (
-                        <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-[#0284C7] text-white">
+                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
 
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
                         <Package size={23} />
                       </div>
 
-                      <h3 className="mt-5 text-lg font-black text-[#0B1E3D]">
+                      <h3 className="mt-2.5 text-sm font-black text-[#18151F]">
                         Retrait
                       </h3>
 
-                      <p className="mt-1.5 max-w-xs text-sm leading-5 text-slate-500">
+                      <p className="mt-0.5 max-w-xs text-[11px] leading-4 text-[#6F687A]">
                         Récupérez vous-même votre commande au point de retrait.
                       </p>
 
-                      <div className="mt-5 flex items-center gap-2">
-                        <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">
                           Gratuit
                         </span>
                       </div>
@@ -841,32 +913,32 @@ export default function Commande() {
                         setModeReception('livraison')
                         setModePaiement('mobile_money')
                       }}
-                      className={`group relative overflow-hidden rounded-[26px] border-2 p-5 text-left transition-all sm:p-6 ${
+                      className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left transition-all sm:p-4 ${
                         modeReception === 'livraison'
-                          ? 'border-[#0284C7] bg-sky-50 shadow-lg shadow-sky-100/70'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md'
+                          ? 'border-[#7654C6] bg-[#F1ECFA]/80 shadow-sm shadow-[0_8px_24px_rgba(118,84,198,0.12)]'
+                          : 'border-[#E8E3EF] bg-white hover:border-[#DCD5E8] hover:shadow-sm'
                       }`}
                     >
                       {modeReception === 'livraison' && (
-                        <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-[#0284C7] text-white">
+                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
 
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#0284C7]">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                         <MapPin size={23} />
                       </div>
 
-                      <h3 className="mt-5 text-lg font-black text-[#0B1E3D]">
+                      <h3 className="mt-2.5 text-sm font-black text-[#18151F]">
                         Livraison à domicile
                       </h3>
 
-                      <p className="mt-1.5 max-w-xs text-sm leading-5 text-slate-500">
+                      <p className="mt-0.5 max-w-xs text-[11px] leading-4 text-[#6F687A]">
                         Recevez votre commande directement à l'adresse indiquée.
                       </p>
 
-                      <div className="mt-5 flex items-center gap-2">
-                        <span className="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-black text-[#0284C7]">
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="rounded-full bg-[#E8DFF7] px-2.5 py-1 text-[10px] font-black text-[#7654C6]">
                           Livraison à domicile · frais non inclus
                         </span>
                       </div>
@@ -875,21 +947,21 @@ export default function Commande() {
                   </div>
 
                   {modeReception === 'livraison' && (
-                    <div className="mt-6 rounded-[26px] border border-sky-100 bg-sky-50/60 p-5 sm:p-6">
-                      <div className="mb-5">
-                        <p className="text-sm font-black text-[#0B1E3D]">
+                    <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/60 p-3.5 sm:p-4">
+                      <div className="mb-3">
+                        <p className="text-sm font-black text-[#18151F]">
                           Informations de livraison
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                           Indiquez précisément où vous souhaitez recevoir votre commande.
                         </p>
                       </div>
 
-                      <div className="space-y-5">
+                      <div className="space-y-3">
                         <div>
-                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
                             Département
-                            <span className="ml-1 text-[#0284C7]">*</span>
+                            <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
                           <select
                             value={departement}
@@ -897,7 +969,7 @@ export default function Commande() {
                               setDepartement(e.target.value)
                               setCommune("")
                             }}
-                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
                           >
                             <option value="">Sélectionner un département</option>
                             <option value="Alibori">Alibori</option>
@@ -916,15 +988,15 @@ export default function Commande() {
                         </div>
 
                         <div>
-                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
                             Commune
-                            <span className="ml-1 text-[#0284C7]">*</span>
+                            <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
                           <select
                             value={commune}
                             onChange={(e) => setCommune(e.target.value)}
                             disabled={!departement}
-                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA] disabled:cursor-not-allowed disabled:bg-[#F1ECFA] disabled:text-[#9A93A5]"
                           >
                             <option value="">
                               {departement ? "Sélectionner une commune" : "Choisissez d’abord un département"}
@@ -1052,49 +1124,49 @@ export default function Commande() {
                         </div>
 
                         <div>
-                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
                             Quartier
-                            <span className="ml-1 text-[#0284C7]">*</span>
+                            <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
                           <input
                             type="text"
                             value={quartier}
                             onChange={(e) => setQuartier(e.target.value)}
                             placeholder="Ex. Zongo, Agla, Cadjèhoun..."
-                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
                           />
                         </div>
 
                         <div>
-                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
                             Rue / adresse précise
-                            <span className="ml-1 text-[#0284C7]">*</span>
+                            <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
                           <input
                             type="text"
                             value={rue}
                             onChange={(e) => setRue(e.target.value)}
                             placeholder="Nom de rue, maison, numéro..."
-                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
                           />
                         </div>
 
                         <div>
-                          <label className="mb-2.5 block text-xs font-black text-[#0B1E3D]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
                             Repère
-                            <span className="ml-1 text-[11px] font-medium text-slate-400">(facultatif)</span>
+                            <span className="ml-1 text-[11px] font-medium text-[#9A93A5]">(facultatif)</span>
                           </label>
                           <input
                             type="text"
                             value={repere}
                             onChange={(e) => setRepere(e.target.value)}
                             placeholder="Ex. près de..., en face de..."
-                            className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0284C7] focus:ring-4 focus:ring-sky-50"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
                           />
                         </div>
 
-                        <div className="rounded-2xl border border-sky-100 bg-white p-4">
-                          <p className="text-xs font-bold leading-5 text-slate-500">
+                        <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4">
+                          <p className="text-xs font-bold leading-5 text-[#6F687A]">
                             Les frais de livraison ne sont pas inclus dans votre commande. Ils seront convenus directement avec le livreur selon votre zone de livraison.
                           </p>
                         </div>
@@ -1110,11 +1182,11 @@ export default function Commande() {
 
                     )}
                   </div>
-                      <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-4 flex flex-col gap-2.5 border-t border-[#E8E3EF] pt-4 sm:flex-row sm:items-center sm:justify-between">
                         <button
                           type="button"
                           onClick={precedent}
-                          className="inline-flex h-14 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-black text-[#0B1E3D] transition hover:border-slate-300 hover:bg-slate-50"
+                          className="inline-flex h-11 items-center justify-center rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#18151F] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC]"
                         >
                           Retour
                         </button>
@@ -1122,7 +1194,7 @@ export default function Commande() {
                         <button
                           type="button"
                           onClick={suivant}
-                          className="inline-flex h-14 items-center justify-center rounded-2xl bg-[#0284C7] px-8 text-sm font-black text-white shadow-lg shadow-sky-200 transition hover:bg-[#0369A1] active:scale-[0.99]"
+                          className="inline-flex h-11 items-center justify-center rounded-[10px] bg-[#7654C6] px-7 text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
                         >
                           Continuer
                         </button>
@@ -1134,37 +1206,37 @@ export default function Commande() {
 
             {/* ÉTAPE 3 */}
             {etape === 3 && (
-              <div className="overflow-hidden rounded-[32px] bg-white shadow-[0_18px_60px_-35px_rgba(11,30,61,0.35)] ring-1 ring-slate-200">
+              <div className="overflow-hidden rounded-[14px] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] ring-1 ring-[#E8E3EF]">
 
-                <div className="border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-sky-50/60 p-6 sm:p-8">
+                <div className="border-b border-[#E8E3EF] bg-gradient-to-br from-[#FAF9FC] via-white to-[#F1ECFA]/50 px-5 py-5 sm:px-7 sm:py-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B1E3D] text-white shadow-lg shadow-slate-200">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#18151F] text-white shadow-[0_4px_14px_rgba(24,21,31,0.06)]">
                       <CreditCard size={22} />
                     </div>
 
                     <div>
-                      <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#0284C7]">
+                      <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#7654C6]">
                         Étape 03 · Paiement
                       </span>
 
-                      <h2 className="mt-2 text-2xl font-black tracking-tight text-[#0B1E3D] sm:text-3xl">
+                      <h2 className="mt-2 text-xl font-black tracking-tight text-[#18151F] sm:text-2xl">
                         Comment souhaitez-vous payer ?
                       </h2>
 
-                      <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                      <p className="mt-1 max-w-xl text-xs leading-5 text-[#6F687A]">
                         Choisissez le moyen de paiement qui correspond à votre mode de réception.
                       </p>
                     </div>
                   </div>
 
                   {modeReception === 'livraison' && (
-                    <div className="mt-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                    <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 p-3">
+                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                         <MapPin size={16} />
                       </div>
 
                       <div>
-                        <p className="text-sm font-black text-amber-900">
+                        <p className="text-xs font-black text-amber-900">
                           Paiement Mobile Money obligatoire
                         </p>
 
@@ -1176,27 +1248,27 @@ export default function Commande() {
                   )}
                 </div>
 
-                <div className="p-6 sm:p-8">
+                <div className="px-5 py-5 sm:px-7 sm:py-6">
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2.5 sm:grid-cols-2">
 
                     <button
                       type="button"
                       disabled={modeReception === 'livraison' || totalSurCommande > 0}
                       onClick={() => setModePaiement('especes')}
-                      className={`group relative overflow-hidden rounded-[26px] border-2 p-6 text-left transition-all duration-200 ${
+                      className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left sm:p-4 transition-all duration-200 ${
                         modePaiement === 'especes'
-                          ? 'border-[#0284C7] bg-sky-50 shadow-[0_14px_35px_-22px_rgba(2,132,199,0.8)]'
-                          : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg'
+                          ? 'border-[#7654C6] bg-[#F1ECFA] shadow-[0_8px_24px_rgba(118,84,198,0.08)]'
+                          : 'border-[#E8E3EF] bg-white hover:border-[#7654C6]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]'
                       } disabled:cursor-not-allowed disabled:opacity-40`}
                     >
                       {modePaiement === 'especes' && (
-                        <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-[#0284C7] text-white">
+                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
 
-                      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                         modePaiement === 'especes'
                           ? 'bg-orange-100 text-orange-600'
                           : 'bg-orange-50 text-orange-500'
@@ -1204,16 +1276,16 @@ export default function Commande() {
                         <Package size={25} />
                       </div>
 
-                      <div className="mt-5">
-                        <h3 className="text-base font-black text-[#0B1E3D]">
+                      <div className="mt-3">
+                        <h3 className="text-base font-black text-[#18151F]">
                           Paiement en espèces
                         </h3>
 
-                        <p className="mt-2 text-xs leading-5 text-slate-500">
+                        <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
                           Payez lors du retrait de votre commande.
                         </p>
 
-                        <div className="mt-5 inline-flex items-center rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-orange-600 ring-1 ring-orange-100">
+                        <div className="mt-3 inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100">
                           Disponible au retrait
                         </div>
                       </div>
@@ -1222,36 +1294,44 @@ export default function Commande() {
                     <button
                       type="button"
                       onClick={() => setModePaiement('mobile_money')}
-                      className={`group relative overflow-hidden rounded-[26px] border-2 p-6 text-left transition-all duration-200 ${
+                      className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left sm:p-4 transition-all duration-200 ${
                         modePaiement === 'mobile_money'
-                          ? 'border-[#0284C7] bg-sky-50 shadow-[0_14px_35px_-22px_rgba(2,132,199,0.8)]'
-                          : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg'
+                          ? 'border-[#7654C6] bg-[#F1ECFA] shadow-[0_8px_24px_rgba(118,84,198,0.08)]'
+                          : 'border-[#E8E3EF] bg-white hover:border-[#7654C6]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]'
                       }`}
                     >
                       {modePaiement === 'mobile_money' && (
-                        <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-[#0284C7] text-white">
+                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
 
-                      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                         modePaiement === 'mobile_money'
-                          ? 'bg-sky-100 text-[#0284C7]'
-                          : 'bg-sky-50 text-[#0284C7]'
+                          ? 'bg-[#E8DFF7] text-[#7654C6]'
+                          : 'bg-[#F1ECFA] text-[#7654C6]'
                       }`}>
-                        <CreditCard size={25} />
+                        <span className="flex h-8 w-9 items-center justify-center rounded-[45%] border-2 border-black bg-[#FFCC00] shadow-sm">
+
+                          <span className="font-black text-[7px] leading-none tracking-[-0.09em] text-black">
+
+                            MTN
+
+                          </span>
+
+                        </span>
                       </div>
 
-                      <div className="mt-5">
-                        <h3 className="text-base font-black text-[#0B1E3D]">
+                      <div className="mt-3">
+                        <h3 className="text-base font-black text-[#18151F]">
                           Mobile Money
                         </h3>
 
-                        <p className="mt-2 text-xs leading-5 text-slate-500">
+                        <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
                           Paiement en ligne rapide et sécurisé.
                         </p>
 
-                        <div className="mt-5 inline-flex items-center rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-[#0284C7] ring-1 ring-sky-100">
+                        <div className="mt-3 inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-[#7654C6] ring-1 ring-[#E8E3EF]">
                           Paiement en ligne
                         </div>
                       </div>
@@ -1260,42 +1340,81 @@ export default function Commande() {
                   </div>
 
                   {modePaiement === 'mobile_money' && (
-                    <div className="mt-6 rounded-[26px] border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5 sm:p-6">
+                    <div className="mt-4 rounded-[14px] border border-[#E8E3EF] bg-gradient-to-br from-[#F1ECFA] to-white p-4 sm:p-5">
 
                       <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm ring-1 ring-sky-100">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#7654C6] shadow-sm ring-1 ring-[#E8E3EF]">
                           <Phone size={18} />
                         </div>
 
                         <div>
-                          <p className="text-sm font-black text-[#0B1E3D]">
+                          <p className="text-xs font-black text-[#18151F]">
                             Effectuez votre paiement Mobile Money
                           </p>
 
-                          <p className="mt-1 text-xs leading-5 text-slate-500">
+                          <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                             Vous pouvez payer depuis n’importe quel numéro Mobile Money. Utilisez l’un des numéros marchands affichés ci-dessous.
                           </p>
                         </div>
                       </div>
 
                       {moyensPaiement.length > 0 && (
-                        <div className="mt-5 space-y-3">
+                        <div className="mt-3 space-y-3">
                           {moyensPaiement.map((moyen) => (
                             <div
                               key={moyen.id}
-                              className="rounded-2xl border border-sky-100 bg-white px-4 py-3"
+                              className="rounded-xl border border-[#E8E3EF] bg-white px-3 py-2.5"
                             >
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-xs font-bold text-slate-500">
-                                  {moyen.nom || moyen.code}
-                                </span>
-                                <span className="text-base font-black tracking-wide text-[#0B1E3D]">
-                                  {moyen.numero}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="flex h-8 w-9 items-center justify-center rounded-[45%] border-2 border-black bg-[#FFCC00] shadow-sm">
+
+                                    <span className="font-black text-[7px] leading-none tracking-[-0.09em] text-black">
+
+                                      MTN
+
+                                    </span>
+
+                                  </span>
+                                  <span className="text-xs font-black text-[#18151F]">
+                                    {moyen.nom || moyen.code}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-black tracking-wide text-[#18151F]">
+                                    {moyen.numero}
+                                  </span>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(moyen.numero)
+                                      setNumeroCopie(moyen.numero)
+                                      window.setTimeout(() => {
+                                        setNumeroCopie((actuel) =>
+                                          actuel === moyen.numero ? null : actuel
+                                        )
+                                      }, 1800)
+                                    }}
+                                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[#E8E3EF] bg-white px-2.5 text-[10px] font-black text-[#7654C6] shadow-sm transition hover:border-[#D8CCF0] hover:bg-[#F1ECFA] active:scale-[0.98]"
+                                  >
+                                    {numeroCopie === moyen.numero ? (
+                                      <>
+                                        <Check size={13} strokeWidth={3} />
+                                        Copié
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy size={13} strokeWidth={2.5} />
+                                        Copier
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
                               </div>
 
                               {moyen.instructions && (
-                                <p className="mt-1 text-xs leading-5 text-slate-500">
+                                <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                                   {moyen.instructions}
                                 </p>
                               )}
@@ -1304,34 +1423,34 @@ export default function Commande() {
                         </div>
                       )}
 
-                      <div className="mt-5 rounded-2xl border border-sky-100 bg-white p-4">
+                      <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-white p-4">
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#9A93A5]">
                               Montant à payer
                             </p>
-                            <p className="mt-1 text-xl font-black text-[#0B1E3D]">
+                            <p className="mt-1 text-lg font-black text-[#18151F]">
                               {formatPrix(
                                 totalSurCommande > 0
-                                  ? Math.ceil(totalSurCommande * 0.5)
+                                  ? calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5)
                                   : total,
                               )}
                             </p>
                           </div>
 
-                          <div className="rounded-xl bg-sky-50 px-3 py-2 text-[11px] font-black text-[#0284C7]">
+                          <div className="rounded-xl bg-[#F1ECFA] px-3 py-2 text-[11px] font-black text-[#7654C6]">
                             {totalSurCommande > 0 ? 'Acompte 50 %' : 'Paiement total'}
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                        <label className="block text-sm font-black text-[#0B1E3D]">
+                      <div className="mt-3 rounded-xl border border-[#E8E3EF] bg-white p-3.5">
+                        <label className="block text-xs font-black text-[#18151F]">
                           Référence de transaction
                         </label>
 
-                        <p className="mt-1 text-xs leading-5 text-slate-500">
-                          Saisissez la référence indiquée sur votre reçu Mobile Money.
+                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                          Saisissez les 12 chiffres de la référence indiquée sur votre reçu Mobile Money.
                         </p>
 
                         <input
@@ -1340,18 +1459,18 @@ export default function Commande() {
                           onChange={(event) =>
                             setReferenceTransaction(event.target.value)
                           }
-                          placeholder="Ex. TXN123456789"
+                          placeholder="Ex. 123456789012"
                           maxLength={100}
-                          className="mt-3 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-[#0B1E3D] outline-none transition focus:border-[#0284C7] focus:bg-white"
+                          className="mt-3 h-11 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-sm font-semibold text-[#18151F] outline-none transition focus:border-[#7654C6] focus:bg-white"
                         />
                       </div>
 
-                      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                        <label className="block text-sm font-black text-[#0B1E3D]">
+                      <div className="mt-3 rounded-xl border border-[#E8E3EF] bg-white p-3.5">
+                        <label className="block text-xs font-black text-[#18151F]">
                           Preuve de paiement
                         </label>
 
-                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                           Après votre transfert, joignez une capture ou photo du reçu.
                           Formats acceptés : JPG, PNG ou WebP, 5 Mo maximum.
                         </p>
@@ -1364,7 +1483,7 @@ export default function Commande() {
                             setPreuvePaiement(fichier)
                             setErreurCommande('')
                           }}
-                          className="mt-3 block w-full text-xs font-semibold text-slate-600 file:mr-3 file:rounded-xl file:border-0 file:bg-sky-50 file:px-4 file:py-2.5 file:font-black file:text-[#0284C7] hover:file:bg-sky-100"
+                          className="mt-3 block w-full text-xs font-semibold text-[#6F687A] file:mr-3 file:rounded-xl file:border-0 file:bg-[#F1ECFA] file:px-4 file:py-2.5 file:font-black file:text-[#7654C6] hover:file:bg-[#E8DFF7]"
                         />
 
                         {preuvePaiement && (
@@ -1384,7 +1503,7 @@ export default function Commande() {
                         )}
                       </div>
 
-                      <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                      <div className="mt-4 rounded-[14px] border border-amber-100 bg-amber-50 p-4">
                         <p className="text-xs font-bold leading-5 text-amber-800">
                           Votre paiement restera en attente de confirmation jusqu’à
                           la vérification de la référence et de la preuve par ChinaShop.
@@ -1393,12 +1512,12 @@ export default function Commande() {
                     </div>
                   )}
 
-                  <div className="mt-8 flex gap-3 border-t border-slate-100 pt-6">
+                  <div className="mt-5 flex gap-2.5 border-t border-[#E8E3EF] pt-4">
 
                     <button
                       type="button"
                       onClick={precedent}
-                      className="h-14 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+                      className="h-11 rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#6F687A] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC]"
                     >
                       Retour
                     </button>
@@ -1406,7 +1525,7 @@ export default function Commande() {
                     <button
                       type="button"
                       onClick={suivant}
-                      className="group flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0284C7] text-sm font-black text-white shadow-lg shadow-sky-100 transition hover:bg-[#0369A1] active:scale-[0.99]"
+                      className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
                     >
                       Vérifier ma commande
 
@@ -1418,7 +1537,7 @@ export default function Commande() {
 
                   </div>
 
-                  <p className="mt-3 text-center text-[11px] font-medium text-slate-400">
+                  <p className="mt-3 text-center text-[11px] font-medium text-[#9A93A5]">
                     Étape 3 sur 4
                   </p>
 
@@ -1428,372 +1547,388 @@ export default function Commande() {
 
             {/* ÉTAPE 4 */}
             {etape === 4 && (
-              <div className="overflow-hidden rounded-[32px] bg-white shadow-[0_18px_60px_-35px_rgba(11,30,61,0.35)] ring-1 ring-slate-200">
-                <div className="border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-sky-50/60 p-6 sm:p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B1E3D] text-white shadow-lg shadow-slate-200">
-                      <Check size={22} strokeWidth={3} />
+              <div className="space-y-4">
+                {/* EN-TÊTE FINAL */}
+                <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                  <div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#18151F] text-white shadow-sm">
+                        <Check size={18} strokeWidth={3} />
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-[#F1ECFA] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-[#7654C6]">
+                            Étape finale
+                          </span>
+                        </div>
+
+                        <h2 className="mt-1 text-xl font-black tracking-tight text-[#18151F] sm:text-2xl">
+                          Vérifiez votre commande
+                        </h2>
+
+                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                          Vérifiez attentivement vos informations avant de confirmer.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#0284C7]">
-                        Étape 04 · Vérification
-                      </span>
-                      <h2 className="mt-2 text-2xl font-black tracking-tight text-[#0B1E3D] sm:text-3xl">
-                        Vérifiez votre commande
-                      </h2>
-                      <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
-                        Vérifiez attentivement vos informations avant de confirmer votre commande.
-                      </p>
+
+                    <div className="hidden shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-[10px] font-black text-emerald-700 sm:block">
+                      Prêt à confirmer
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-5 p-6 sm:p-8">
-
+                {/* INFORMATIONS PRINCIPALES */}
+                <div className="grid gap-4 lg:grid-cols-2">
                   {/* CLIENT */}
-                  <div className="rounded-[26px] border border-slate-200 bg-slate-50/70 p-5 sm:p-6">
+                  <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm ring-1 ring-slate-200">
-                        <User size={18} />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+                        <User size={17} />
                       </div>
+
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
+                        <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                           Client
                         </p>
-                        <p className="mt-0.5 text-sm font-black text-[#0B1E3D]">
+                        <p className="mt-0.5 text-sm font-black text-[#18151F]">
                           Vos coordonnées
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                      <p className="font-black text-[#0B1E3D]">{nom}</p>
-                      <p className="mt-1 text-sm font-medium text-slate-500">
-                        {telephone}
-                      </p>
-                      {email && (
-                        <p className="mt-1 text-sm font-medium text-slate-500">
+                    <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
+                      <div className="rounded-xl bg-[#FAF9FC] px-3 py-2.5">
+                        <p className="text-[9px] font-black uppercase tracking-wider text-[#9A93A5]">
+                          Nom
+                        </p>
+                        <p className="mt-1 truncate text-xs font-black text-[#18151F]">
+                          {nom}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl bg-[#FAF9FC] px-3 py-2.5">
+                        <p className="text-[9px] font-black uppercase tracking-wider text-[#9A93A5]">
+                          Téléphone
+                        </p>
+                        <p className="mt-1 truncate text-xs font-black text-[#18151F]">
+                          {telephone}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl bg-[#FAF9FC] px-3 py-2.5">
+                        <p className="text-[9px] font-black uppercase tracking-wider text-[#9A93A5]">
+                          Email
+                        </p>
+                        <p className="mt-1 truncate text-xs font-black text-[#18151F]">
                           {email}
                         </p>
-                      )}
+                      </div>
                     </div>
                   </div>
 
                   {/* RÉCEPTION */}
-                  <div className="rounded-[26px] border border-slate-200 bg-slate-50/70 p-5 sm:p-6">
+                  <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm ring-1 ring-slate-200">
-                        {modeReception === 'retrait' ? (
-                          <Package size={18} />
-                        ) : (
-                          <MapPin size={18} />
-                        )}
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <MapPin size={17} />
                       </div>
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
+
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                           Réception
                         </p>
-                        <p className="mt-0.5 text-sm font-black text-[#0B1E3D]">
+                        <p className="mt-0.5 text-sm font-black text-[#18151F]">
                           {modeReception === 'retrait' ? 'Retrait' : 'Livraison'}
                         </p>
                       </div>
+
+                      {modeReception === 'retrait' ? (
+                        <span className="ml-auto shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">
+                          Gratuit
+                        </span>
+                      ) : (
+                        <span className="ml-auto shrink-0 rounded-full bg-[#F1ECFA] px-2.5 py-1 text-[10px] font-black text-[#7654C6]">
+                          À domicile
+                        </span>
+                      )}
                     </div>
 
-                    <div className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
+                    <div className="mt-4 rounded-xl bg-[#FAF9FC] px-3.5 py-3">
                       {modeReception === 'retrait' ? (
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-slate-600">
-                            Vous récupérerez votre commande vous-même.
-                          </p>
-                          <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-black text-emerald-700">
-                            Gratuit
-                          </span>
-                        </div>
+                        <p className="text-xs font-semibold leading-5 text-[#6F687A]">
+                          Vous récupérerez votre commande vous-même.
+                        </p>
                       ) : (
                         <>
-                          <p className="font-black text-[#0B1E3D]">
+                          <p className="text-xs font-black text-[#18151F]">
                             {commune || 'Zone sélectionnée'}
                           </p>
 
-                          <p className="mt-2 text-sm leading-6 text-slate-500">
+                          <p className="mt-1 text-xs leading-5 text-[#6F687A]">
                             {departement}, {commune}, {quartier}, {rue}
                           </p>
 
                           {repere && (
-                            <p className="mt-2 text-xs leading-5 text-slate-400">
+                            <p className="mt-1 text-[11px] leading-5 text-[#9A93A5]">
                               Repère : {repere}
                             </p>
                           )}
-
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <span className="rounded-full bg-sky-50 px-3 py-1.5 text-[11px] font-black text-[#0284C7]">
-                              Livraison à domicile
-                            </span>
-                            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-black text-emerald-700">
-                              Frais de livraison non inclus
-                            </span>
-                          </div>
                         </>
                       )}
                     </div>
                   </div>
+                </div>
 
-                  {/* PAIEMENT */}
-                  <div className="rounded-[26px] border border-slate-200 bg-slate-50/70 p-5 sm:p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm ring-1 ring-slate-200">
-                        <CreditCard size={18} />
-                      </div>
-
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
-                          Paiement
-                        </p>
-
-                        <p className="mt-0.5 text-sm font-black text-[#0B1E3D]">
-                          {modePaiement === 'mobile_money'
-                            ? 'Mobile Money'
-                            : 'Espèces'}
-                        </p>
-                      </div>
+                {/* PAIEMENT */}
+                <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                      <CreditCard size={17} />
                     </div>
 
-                    <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                      <div>
-                        <p className="text-sm font-black text-[#0B1E3D]">
-                          {modePaiement === 'mobile_money'
-                            ? 'Paiement en ligne'
-                            : 'Paiement au retrait'}
-                        </p>
-
-                        {modePaiement === 'mobile_money' && (
-                          <p className="mt-1 text-xs font-medium text-slate-500">
-                          </p>
-                        )}
-                      </div>
-
-                      <span className="shrink-0 rounded-full bg-sky-50 px-3 py-1.5 text-[11px] font-black text-[#0284C7]">
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
+                        Paiement
+                      </p>
+                      <p className="mt-0.5 text-sm font-black text-[#18151F]">
                         {modePaiement === 'mobile_money'
                           ? 'Mobile Money'
                           : 'Espèces'}
+                      </p>
+                    </div>
+
+                    <div className="ml-auto flex items-center gap-2">
+                      {modePaiement === 'mobile_money' && (
+                        <span className="flex h-8 w-9 items-center justify-center rounded-[45%] border-2 border-black bg-[#FFCC00] shadow-sm">
+
+                          <span className="font-black text-[7px] leading-none tracking-[-0.09em] text-black">
+
+                            MTN
+
+                          </span>
+
+                        </span>
+                      )}
+
+                      <span className="rounded-full bg-[#FAF9FC] px-2.5 py-1.5 text-[10px] font-black text-[#6F687A]">
+                        {modePaiement === 'mobile_money'
+                          ? 'Paiement en ligne'
+                          : 'Paiement au retrait'}
                       </span>
                     </div>
                   </div>
+                </div>
 
-                  {/* DISPONIBILITÉ */}
-                  <div className="rounded-[26px] border border-slate-200 bg-white p-5 sm:p-6">
+                {/* RÉSUMÉ COMMANDE */}
+                <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                  <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-[#0B1E3D] ring-1 ring-slate-200">
-                        <ShoppingBag size={18} />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#18151F]">
+                        <ShoppingBag size={17} />
                       </div>
 
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
-                          Disponibilité des articles
+                        <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
+                          Commande
                         </p>
-
-                        <p className="mt-0.5 text-sm font-black text-[#0B1E3D]">
+                        <p className="mt-0.5 text-sm font-black text-[#18151F]">
                           Résumé de votre commande
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-5 space-y-3">
-
-                      {articlesStock.length > 0 && (
-                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-black text-emerald-900">
-                                Articles en stock
-                              </p>
-
-                              <p className="mt-1 text-xs leading-5 text-emerald-700">
-                                Ces articles sont actuellement disponibles.
-                              </p>
-                            </div>
-
-                            <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-emerald-700">
-                              {formatPrix(totalStock)}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      {articlesSurCommande.length > 0 && (
-                        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-black text-amber-900">
-                                Articles sur commande
-                              </p>
-
-                              <p className="mt-1 text-xs leading-5 text-amber-700">
-                                Délai indicatif : environ 30 jours par avion ou jusqu'à 3 mois par bateau.
-                              </p>
-                            </div>
-
-                            <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-amber-700">
-                              {formatPrix(totalSurCommande)}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                    </div>
+                    <span className="hidden rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[10px] font-black text-[#6F687A] sm:block">
+                      Vérification finale
+                    </span>
                   </div>
 
-                  {/* RÈGLE PANIER MIXTE */}
-                  {panierMixte && (
-                    <div className="rounded-[26px] border-2 border-sky-100 bg-sky-50 p-5 sm:p-6">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm">
-                          <Package size={18} />
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {articlesStock.length > 0 && (
+                      <div className="rounded-[14px] border border-emerald-100 bg-emerald-50/70 p-3.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-black text-emerald-900">
+                              Articles en stock
+                            </p>
+                            <p className="mt-1 text-[11px] leading-5 text-emerald-700">
+                              Disponibles actuellement.
+                            </p>
+                          </div>
+
+                          <span className="shrink-0 rounded-full bg-white px-2.5 py-1.5 text-[11px] font-black text-emerald-700 shadow-sm">
+                            {formatPrix(totalStock)}
+                          </span>
                         </div>
-
-                        <div>
-                          <p className="text-sm font-black text-[#0B1E3D]">
-                            Commande regroupée
-                          </p>
-
-                          <p className="mt-1 text-xs leading-5 text-slate-600">
-                            Votre commande contient des articles en stock et sur commande.
-                            Les articles en stock sont réservés et la réception intervient
-                            lorsque les articles sur commande sont disponibles.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 rounded-2xl bg-white p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                          Acompte requis
-                        </p>
-
-                        <p className="mt-1 text-xl font-black text-[#0B1E3D]">
-                          {formatPrix(Math.ceil(totalSurCommande * 0.5))}
-                        </p>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          50 % de la valeur des articles sur commande.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* RÈGLE SUR COMMANDE SEULE */}
-                  {!panierMixte && articlesSurCommande.length > 0 && (
-                    <div className="rounded-[26px] border-2 border-amber-100 bg-amber-50 p-5 sm:p-6">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-600 shadow-sm">
-                          <Package size={18} />
-                        </div>
-
-                        <div>
-                          <p className="text-sm font-black text-amber-900">
-                            Acompte nécessaire avant traitement
-                          </p>
-
-                          <p className="mt-1 text-xs leading-5 text-amber-800">
-                            Votre commande contient uniquement des articles sur commande.
-                            Un acompte de 50 % est requis avant le lancement du traitement.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 rounded-2xl bg-white p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                          Acompte requis
-                        </p>
-
-                        <p className="mt-1 text-xl font-black text-[#0B1E3D]">
-                          {formatPrix(Math.ceil(totalSurCommande * 0.5))}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* TOTAL */}
-                  <div className="overflow-hidden rounded-[28px] bg-[#0B1E3D] p-6 text-white shadow-xl shadow-slate-200 sm:p-7">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-300">
-                        Sous-total
-                      </span>
-
-                      <span className="font-bold">
-                        {formatPrix(sousTotal)}
-                      </span>
-                    </div>
-
-                    {reduction > 0 && (
-                      <div className="mt-3 flex justify-between text-sm text-emerald-300">
-                        <span>Réduction</span>
-
-                        <span className="font-bold">
-                          -{formatPrix(reduction)}
-                        </span>
                       </div>
                     )}
 
+                    {articlesSurCommande.length > 0 && (
+                      <div className="rounded-[14px] border border-amber-100 bg-amber-50/70 p-3.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-black text-amber-900">
+                              Articles sur commande
+                            </p>
+                            <p className="mt-1 text-[11px] leading-5 text-amber-700">
+                              {transportSurCommande === 'avion'
+                                ? 'Transport aérien · Livraison estimée sous 30 jours.'
+                                : transportSurCommande === 'bateau'
+                                  ? 'Transport maritime · Livraison estimée jusqu’à 3 mois.'
+                                  : 'Transport sélectionné · Délai selon le mode choisi.'}
+                            </p>
+                          </div>
 
-                    <div className="mt-6 border-t border-white/10 pt-5">
+                          <span className="shrink-0 rounded-full bg-white px-2.5 py-1.5 text-[11px] font-black text-amber-700 shadow-sm">
+                            {formatPrix(totalSurCommande)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ACOMPTE */}
+                  {panierMixte && (
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 px-4 py-3">
+                      <div>
+                        <p className="text-xs font-black text-[#18151F]">
+                          Acompte requis
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[#6F687A]">
+                          50 % des articles sur commande.
+                        </p>
+                      </div>
+
+                      <span className="shrink-0 text-sm font-black text-[#18151F]">
+                        {formatPrix(calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5))}
+                      </span>
+                    </div>
+                  )}
+
+                  {!panierMixte && articlesSurCommande.length > 0 && (
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-[14px] border border-amber-100 bg-amber-50/70 px-4 py-3">
+                      <div>
+                        <p className="text-xs font-black text-amber-900">
+                          Acompte nécessaire avant traitement
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-amber-700">
+                          50 % requis avant le lancement du traitement.
+                        </p>
+                      </div>
+
+                      <span className="shrink-0 text-sm font-black text-amber-900">
+                        {formatPrix(calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5))}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* TOTAL */}
+                <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                  <div className="p-5 sm:p-6">
+                    <div className="space-y-2.5 text-xs">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-[#9A93A5]">Sous-total</span>
+                        <span className="font-bold text-[#18151F]">
+                          {formatPrix(sousTotal)}
+                        </span>
+                      </div>
+
+                      {reduction > 0 && (
+                        <div className="flex items-center justify-between gap-4 text-emerald-700">
+                          <span>Réduction</span>
+                          <span className="font-bold">
+                            -{formatPrix(reduction)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-4 border-t border-[#E8E3EF] pt-4">
                       <div className="flex items-end justify-between gap-4">
                         <div>
-                          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                          <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                             Total
                           </p>
-
-                          <p className="mt-1 text-sm font-black text-white">
+                          <p className="mt-1 text-sm font-black text-[#18151F]">
                             Montant de la commande
                           </p>
                         </div>
 
-                        <span className="text-2xl font-black text-orange-400 sm:text-3xl">
-                          {formatPrix(total)}
+                        <span className="text-2xl font-black tracking-tight text-[#D92D20] sm:text-3xl">
+                          {formatPrix(calculServeur?.total ?? total)}
                         </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* RÈGLE LIVRAISON */}
-                  {modeReception === 'livraison' && (
-                    <div className="flex items-start gap-3 rounded-2xl border border-sky-100 bg-sky-50 p-4">
-                      <MapPin
-                        className="mt-0.5 shrink-0 text-[#0284C7]"
-                        size={18}
-                      />
-
-                      <div>
-                        <p className="text-sm font-black text-sky-900">
-                          Livraison à domicile
-                        </p>
-
-                        <p className="mt-1 text-xs leading-5 text-sky-700">
-                          Le paiement Mobile Money est obligatoire pour la livraison.
-                          La livraison sera organisée selon la disponibilité de votre commande.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                    {erreurCommande && (
-                      <div
-                        role="alert"
-                        className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700"
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="mt-0.5 shrink-0 text-base">⚠️</span>
-                          <p>{erreurCommande}</p>
+                    {articlesSurCommande.length > 0 && (
+                      <div className="mt-4 flex items-center justify-between gap-4 rounded-[14px] bg-[#FAF9FC] px-4 py-3">
+                        <div>
+                          <p className="text-[9px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
+                            Acompte à prévoir
+                          </p>
+                          <p className="mt-0.5 text-[11px] text-[#6F687A]">
+                            50 % des articles sur commande
+                          </p>
                         </div>
+
+                        <span className="text-lg font-black text-[#18151F]">
+                          {formatPrix(calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5))}
+                        </span>
                       </div>
                     )}
+                  </div>
+                </div>
 
-                  {/* ACTIONS */}
-                  <div className="flex gap-3 border-t border-slate-100 pt-6">
+                {/* RÈGLE LIVRAISON */}
+                {modeReception === 'livraison' && (
+                  <div className="flex items-start gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 px-4 py-3.5">
+                    <MapPin
+                      className="mt-0.5 shrink-0 text-[#7654C6]"
+                      size={17}
+                    />
+
+                    <div>
+                      <p className="text-xs font-black text-[#18151F]">
+                        Livraison à domicile
+                      </p>
+                      <p className="mt-1 text-[11px] leading-5 text-[#6F687A]">
+                        Le paiement Mobile Money est obligatoire pour la livraison.
+                        La livraison sera organisée selon la disponibilité de votre commande.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ERREUR */}
+                {erreurCommande && (
+                  <div
+                    role="alert"
+                    className="rounded-[14px] border border-red-200 bg-red-50 p-3.5 text-xs font-bold text-red-700"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-0.5 shrink-0">⚠️</span>
+                      <p>{erreurCommande}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ACTIONS */}
+                <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                  <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-[#6F687A]">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                      <Check size={11} strokeWidth={3} />
+                    </span>
+                    Vos informations sont prêtes à être confirmées.
+                  </div>
+
+                  <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={precedent}
                       disabled={chargement}
-                      className="h-14 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50"
+                      className="h-12 rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#6F687A] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC] disabled:opacity-50"
                     >
                       Modifier
                     </button>
@@ -1802,26 +1937,25 @@ export default function Commande() {
                       type="button"
                       onClick={confirmerCommande}
                       disabled={chargement}
-                      className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0284C7] text-sm font-black text-white shadow-lg shadow-sky-100 transition hover:bg-[#0369A1] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#D92D20] px-5 text-xs font-bold text-white shadow-[0_4px_14px_rgba(198,40,40,0.12)] transition hover:bg-[#B42318] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {chargement ? (
                         <>
-                          <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                           Création de la commande...
                         </>
                       ) : (
                         <>
-                          <Check size={19} strokeWidth={3} />
+                          <Check size={17} strokeWidth={3} />
                           Confirmer ma commande
                         </>
                       )}
                     </button>
                   </div>
 
-                  <p className="text-center text-[11px] font-medium text-slate-400">
+                  <p className="mt-3 text-center text-[10px] font-medium text-[#9A93A5]">
                     Étape 4 sur 4 · Vérification finale
                   </p>
-
                 </div>
               </div>
             )}
@@ -1832,10 +1966,10 @@ export default function Commande() {
                   key={item.numero}
                   className={`h-2 rounded-full transition-all ${
                     etape === item.numero
-                      ? 'w-8 bg-[#0284C7]'
+                      ? 'w-8 bg-[#7654C6]'
                       : etape > item.numero
-                        ? 'w-5 bg-[#0284C7]'
-                        : 'w-5 bg-slate-200'
+                        ? 'w-5 bg-[#7654C6]'
+                        : 'w-5 bg-[#E8E3EF]'
                   }`}
                 />
               ))}

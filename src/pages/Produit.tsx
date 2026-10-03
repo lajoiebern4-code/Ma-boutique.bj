@@ -105,7 +105,7 @@ function BadgeDisponibilite({ produit }: { produit: Produit }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600">
+    <span className="inline-flex items-center gap-2 rounded-full bg-[#F1ECFA] px-3 py-1.5 text-xs font-black text-[#6F687A]">
       <X size={14} />
       Indisponible
     </span>
@@ -122,14 +122,14 @@ function BlocAvantage({
   texte: string
 }) {
   return (
-    <div className="flex gap-3 rounded-2xl border border-slate-200/80 bg-white p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
+    <div className="flex gap-3 rounded-[14px] border border-[#E8E3EF] bg-white p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
         <Icon size={19} />
       </div>
 
       <div>
-        <p className="text-sm font-black text-[#0B1E3D]">{titre}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{texte}</p>
+        <p className="text-sm font-black text-[#18151F]">{titre}</p>
+        <p className="mt-1 text-xs leading-5 text-[#6F687A]">{texte}</p>
       </div>
     </div>
   )
@@ -137,18 +137,18 @@ function BlocAvantage({
 
 function SkeletonProduit() {
   return (
-    <main className="min-h-screen bg-[#F7F9FC]">
+    <main className="min-h-screen bg-[#FAF9FC]">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="h-5 w-36 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-5 w-36 animate-pulse rounded-full bg-[#E8E3EF]" />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_.95fr]">
-          <div className="aspect-square animate-pulse rounded-[2rem] bg-slate-200" />
+          <div className="aspect-square animate-pulse rounded-[18px] bg-[#E8E3EF]" />
 
           <div className="space-y-5">
-            <div className="h-8 w-2/3 animate-pulse rounded-xl bg-slate-200" />
-            <div className="h-12 w-1/2 animate-pulse rounded-xl bg-slate-200" />
-            <div className="h-24 animate-pulse rounded-2xl bg-slate-200" />
-            <div className="h-14 animate-pulse rounded-2xl bg-slate-200" />
+            <div className="h-8 w-2/3 animate-pulse rounded-xl bg-[#E8E3EF]" />
+            <div className="h-12 w-1/2 animate-pulse rounded-xl bg-[#E8E3EF]" />
+            <div className="h-24 animate-pulse rounded-2xl bg-[#E8E3EF]" />
+            <div className="h-14 animate-pulse rounded-2xl bg-[#E8E3EF]" />
           </div>
         </div>
       </div>
@@ -201,6 +201,45 @@ export default function Produit() {
   const [variantesProduit, setVariantesProduit] = useState<ProduitVariante[]>([])
   const [varianteSelectionnee, setVarianteSelectionnee] =
     useState<ProduitVariante | null>(null)
+  const [couleurSelectionnee, setCouleurSelectionnee] = useState('')
+  const [tailleSelectionnee, setTailleSelectionnee] = useState('')
+  const [pointureSelectionnee, setPointureSelectionnee] = useState('')
+
+  const categorieProduit = (produit?.categorie || '').trim().toLowerCase()
+  const estVetement = categorieProduit === 'vetements'
+  const estChaussure = categorieProduit === 'chaussures'
+
+  const couleursDisponibles = Array.from(
+    new Set(
+      variantesProduit
+        .map((variante) => variante.couleur?.trim())
+        .filter(Boolean),
+    ),
+  )
+
+  const taillesDisponibles = Array.from(
+    new Set(
+      variantesProduit
+        .filter(
+          (variante) =>
+            variante.couleur === couleurSelectionnee &&
+            variante.taille?.trim(),
+        )
+        .map((variante) => variante.taille!.trim()),
+    ),
+  )
+
+  const pointuresDisponibles = Array.from(
+    new Set(
+      variantesProduit
+        .filter(
+          (variante) =>
+            variante.couleur === couleurSelectionnee &&
+            variante.pointure?.trim(),
+        )
+        .map((variante) => variante.pointure!.trim()),
+    ),
+  )
 
   useEffect(() => {
     let actif = true
@@ -279,10 +318,22 @@ export default function Produit() {
         const variantes = resultat.data || []
         setVariantesProduit(variantes)
 
-        const premiereDisponible =
-          variantes.find((variante) => variante.stock > 0) || null
+        const categorie = (produit?.categorie || '').trim().toLowerCase()
+        const estVetement = categorie === 'vetements'
+        const estChaussure = categorie === 'chaussures'
 
-        setVarianteSelectionnee(premiereDisponible)
+        setCouleurSelectionnee('')
+        setTailleSelectionnee('')
+        setPointureSelectionnee('')
+
+        if (estVetement || estChaussure) {
+          setVarianteSelectionnee(null)
+        } else {
+          const premiereDisponible =
+            variantes.find((variante) => variante.stock > 0) || null
+
+          setVarianteSelectionnee(premiereDisponible)
+        }
       } else {
         setVariantesProduit([])
         setVarianteSelectionnee(null)
@@ -395,23 +446,23 @@ export default function Produit() {
 
   if (!produit) {
     return (
-      <main className="min-h-[70vh] bg-[#F7F9FC] px-4 py-16">
-        <div className="mx-auto max-w-lg rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+      <main className="min-h-[70vh] bg-[#FAF9FC] px-4 py-16">
+        <div className="mx-auto max-w-lg rounded-[14px] border border-[#E8E3EF] bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F1ECFA] text-[#9A93A5]">
             <Package size={28} />
           </div>
 
-          <h1 className="mt-5 text-2xl font-black text-[#0B1E3D]">
+          <h1 className="mt-5 text-2xl font-black text-[#18151F]">
             Produit introuvable
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-slate-500">
+          <p className="mt-3 text-sm leading-6 text-[#6F687A]">
             Ce produit n'est plus disponible ou le lien utilisé est incorrect.
           </p>
 
           <Link
             to="/catalogue"
-            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#0052CC] px-5 py-3 text-sm font-black text-white transition hover:bg-[#003F9E]"
+            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#7654C6] px-5 py-3 text-sm font-black text-white transition hover:bg-[#6544B3]"
           >
             Retour au catalogue
             <ArrowRight size={16} />
@@ -449,7 +500,11 @@ export default function Produit() {
     prix: produit.prix,
     image_url: produit.image_url || null,
     stock: stockPanier,
+    poids_kg: produit.poids_kg,
+    volume_cbm: produit.volume_cbm,
     surCommande,
+    categorie: produit.categorie,
+    sous_categorie: produit.sous_categorie,
     variante_id: varianteSelectionnee?.id || null,
     variante_nom: varianteSelectionnee?.nom || null,
   }
@@ -489,21 +544,21 @@ export default function Produit() {
   const categorie = produit.categorie || 'Sélection ChinaShop'
 
   return (
-    <main className="min-h-screen bg-[#F7F9FC] text-[#0B1E3D]">
+    <main className="min-h-screen bg-[#FAF9FC] text-[#18151F]">
       {/* Fil d’Ariane */}
-      <div className="border-b border-slate-200/70 bg-white">
+      <div className="border-b border-[#E8E3EF]/70 bg-white">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:px-6 lg:px-8">
           <Link
             to="/catalogue"
-            className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-black text-slate-500 transition hover:bg-blue-50 hover:text-[#0052CC]"
+            className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-black text-[#6F687A] transition hover:bg-[#F1ECFA] hover:text-[#7654C6]"
           >
             <ArrowLeft size={14} />
             Catalogue
           </Link>
 
-          <span className="text-slate-300">/</span>
+          <span className="text-[#C8C1D2]">/</span>
 
-          <span className="min-w-0 truncate text-xs font-bold text-slate-400">
+          <span className="min-w-0 truncate text-xs font-bold text-[#9A93A5]">
             {produit.nom}
           </span>
         </div>
@@ -515,18 +570,18 @@ export default function Produit() {
 
           {/* VISUEL */}
           <section>
-            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_24px_70px_rgba(11,30,61,0.08)]">
+            <div className="relative overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
 
               {/* Badges */}
               <div className="absolute left-4 top-4 z-10 flex max-w-[75%] flex-wrap gap-2 sm:left-5 sm:top-5">
                 {produit.nouveau && (
-                  <span className="rounded-full bg-[#0B1E3D] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-lg">
+                  <span className="rounded-full bg-[#18151F] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-lg">
                     Nouveau
                   </span>
                 )}
 
                 {obtenirEtatPromotion(produit) === 'active' && (
-                  <span className="rounded-full bg-[#FF7A1A] px-3.5 py-2 text-[10px] font-black text-white shadow-lg">
+                  <span className="rounded-full bg-[#7654C6] px-3.5 py-2 text-[10px] font-black text-white shadow-lg">
                     -{produit.promo}% aujourd'hui
                   </span>
                 )}
@@ -541,7 +596,7 @@ export default function Produit() {
                 className={`absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg backdrop-blur transition sm:right-5 sm:top-5 ${
                   favori
                     ? 'border-red-100 bg-red-50 text-red-500'
-                    : 'border-white/80 bg-white/90 text-slate-500 hover:border-red-100 hover:bg-red-50 hover:text-red-500'
+                    : 'border-white/80 bg-white/90 text-[#6F687A] hover:border-red-100 hover:bg-red-50 hover:text-red-500'
                 }`}
               >
                 <Heart size={19} fill={favori ? 'currentColor' : 'none'} />
@@ -565,7 +620,7 @@ export default function Produit() {
 
                 return (
                   <>
-                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F3F6FA] via-white to-[#E8EDF3]">
+                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F1ECFA] via-white to-[#E8E3EF]">
                       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.95),transparent_52%)]" />
 
                       {photoActuelle && !imageErreur ? (
@@ -576,7 +631,7 @@ export default function Produit() {
                           className="relative h-full w-full object-contain p-6 transition duration-700 hover:scale-[1.025] sm:p-12"
                         />
                       ) : (
-                        <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400">
+                        <div className="flex h-full flex-col items-center justify-center gap-3 text-[#9A93A5]">
                           <Package size={44} strokeWidth={1.5} />
                           <span className="text-sm font-bold">
                             Image non disponible
@@ -596,7 +651,7 @@ export default function Produit() {
                               )
                             }
                             aria-label="Photo précédente"
-                            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:bg-white"
+                            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#18151F] shadow-lg backdrop-blur transition hover:bg-white"
                           >
                             <ArrowLeft size={18} />
                           </button>
@@ -610,12 +665,12 @@ export default function Produit() {
                               )
                             }
                             aria-label="Photo suivante"
-                            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:bg-white"
+                            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#18151F] shadow-lg backdrop-blur transition hover:bg-white"
                           >
                             <ArrowRight size={18} />
                           </button>
 
-                          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-black text-white backdrop-blur">
+                          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-[#18151F]/80 px-3 py-1 text-[10px] font-black text-white backdrop-blur">
                             {indexSecurise + 1} / {galerie.length}
                           </span>
                         </>
@@ -635,8 +690,8 @@ export default function Produit() {
                             aria-label={`Afficher la photo ${index + 1}`}
                             className={`aspect-square overflow-hidden rounded-xl border-2 bg-white transition ${
                               index === indexSecurise
-                                ? 'border-[#0052CC] ring-2 ring-blue-100'
-                                : 'border-slate-200 hover:border-slate-300'
+                                ? 'border-[#7654C6] ring-2 ring-[#E8E3EF]'
+                                : 'border-[#E8E3EF] hover:border-[#DCD5E8]'
                             }`}
                           >
                             <img
@@ -654,29 +709,29 @@ export default function Produit() {
             </div>
             {/* Réassurance */}
             <div className="mt-4 grid grid-cols-3 gap-2.5 sm:gap-3">
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
+              <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5 text-center shadow-sm sm:p-4">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <ShieldCheck size={18} />
                 </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#0B1E3D] sm:text-[11px]">
+                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#18151F] sm:text-[11px]">
                   Achat sécurisé
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
+              <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5 text-center shadow-sm sm:p-4">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <Truck size={18} />
                 </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#0B1E3D] sm:text-[11px]">
+                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#18151F] sm:text-[11px]">
                   Livraison Bénin
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
+              <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5 text-center shadow-sm sm:p-4">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <BadgeCheck size={18} />
                 </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#0B1E3D] sm:text-[11px]">
+                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#18151F] sm:text-[11px]">
                   Sélection contrôlée
                 </p>
               </div>
@@ -685,11 +740,11 @@ export default function Produit() {
 
           {/* INFORMATIONS / ACHAT */}
           <section className="lg:sticky lg:top-5">
-            <div className="rounded-[2rem] border border-slate-200/80 bg-white p-5 shadow-[0_24px_70px_rgba(11,30,61,0.07)] sm:p-7">
+            <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.06)] sm:p-7">
 
               {/* Catégorie */}
               <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-[#F0F6FF] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#0052CC]">
+                <span className="rounded-full bg-[#F1ECFA] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#7654C6]">
                   {categorie}
                 </span>
 
@@ -697,7 +752,7 @@ export default function Produit() {
                   type="button"
                   onClick={basculerFavori}
                   disabled={chargementFavori}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-black text-slate-400 transition hover:bg-red-50 hover:text-red-500 lg:hidden"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-black text-[#9A93A5] transition hover:bg-red-50 hover:text-red-500 lg:hidden"
                 >
                   <Heart
                     size={15}
@@ -708,7 +763,7 @@ export default function Produit() {
               </div>
 
               {/* Nom */}
-              <h1 className="mt-5 text-[1.75rem] font-black leading-[1.12] tracking-[-0.025em] text-[#0B1E3D] sm:text-3xl lg:text-[2.35rem]">
+              <h1 className="mt-5 text-[1.75rem] font-black leading-[1.12] tracking-[-0.025em] text-[#18151F] sm:text-3xl lg:text-[2.35rem]">
                 {produit.nom}
               </h1>
 
@@ -718,14 +773,14 @@ export default function Produit() {
               </div>
 
               {/* Prix */}
-              <div className="mt-6 border-y border-slate-100 py-6">
+              <div className="mt-6 border-y border-[#E8E3EF] py-6">
                 <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-                  <span className="text-3xl font-black tracking-[-0.03em] text-[#0B1E3D] sm:text-4xl">
+                  <span className="text-3xl font-black tracking-[-0.03em] text-[#18151F] sm:text-4xl">
                     {formatPrix(prixActuel)}
                   </span>
 
                   {prixOriginal > prixActuel && (
-                    <span className="pb-1 text-sm font-bold text-slate-400 line-through">
+                    <span className="pb-1 text-sm font-bold text-[#9A93A5] line-through">
                       {formatPrix(prixOriginal)}
                     </span>
                   )}
@@ -741,14 +796,14 @@ export default function Produit() {
 
               {/* Promotion */}
               {obtenirEtatPromotion(produit) === 'active' && tempsPromo > 0 && (
-                <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-[#FFF7F0]">
+                <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-[#FAF9FC]">
                   <div className="flex items-center gap-3 px-4 py-3.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A1A] text-white shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-sm">
                       <Zap size={18} />
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-[#F06D0A]">
+                      <p className="text-xs font-black text-[#6544B3]">
                         Offre promotionnelle
                       </p>
                       <p className="mt-0.5 text-[11px] font-semibold text-orange-700">
@@ -757,10 +812,10 @@ export default function Produit() {
                     </div>
                   </div>
 
-                  <div className="h-1 bg-[#FFE8D6]">
+                  <div className="h-1 bg-[#F1ECFA]">
                     <div
                       key={tempsPromo}
-                      className="h-full bg-[#FF7A1A]"
+                      className="h-full bg-[#7654C6]"
                       style={{
                         width: '100%',
                         animation: 'promoPulse 1s linear infinite',
@@ -770,70 +825,197 @@ export default function Produit() {
                 </div>
               )}
 
-              {/* Variantes / couleurs */}
+              {/* Variantes */}
               {variantesProduit.length > 0 && (
-                <div className="mt-6 rounded-2xl border border-slate-200/80 bg-[#F7F9FC] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
-                    Choisir une couleur
-                  </p>
+                <div className="mt-6 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5">
+                  {(estVetement || estChaussure) ? (
+                    <>
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
+                        Choisir une couleur
+                      </p>
 
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {variantesProduit.map((variante) => {
-                      const disponible = variante.stock > 0
-                      const selectionnee =
-                        varianteSelectionnee?.id === variante.id
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        {couleursDisponibles.map((couleur) => {
+                          const couleurActive =
+                            couleur === couleurSelectionnee
 
-                      return (
-                        <button
-                          key={variante.id}
-                          type="button"
-                          disabled={!disponible}
-                          onClick={() => {
-                            if (disponible) {
-                              setVarianteSelectionnee(variante)
-                              setQuantite(1)
-                            }
-                          }}
-                          aria-label={
-                            disponible
-                              ? `Couleur ${variante.nom}`
-                              : `Couleur ${variante.nom} épuisée`
-                          }
-                          className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition ${
-                            selectionnee
-                              ? 'border-[#0052CC] ring-4 ring-blue-100'
-                              : disponible
-                                ? 'border-white shadow-md hover:scale-105'
-                                : 'cursor-not-allowed border-slate-300 opacity-35 grayscale'
-                          }`}
-                        >
-                          <span
-                            className="h-8 w-8 rounded-full border border-black/10 shadow-inner"
-                            style={{
-                              backgroundColor: obtenirCouleurVisuelle(
-                                variante.nom,
-                              ),
-                            }}
-                          />
+                          const varianteCouleur = variantesProduit.find(
+                            (variante) =>
+                              variante.couleur?.trim() === couleur &&
+                              variante.stock > 0,
+                          )
 
-                          {!disponible && (
-                            <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-slate-500" />
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
+                          return (
+                            <button
+                              key={couleur}
+                              type="button"
+                              disabled={!varianteCouleur}
+                              onClick={() => {
+                                if (!varianteCouleur) return
+
+                                setCouleurSelectionnee(couleur)
+                                setTailleSelectionnee('')
+                                setPointureSelectionnee('')
+                                setVarianteSelectionnee(null)
+                                setQuantite(1)
+                              }}
+                              aria-label={
+                                varianteCouleur
+                                  ? `Couleur ${couleur}`
+                                  : `Couleur ${couleur} épuisée`
+                              }
+                              className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition ${
+                                couleurActive
+                                  ? 'border-[#7654C6] ring-4 ring-[#E8E3EF]'
+                                  : varianteCouleur
+                                    ? 'border-white shadow-md hover:scale-105'
+                                    : 'cursor-not-allowed border-[#DCD5E8] opacity-35 grayscale'
+                              }`}
+                            >
+                              <span
+                                className="h-8 w-8 rounded-full border border-black/10 shadow-inner"
+                                style={{
+                                  backgroundColor:
+                                    obtenirCouleurVisuelle(couleur),
+                                }}
+                              />
+                              {!varianteCouleur && (
+                                <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-[#6F687A]" />
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {couleurSelectionnee && (
+                        <>
+                          <p className="mt-6 text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
+                            {estVetement ? 'Choisir une taille' : 'Choisir une pointure'}
+                          </p>
+
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {(estVetement
+                              ? taillesDisponibles
+                              : pointuresDisponibles
+                            ).map((valeur) => {
+                              const variante = variantesProduit.find(
+                                (item) =>
+                                  item.couleur?.trim() ===
+                                    couleurSelectionnee &&
+                                  (estVetement
+                                    ? item.taille?.trim() === valeur
+                                    : item.pointure?.trim() === valeur),
+                              )
+
+                              const disponible = !!variante && variante.stock > 0
+
+                              const selectionnee = estVetement
+                                ? tailleSelectionnee === valeur
+                                : pointureSelectionnee === valeur
+
+                              return (
+                                <button
+                                  key={valeur}
+                                  type="button"
+                                  disabled={!disponible}
+                                  onClick={() => {
+                                    if (!variante || !disponible) return
+
+                                    if (estVetement) {
+                                      setTailleSelectionnee(valeur)
+                                      setPointureSelectionnee('')
+                                    } else {
+                                      setPointureSelectionnee(valeur)
+                                      setTailleSelectionnee('')
+                                    }
+
+                                    setVarianteSelectionnee(variante)
+                                    setQuantite(1)
+                                  }}
+                                  className={`min-w-[52px] rounded-xl border px-4 py-2.5 text-xs font-black transition ${
+                                    selectionnee
+                                      ? 'border-[#7654C6] bg-[#F1ECFA] text-[#6544B3]'
+                                      : disponible
+                                        ? 'border-[#E8E3EF] bg-white text-[#18151F] hover:border-[#7654C6]'
+                                        : 'cursor-not-allowed border-[#E8E3EF] bg-[#F3F1F5] text-[#AAA4B1] line-through'
+                                  }`}
+                                >
+                                  {valeur}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
+                        Choisir une variante
+                      </p>
+
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        {variantesProduit.map((variante) => {
+                          const disponible = variante.stock > 0
+                          const selectionnee =
+                            varianteSelectionnee?.id === variante.id
+                          const nomAffiche =
+                            variante.couleur?.trim() || variante.nom
+
+                          return (
+                            <button
+                              key={variante.id}
+                              type="button"
+                              disabled={!disponible}
+                              onClick={() => {
+                                if (disponible) {
+                                  setVarianteSelectionnee(variante)
+                                  setCouleurSelectionnee(
+                                    variante.couleur?.trim() || '',
+                                  )
+                                  setQuantite(1)
+                                }
+                              }}
+                              aria-label={
+                                disponible
+                                  ? `Variante ${nomAffiche}`
+                                  : `Variante ${nomAffiche} épuisée`
+                              }
+                              className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition ${
+                                selectionnee
+                                  ? 'border-[#7654C6] ring-4 ring-[#E8E3EF]'
+                                  : disponible
+                                    ? 'border-white shadow-md hover:scale-105'
+                                    : 'cursor-not-allowed border-[#DCD5E8] opacity-35 grayscale'
+                              }`}
+                            >
+                              <span
+                                className="h-8 w-8 rounded-full border border-black/10 shadow-inner"
+                                style={{
+                                  backgroundColor:
+                                    obtenirCouleurVisuelle(nomAffiche),
+                                }}
+                              />
+                              {!disponible && (
+                                <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-[#6F687A]" />
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
               {/* Description */}
               {produit.description?.trim() && (
-                <div className="mt-6 rounded-2xl border border-slate-200/80 bg-[#F7F9FC] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                <div className="mt-6 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
                     Description
                   </p>
 
-                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600">
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#6F687A]">
                     {produit.description.trim()}
                   </p>
                 </div>
@@ -842,29 +1024,29 @@ export default function Produit() {
               {/* Quantité */}
               <div className="mt-6">
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
                     Quantité
                   </p>
 
                   {enStock && (
-                    <span className="text-[10px] font-bold text-slate-400">
+                    <span className="text-[10px] font-bold text-[#9A93A5]">
                       Disponible en stock
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-[#F7F9FC] p-1.5">
+                <div className="flex items-center justify-between rounded-2xl border border-[#E8E3EF] bg-[#FAF9FC] p-1.5">
                   <button
                     type="button"
                     onClick={diminuerQuantite}
                     disabled={quantite <= 1}
                     aria-label="Diminuer la quantité"
-                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#0B1E3D] shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#18151F] shadow-sm transition hover:bg-[#F1ECFA] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Minus size={17} />
                   </button>
 
-                  <span className="text-base font-black text-[#0B1E3D]">
+                  <span className="text-base font-black text-[#18151F]">
                     {quantite}
                   </span>
 
@@ -872,11 +1054,11 @@ export default function Produit() {
                     type="button"
                     onClick={augmenterQuantite}
                     disabled={
-                      (enStock || varianteSelectionnee) &&
+                      Boolean(enStock || varianteSelectionnee) &&
                       quantite >= stockProduit
                     }
                     aria-label="Augmenter la quantité"
-                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0B1E3D] text-white shadow-sm transition hover:bg-[#0052CC] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Plus size={17} />
                   </button>
@@ -911,7 +1093,7 @@ export default function Produit() {
                   type="button"
                   onClick={commanderMaintenant}
                   disabled={indisponible}
-                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] bg-[#D92D20] px-5 text-sm font-bold text-white shadow-[0_2px_10px_rgba(217,45,32,0.14)] transition-all duration-150 hover:bg-[#C6281D] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] bg-[#7654C6] px-5 text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.16)] transition-all duration-150 hover:bg-[#6544B3] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#E8E3EF] disabled:shadow-none"
                 >
                   <Zap size={17} />
                   {indisponible ? 'Produit indisponible' : 'Commander maintenant'}
@@ -925,7 +1107,7 @@ export default function Produit() {
                   type="button"
                   onClick={ajouterAuPanier}
                   disabled={indisponible}
-                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] border border-[#E2E5E9] bg-[#FFFEFC] px-5 text-sm font-bold text-[#171717] shadow-none transition-all duration-150 hover:border-[#D5D9DE] hover:bg-white active:scale-[0.99] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] border border-[#E8E3EF] bg-[#FFFEFC] px-5 text-sm font-bold text-[#18151F] shadow-none transition-all duration-150 hover:border-[#DCD5E8] hover:bg-white active:scale-[0.99] disabled:cursor-not-allowed disabled:border-[#E8E3EF] disabled:bg-[#F1ECFA] disabled:text-[#9A93A5]"
                 >
                   <ShoppingCart size={17} />
                   Ajouter au panier
@@ -955,25 +1137,25 @@ export default function Produit() {
             </div>
 
             {/* Informations */}
-            <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white px-5 py-4 shadow-sm">
+            <div className="mt-4 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <Package size={17} />
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#0B1E3D]">
+                  <p className="text-xs font-black text-[#18151F]">
                     Besoin d'informations ?
                   </p>
 
-                  <p className="mt-1 text-[11px] leading-5 text-slate-500">
+                  <p className="mt-1 text-[11px] leading-5 text-[#6F687A]">
                     Consultez les conditions de livraison, retrait et commande
                     avant votre achat.
                   </p>
 
                   <Link
                     to="/infos"
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#0052CC] hover:text-[#003D99]"
+                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#7654C6] hover:text-[#6544B3]"
                   >
                     Voir les informations
                     <ArrowRight size={13} />
@@ -986,22 +1168,22 @@ export default function Produit() {
 
         {/* PARCOURS CLIENT */}
         <section className="mt-10">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
+          <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
+            <div className="border-b border-[#E8E3EF] px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#FF7A1A]">
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#7654C6]">
                     Votre commande
                   </p>
 
-                  <h2 className="mt-2 text-xl font-black tracking-tight text-[#0B1E3D] sm:text-2xl">
+                  <h2 className="mt-2 text-xl font-black tracking-tight text-[#18151F] sm:text-2xl">
                     Une expérience simple, du produit à la réception
                   </h2>
                 </div>
 
                 <Link
                   to="/catalogue"
-                  className="inline-flex items-center gap-2 text-xs font-black text-[#0052CC] hover:text-[#003D99]"
+                  className="inline-flex items-center gap-2 text-xs font-black text-[#7654C6] hover:text-[#6544B3]"
                 >
                   Continuer mes achats
                   <ArrowRight size={15} />
@@ -1010,12 +1192,12 @@ export default function Produit() {
             </div>
 
             <div className="grid md:grid-cols-3">
-              <div className="border-b border-slate-100 p-6 md:border-b-0 md:border-r sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0F6FF] text-[#0052CC]">
+              <div className="border-b border-[#E8E3EF] p-6 md:border-b-0 md:border-r sm:p-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <ShoppingBag size={19} />
                 </div>
 
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0052CC]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
                   Étape 01
                 </p>
 
@@ -1023,17 +1205,17 @@ export default function Produit() {
                   Choisissez
                 </h3>
 
-                <p className="mt-1.5 text-xs leading-5 text-slate-500">
+                <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
                   Sélectionnez votre produit et la quantité souhaitée.
                 </p>
               </div>
 
-              <div className="border-b border-slate-100 p-6 md:border-b-0 md:border-r sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0F6FF] text-[#0052CC]">
+              <div className="border-b border-[#E8E3EF] p-6 md:border-b-0 md:border-r sm:p-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <WalletCards size={19} />
                 </div>
 
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0052CC]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
                   Étape 02
                 </p>
 
@@ -1041,17 +1223,17 @@ export default function Produit() {
                   Commandez
                 </h3>
 
-                <p className="mt-1.5 text-xs leading-5 text-slate-500">
+                <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
                   Validez votre panier avec les informations nécessaires.
                 </p>
               </div>
 
               <div className="p-6 sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0F6FF] text-[#0052CC]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                   <Truck size={19} />
                 </div>
 
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0052CC]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
                   Étape 03
                 </p>
 
@@ -1059,7 +1241,7 @@ export default function Produit() {
                   Recevez
                 </h3>
 
-                <p className="mt-1.5 text-xs leading-5 text-slate-500">
+                <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
                   Choisissez la livraison ou le retrait selon votre commande.
                 </p>
               </div>

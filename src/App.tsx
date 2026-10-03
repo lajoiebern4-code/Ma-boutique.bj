@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import AdminGuard from './components/AdminGuard'
 import AssistanceAdmin from './pages/admin/Assistance'
-import TestV6Identity from './pages/TestV6Identity'
 
 const Accueil = lazy(() => import('./pages/Accueil'))
 const Catalogue = lazy(() => import('./pages/Catalogue'))
@@ -14,7 +13,7 @@ const Panier = lazy(() => import('./pages/Panier'))
 const Commande = lazy(() => import('./pages/Commande'))
 const Confirmation = lazy(() => import('./pages/Confirmation'))
 const Infos = lazy(() => import('./pages/Infos'))
-const Suivi = lazy(() => import('./pages/Suivi'))
+const SuiviV2 = lazy(() => import('./pages/SuiviV2'))
 const MesCommandes = lazy(() => import('./pages/MesCommandes'))
 const Parrainage = lazy(() => import('./pages/Parrainage'))
 const Inscription = lazy(() => import('./pages/Inscription'))
@@ -121,14 +120,13 @@ function App() {
             <Route path="/commande" element={<Commande />} />
             <Route path="/confirmation" element={<Confirmation />} />
             <Route path="/infos" element={<Infos />} />
-            <Route path="/suivi" element={<Suivi />} />
+            <Route path="/suivi" element={<SuiviV2 />} />
             <Route path="/mes-commandes" element={<MesCommandes />} />
             <Route path="/parrainage" element={<Parrainage />} />
             <Route path="/inscription" element={<Inscription />} />
             <Route path="/connexion" element={<Connexion />} />
             <Route path="/compte" element={<Compte />} />
             <Route path="/assistance" element={<Assistance />} />
-          <Route path="/test-v6-identity" element={<TestV6Identity />} />
 
             <Route path="/compte/parametres" element={<ParametresCompte />} />
             <Route path="/compte/parametres/informations" element={<Informations />} />

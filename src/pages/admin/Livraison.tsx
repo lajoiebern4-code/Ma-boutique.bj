@@ -9,6 +9,7 @@ import {
   Bike,
   Phone,
   MessageCircle,
+  CheckCircle2,
 } from 'lucide-react'
 import {
   supabase,
@@ -35,6 +36,7 @@ type Commande = {
   prix_total?: number
   statut?: string
   mode_reception?: string
+    type_parcours?: string
   mode_paiement?: string
   adresse_livraison?: string
   code_suivi?: string
@@ -274,7 +276,7 @@ export default function Livraison() {
     transportId: string,
     nouveauStatut: string,
   ) => {
-    if (!transportId || !nouveauStatut) return
+    if (!transportId || !nouveauStatut) return false
 
     setStatutEnCours(`transport:${transportId}`)
     setErreur('')
@@ -295,6 +297,7 @@ export default function Livraison() {
       if (error) throw error
 
       await charger()
+      return true
     } catch (error) {
       console.error('Erreur transition transport Chine:', error)
 
@@ -303,6 +306,8 @@ export default function Livraison() {
           ? error.message
           : 'Impossible de mettre à jour le transport Chine → Cotonou.',
       )
+
+      return false
     } finally {
       setStatutEnCours('')
     }
@@ -630,7 +635,7 @@ export default function Livraison() {
           modeReception === 'livraison' &&
           trajet === 'non_planifiee'
         ) {
-          await changerStatut(numeroCommande, 'livraison_en_cours')
+          await gererTrajet(commande, 'programmer')
           return
         }
 
@@ -658,30 +663,6 @@ export default function Livraison() {
         setErreur(
           'Aucune prochaine action disponible pour cet article sur commande.',
         )
-        return
-      }
-
-      /*
-       * WORKFLOW NORMAL
-       * Conservé séparément du parcours sur commande.
-       */
-      if (statut === 'paiement_recu') {
-        await changerStatut(numeroCommande, 'en_acheminement')
-        return
-      }
-
-      if (statut === 'en_acheminement') {
-        await changerStatut(numeroCommande, 'arrivee_cotonou')
-        return
-      }
-
-      if (statut === 'arrivee_cotonou') {
-        await changerStatut(numeroCommande, 'preparation')
-        return
-      }
-
-      if (statut === 'acompte_paye') {
-        await changerStatut(numeroCommande, 'attente')
         return
       }
 
@@ -718,6 +699,33 @@ export default function Livraison() {
       /*
        * Le workflow de trajet est STRICTEMENT réservé aux livraisons.
        */
+      if (statut === 'livraison_en_cours' && modeReception === 'livraison') {
+        if (trajet === 'non_planifiee') {
+          await gererTrajet(commande, 'programmer')
+          return
+        }
+
+        if (trajet === 'non_planifiee') {
+          await gererTrajet(commande, 'programmer')
+          return
+        }
+
+        if (trajet === 'planifiee') {
+          await gererTrajet(commande, 'demarrer')
+          return
+        }
+
+        if (trajet === 'en_route') {
+          await gererTrajet(commande, 'arrivee')
+          return
+        }
+
+        if (trajet === 'arrivee') {
+          await gererTrajet(commande, 'terminer')
+          return
+        }
+      }
+
       if (modeReception === 'livraison') {
         if (trajet === 'planifiee') {
           await gererTrajet(commande, 'demarrer')
@@ -753,37 +761,226 @@ export default function Livraison() {
   ) => {
     const statutCommande = String(commande.statut || '').toLowerCase()
     const statutTransport = String(transport?.statut || '').toLowerCase()
+    const modeReception = String(commande.mode_reception || '').toLowerCase()
+    const trajet = String(
+      commande.livraison_statut || 'non_planifiee',
+    ).toLowerCase()
 
-    const prochainsStatutsTransport: Record<string, string> = {
-      a_charger: 'charge',
-      charge: 'parti_chine',
-      parti_chine: 'en_transit',
-      en_transit: 'arrivee_cotonou',
+    const numeroCommande = String(commande.numero || '').trim()
+
+    if (!numeroCommande) {
+      setErreur('Numéro de commande manquant.')
+      return
     }
 
-    if (
-      transport &&
-      ['preparation_chine', 'chargee', 'partie_chine', 'en_transit'].includes(
-        statutCommande,
-      ) &&
-      prochainsStatutsTransport[statutTransport]
-    ) {
-      if (statutTransport === 'en_transit') {
-        await changerStatutTransportChine(
-          transport.transport_id,
-          'arrivee_cotonou',
+    /*
+     * NOUVEAU WORKFLOW SUR-COMMANDE
+     * Une seule commande unifiée pilote les étapes.
+     * Le transport n'avance que lorsqu'une étape logistique l'exige.
+     */
+    if (statutCommande === 'acompte_requis') {
+      await changerStatut(numeroCommande, 'acompte_confirme')
+      return
+    }
+
+    if (statutCommande === 'acompte_confirme') {
+      await changerStatut(numeroCommande, 'achat_fournisseur')
+      return
+    }
+
+    if (statutCommande === 'achat_fournisseur') {
+      await changerStatut(numeroCommande, 'preparation_chine')
+      return
+    }
+
+    if (statutCommande === 'preparation_chine') {
+      if (!transport) {
+        setErreur('Transport Chine → Cotonou introuvable pour cette commande.')
+        return
+      }
+
+      if (statutTransport !== 'a_charger') {
+        setErreur(
+          `Transport incohérent : commande "${statutCommande}", transport "${statutTransport}".`,
+        )
+        return
+      }
+
+      const transportOk = await changerStatutTransportChine(
+        transport.transport_id,
+        'charge',
+      )
+
+      if (!transportOk) return
+
+      await changerStatut(numeroCommande, 'chargee')
+      return
+    }
+
+    if (statutCommande === 'chargee') {
+      if (!transport) {
+        setErreur('Transport Chine → Cotonou introuvable pour cette commande.')
+        return
+      }
+
+      if (statutTransport !== 'charge') {
+        setErreur(
+          `Transport incohérent : commande "${statutCommande}", transport "${statutTransport}".`,
+        )
+        return
+      }
+
+      const transportOk = await changerStatutTransportChine(
+        transport.transport_id,
+        'parti_chine',
+      )
+
+      if (!transportOk) return
+
+      await changerStatut(numeroCommande, 'partie_chine')
+      return
+    }
+
+    if (statutCommande === 'partie_chine') {
+      if (!transport) {
+        setErreur('Transport Chine → Cotonou introuvable pour cette commande.')
+        return
+      }
+
+      if (statutTransport !== 'parti_chine') {
+        setErreur(
+          `Transport incohérent : commande "${statutCommande}", transport "${statutTransport}".`,
+        )
+        return
+      }
+
+      const transportOk = await changerStatutTransportChine(
+        transport.transport_id,
+        'en_transit',
+      )
+
+      if (!transportOk) return
+
+      await changerStatut(numeroCommande, 'en_transit')
+      return
+    }
+
+    if (statutCommande === 'en_transit') {
+      if (!transport) {
+        setErreur('Transport Chine → Cotonou introuvable pour cette commande.')
+        return
+      }
+
+      if (statutTransport !== 'en_transit') {
+        setErreur(
+          `Transport incohérent : commande "${statutCommande}", transport "${statutTransport}".`,
         )
         return
       }
 
       await changerStatutTransportChine(
         transport.transport_id,
-        prochainsStatutsTransport[statutTransport],
+        'arrivee_cotonou',
       )
       return
     }
 
-    await executerProchaineAction(commande)
+    if (statutCommande === 'arrivee_cotonou') {
+      await changerStatut(numeroCommande, 'solde_requis')
+      return
+    }
+
+    /*
+     * Le solde ne peut pas être confirmé par le bouton.
+     * Il doit être payé par le client puis validé par l'admin.
+     */
+    if (statutCommande === 'solde_requis') {
+      setErreur(
+        'En attente de validation du paiement du solde client.',
+      )
+      return
+    }
+
+    if (statutCommande === 'solde_confirme') {
+      await changerStatut(numeroCommande, 'pret')
+      return
+    }
+
+    if (statutCommande === 'livree') {
+      setErreur('')
+      return
+    }
+
+    if (statutCommande === 'pret' && modeReception === 'retrait') {
+      setCodeRetraitSaisi('')
+      setConfirmationRetrait(commande)
+      return
+    }
+
+    if (
+      statutCommande === 'pret' &&
+      modeReception === 'livraison' &&
+      trajet === 'non_planifiee'
+    ) {
+        await gererTrajet(commande, 'programmer')
+      return
+    }
+
+    if (statutCommande === 'livraison_en_cours' && modeReception === 'livraison') { 
+        if (trajet === 'non_planifiee') {
+          await gererTrajet(commande, 'programmer')
+          return
+        }
+      if (trajet === 'planifiee') {
+        await gererTrajet(commande, 'demarrer')
+        return
+      }
+
+      if (trajet === 'en_route') {
+        await gererTrajet(commande, 'arrivee')
+        return
+      }
+
+      if (trajet === 'arrivee') {
+        await gererTrajet(commande, 'terminer')
+        return
+      }
+    }
+
+    if (modeReception === 'livraison') {
+      if (trajet === 'planifiee') {
+        await gererTrajet(commande, 'demarrer')
+        return
+      }
+
+      if (trajet === 'en_route') {
+        await gererTrajet(commande, 'arrivee')
+        return
+      }
+
+      if (trajet === 'arrivee') {
+        await gererTrajet(commande, 'terminer')
+        return
+      }
+    }
+
+    setErreur(
+      `Aucune prochaine action disponible pour la commande sur commande "${statutCommande}".`,
+    )
+  }
+
+  const estSurCommandeAffichage = (commande: Commande) => {
+    const typeParcours = String(
+      commande.type_parcours || '',
+    ).toLowerCase()
+    const statut = String(
+      commande.statut || '',
+    ).toLowerCase()
+
+    return (
+      typeParcours === 'sur_commande' ||
+      (typeParcours === '' && statut === 'acompte_requis')
+    )
   }
 
   const livraisons = useMemo(() => {
@@ -791,11 +988,8 @@ export default function Livraison() {
       const mode = String(
         commande.mode_reception || '',
       ).toLowerCase()
-      const typeParcours = String(
-        commande.type_parcours || '',
-      ).toLowerCase()
 
-      return mode === 'livraison' && typeParcours !== 'sur_commande'
+      return mode === 'livraison' && !estSurCommandeAffichage(commande)
     })
   }, [commandes])
 
@@ -804,20 +998,13 @@ export default function Livraison() {
       const mode = String(
         commande.mode_reception || '',
       ).toLowerCase()
-      const typeParcours = String(
-        commande.type_parcours || '',
-      ).toLowerCase()
 
-      return mode === 'retrait' && typeParcours !== 'sur_commande'
+      return mode === 'retrait' && !estSurCommandeAffichage(commande)
     })
   }, [commandes])
 
   const articlesSurCommande = useMemo(() => {
-    return commandes.filter(
-      (commande) =>
-        String(commande.type_parcours || '').toLowerCase() ===
-        'sur_commande',
-    )
+    return commandes.filter(estSurCommandeAffichage)
   }, [commandes])
 
   const surCommandeLivraisons = useMemo(() => {
@@ -869,7 +1056,15 @@ export default function Livraison() {
   )
 
   const filtreesRetraits = useMemo(
-    () => filtrer(retraits),
+    () =>
+      filtrer(
+        retraits.filter(
+          (commande) =>
+            !['retire', 'annulee'].includes(
+              String(commande.statut || '').toLowerCase(),
+            ),
+        ),
+      ),
     [retraits, recherche],
   )
 
@@ -952,6 +1147,18 @@ export default function Livraison() {
         )
       }
 
+      if (
+        String(
+          confirmationDemarrage.commande.type_parcours || '',
+        ).toLowerCase() === 'sur_commande'
+      ) {
+        await mettreAJourStatutCommandeV2(
+          numeroCommande,
+          'livraison_en_cours',
+          null,
+        )
+      }
+
       if (confirmationDemarrage.commande.code_suivi) {
         await notifierMiseAJourSuivi(
           confirmationDemarrage.commande.code_suivi,
@@ -996,10 +1203,10 @@ export default function Livraison() {
     <div className="space-y-6">
 
       {/* EN-TÊTE */}
-      <div className="rounded-3xl bg-[#0284C7] p-5 text-white shadow-lg sm:p-6">
+      <div className="overflow-hidden rounded-[28px] border border-[#D8E2F0] bg-[#0B1E3D] shadow-[0_12px_35px_rgba(11,30,61,0.12)]">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#6B7FA3]">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#9FB3CF]">
               <Bike size={15} />
               Centre logistique
             </div>
@@ -1132,11 +1339,11 @@ export default function Livraison() {
       </div>
 
       {/* LIVRAISONS */}
-      <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-sm shadow-slate-200/40">
-        <div className="border-b border-slate-100 bg-white px-5 py-5 sm:px-6">
+      <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_6px_24px_rgba(11,30,61,0.05)]">
+        <div className="border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+            <div className="flex items-center gap-3 border-l-4 border-[#0052CC] pl-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#E8F1FF] text-[#0052CC] ring-1 ring-[#B8D3FF]">
                 <Bike size={20} />
               </div>
 
@@ -1146,7 +1353,7 @@ export default function Livraison() {
                     Livraisons à domicile
                   </h2>
 
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-500">
+                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black text-slate-600">
                     {filtreesLivraisons.length}
                   </span>
                 </div>
@@ -1173,7 +1380,7 @@ export default function Livraison() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1220px] border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/90">
+                <tr className="border-b border-slate-200 bg-white">
                   <th className="w-[19%] px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
                     Commande
                   </th>
@@ -1214,7 +1421,7 @@ export default function Livraison() {
                   let libelle = 'Prochaine action'
                   let icone = <Clock3 size={14} />
                   let couleur =
-                    'bg-[#0B1E3D] hover:bg-[#163665]'
+                    'border border-[#B8D3FF] bg-[#E8F1FF] text-[#0052CC] hover:bg-[#DCEAFF]'
 
                   if (
                     ['attente', 'recue', 'commande_recue'].includes(
@@ -1236,17 +1443,17 @@ export default function Livraison() {
                     libelle = 'Démarrer'
                     icone = <Bike size={14} />
                     couleur =
-                      'bg-blue-600 hover:bg-blue-700'
+                      'border border-[#B8D3FF] bg-[#E8F1FF] text-[#0052CC] hover:bg-[#DCEAFF]'
                   } else if (trajet === 'en_route') {
                     libelle = "Confirmer l'arrivée"
                     icone = <MapPin size={14} />
                     couleur =
-                      'bg-violet-600 hover:bg-violet-700'
+                      'border border-[#D8C4FF] bg-[#F1EAFE] text-[#6D28D9] hover:bg-[#E8DDFB]'
                   } else if (trajet === 'arrivee') {
                     libelle = 'Marquer livrée'
                     icone = <Package size={14} />
                     couleur =
-                      'bg-emerald-600 hover:bg-emerald-700'
+                      'border border-[#B7E4C7] bg-[#E8F7EE] text-[#15803D] hover:bg-[#DDF2E5]'
                   }
 
                   const progression =
@@ -1296,13 +1503,13 @@ export default function Livraison() {
                       <td className="px-6 py-5 align-middle">
                         <div className="flex items-start gap-3.5">
                           <div
-                            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm ${
+                            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border shadow-none ${
                               trajet === 'en_route'
-                                ? 'bg-blue-600'
+                                ? 'border-[#B8D3FF] bg-[#E8F1FF] text-[#0052CC]'
                                 : trajet === 'livree' ||
                                     statut === 'livree'
-                                  ? 'bg-emerald-600'
-                                  : 'bg-[#0B1E3D]'
+                                  ? 'border-[#B7E4C7] bg-[#E8F7EE] text-[#15803D]'
+                                  : 'border-slate-200 bg-slate-50 text-[#0B1E3D]'
                             }`}
                           >
                             <Package size={18} />
@@ -1580,7 +1787,7 @@ export default function Livraison() {
                               trajet === 'livree' ||
                               statut === 'livree'
                             }
-                            className={`inline-flex h-10 min-w-[126px] items-center justify-center gap-2 rounded-xl px-3 text-[9px] font-black text-white shadow-sm transition duration-150 hover:-translate-y-[1px] hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${couleur}`}
+                            className={`inline-flex h-10 min-w-[126px] items-center justify-center gap-2 rounded-xl px-3 text-[9px] font-black shadow-sm transition duration-150 hover:-translate-y-[1px] hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${couleur}`}
                           >
                             {enCours ? (
                               <>
@@ -1705,7 +1912,7 @@ export default function Livraison() {
 
             let libelle = 'Prochaine action'
             let icone = <Clock3 size={15} />
-            let couleur = 'bg-[#0284C7] hover:bg-[#0369A1]'
+            let couleur = 'border border-[#B8D3FF] bg-[#E8F1FF] text-[#0052CC] hover:bg-[#DCEAFF]'
 
             if (['attente', 'recue', 'commande_recue'].includes(statut)) {
               libelle = 'Confirmer'
@@ -1718,15 +1925,15 @@ export default function Livraison() {
             } else if (trajet === 'planifiee') {
               libelle = 'Démarrer'
               icone = <Bike size={15} />
-              couleur = 'bg-blue-600 hover:bg-blue-700'
+              couleur = 'border border-[#B8D3FF] bg-[#E8F1FF] text-[#0052CC] hover:bg-[#DCEAFF]'
             } else if (trajet === 'en_route') {
               libelle = "Confirmer l'arrivée"
               icone = <MapPin size={15} />
-              couleur = 'bg-violet-600 hover:bg-violet-700'
+              couleur = 'border border-[#D8C4FF] bg-[#F1EAFE] text-[#6D28D9] hover:bg-[#E8DDFB]'
             } else if (trajet === 'arrivee') {
               libelle = 'Marquer livrée'
               icone = <Package size={15} />
-              couleur = 'bg-emerald-600 hover:bg-emerald-700'
+              couleur = 'border border-[#B7E4C7] bg-[#E8F7EE] text-[#15803D] hover:bg-[#DDF2E5]'
             }
 
             return (
@@ -2015,7 +2222,7 @@ export default function Livraison() {
                     trajet === 'livree' ||
                     statut === 'livree'
                   }
-                  className={`mt-3 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-xs font-black text-white shadow-sm transition hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${couleur}`}
+                  className={`mt-3 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-xs font-black shadow-sm transition hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${couleur}`}
                 >
                   {enCours ? (
                     <>
@@ -2063,11 +2270,11 @@ export default function Livraison() {
       </section>
 
       {/* RETRAITS */}
-      <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-sm shadow-slate-200/40">
-        <div className="border-b border-slate-100 bg-white px-5 py-5 sm:px-6">
+      <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_6px_24px_rgba(11,30,61,0.05)]">
+        <div className="border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 ring-1 ring-violet-100">
+            <div className="flex items-center gap-3 border-l-4 border-[#6D28D9] pl-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F1EAFE] text-[#6D28D9] ring-1 ring-[#D8C4FF]">
                 <Package size={20} />
               </div>
 
@@ -2077,7 +2284,7 @@ export default function Livraison() {
                     Retraits sur place
                   </h2>
 
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-500">
+                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black text-slate-600">
                     {filtreesRetraits.length}
                   </span>
                 </div>
@@ -2147,7 +2354,7 @@ export default function Livraison() {
                         type="button"
                         onClick={() => executerProchaineAction(commande)}
                         disabled={enCours}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-[11px] font-black text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#B7E4C7] bg-[#E8F7EE] px-4 text-[11px] font-black text-[#15803D] shadow-none transition hover:bg-[#DDF2E5] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {enCours ? (
                           <>
@@ -2193,11 +2400,11 @@ export default function Livraison() {
       </section>
 
       {/* COMMANDES SUR COMMANDE — VUE UNIFIÉE */}
-      <section className="overflow-hidden rounded-[28px] border border-amber-200/70 bg-white shadow-sm shadow-slate-200/40">
-        <div className="border-b border-amber-100 bg-amber-50/40 px-5 py-5 sm:px-6">
+      <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_6px_24px_rgba(11,30,61,0.05)]">
+        <div className="border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 ring-1 ring-amber-200">
+            <div className="flex items-center gap-3 border-l-4 border-[#FF7A1A] pl-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-[#C2410C] ring-1 ring-orange-200">
                 <Package size={20} />
               </div>
 
@@ -2206,7 +2413,7 @@ export default function Livraison() {
                   <h2 className="text-base font-black tracking-tight text-[#0B1E3D] sm:text-lg">
                     Commandes sur commande
                   </h2>
-                  <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-black text-amber-700">
+                  <span className="rounded-md border border-orange-200 bg-orange-50 px-2.5 py-1 text-[10px] font-black text-[#C2410C]">
                     {articlesSurCommande.length}
                   </span>
                 </div>
@@ -2225,9 +2432,16 @@ export default function Livraison() {
             const numero = String(commande.numero || '')
             const enCours = statutEnCours === numero
 
-            const transport = transportsChine.find(
-              (item) => String(item.numero_commande || '') === numero,
-            )
+            const transport =
+              transportsChine.find(
+                (item) =>
+                  String(item.numero_commande || '') === numero &&
+                  Array.isArray(item.lignes) &&
+                  item.lignes.length > 0,
+              ) ||
+              transportsChine.find(
+                (item) => String(item.numero_commande || '') === numero,
+              )
 
             const estAvion = transport?.type_transport === 'avion'
 
@@ -2244,7 +2458,7 @@ export default function Livraison() {
               ? libellesStatut[transport.statut] || transport.statut
               : null
 
-            const dateAffichage = (date?: string) =>
+            const dateAffichage = (date?: string | null) =>
               date
                 ? new Date(date).toLocaleString('fr-FR', {
                     day: '2-digit',
@@ -2325,8 +2539,8 @@ export default function Livraison() {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 p-5 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-white p-4">
+                  <div className="grid gap-0 border-t border-slate-200 sm:grid-cols-2">
+                    <div className="border-b border-slate-100 bg-white p-4 sm:border-r sm:last:border-r-0">
                       <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
                         Prochaine étape
                       </p>
@@ -2348,7 +2562,7 @@ export default function Livraison() {
                                       : statut === 'arrivee_cotonou'
                                         ? 'Confirmer le solde'
                                         : statut === 'solde_requis'
-                                          ? 'Confirmer le paiement du solde'
+                                          ? 'Paiement du solde en attente'
                                           : statut === 'solde_confirme'
                                             ? 'Préparer la remise'
                                             : statut === 'pret'
@@ -2359,7 +2573,7 @@ export default function Livraison() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-4">
+                    <div className="border-b border-slate-100 bg-white p-4 sm:border-r sm:last:border-r-0">
                       <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
                         Itinéraire
                       </p>
@@ -2370,7 +2584,7 @@ export default function Livraison() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-4">
+                    <div className="border-b border-slate-100 bg-white p-4 sm:border-r sm:last:border-r-0">
                       <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
                         Départ réel
                       </p>
@@ -2379,7 +2593,7 @@ export default function Livraison() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-4">
+                    <div className="border-b border-slate-100 bg-white p-4 sm:border-r sm:last:border-r-0">
                       <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
                         Arrivée prévue
                       </p>
@@ -2391,22 +2605,73 @@ export default function Livraison() {
 
                   {transport && (
                     <>
-                      <div className="border-t border-slate-200 px-5 py-4">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                              Progression transport
-                            </p>
-                            <p className="mt-1 text-sm font-black text-[#0B1E3D]">
-                              {statutTransport}
-                            </p>
-                          </div>
+                        <div className="border-t border-slate-200 px-5 py-4">
+                          {(() => {
+                            const depart = transport.depart_reel_at
+                              ? new Date(transport.depart_reel_at).getTime()
+                              : 0
+                            const arrivee = transport.arrivee_prevue_at
+                              ? new Date(transport.arrivee_prevue_at).getTime()
+                              : 0
+                            const dureeTotale =
+                              arrivee > depart ? arrivee - depart : 0
+                            const tempsEcoule =
+                              depart > 0 ? maintenant - depart : 0
+                            const progression =
+                              dureeTotale > 0
+                                ? Math.min(
+                                    100,
+                                    Math.max(
+                                      0,
+                                      (tempsEcoule / dureeTotale) * 100,
+                                    ),
+                                  )
+                                : 0
+                            const tempsRestant =
+                              arrivee > maintenant ? arrivee - maintenant : 0
 
-                          <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-700">
-                            {estAvion ? '✈️ Avion' : '🚢 Bateau'}
-                          </span>
+                            return (
+                              <div className="space-y-3">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div>
+                                    <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                                      Progression transport
+                                    </p>
+                                    <p className="mt-1 text-sm font-black text-[#0B1E3D]">
+                                      {statutTransport === 'en_transit'
+                                        ? 'En transit vers Cotonou'
+                                        : statutTransport}
+                                    </p>
+                                  </div>
+
+                                  <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-700">
+                                    {estAvion ? '✈️ Avion' : '🚢 Bateau'}
+                                  </span>
+                                </div>
+
+                                <div>
+                                  <div className="mb-2 flex items-center justify-between text-xs font-black">
+                                    <span className="text-slate-500">
+                                      {Math.round(progression)}%
+                                    </span>
+                                    <span className="text-[#0B1E3D]">
+                                      {tempsRestant > 0
+                                        ? `Arrivée estimée dans ${formaterTempsLivraison(tempsRestant)}`
+                                        : 'Arrivée prévue dépassée'}
+                                    </span>
+                                  </div>
+
+                                  <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+                                    <div
+                                      className="h-full rounded-full bg-[#D92D20] transition-[width] duration-700 ease-linear"
+                                      style={{ width: `${progression}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })()}
                         </div>
-                      </div>
 
                       {transport.statut === 'en_transit' && (
                         <div className="border-t border-slate-200 bg-amber-50 px-5 py-4">
@@ -2531,24 +2796,60 @@ export default function Livraison() {
                   )}
 
                   <div className="border-t border-slate-200 bg-white px-5 py-4">
-                    <button
-                      type="button"
-                      onClick={() => executerProchaineActionSurCommande(commande, transport)}
-                      disabled={enCours}
-                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0B1E3D] px-4 text-[11px] font-black text-white shadow-sm transition hover:bg-[#163665] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {enCours ? (
-                        <>
-                          <RefreshCw size={13} className="animate-spin" />
-                          Traitement…
-                        </>
-                      ) : (
-                        <>
-                          <Clock3 size={13} />
-                          Prochaine étape
-                        </>
-                      )}
-                    </button>
+                    {statut === 'livree' ? (
+                      <div className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-50 px-4 text-[11px] font-black text-emerald-700">
+                        <CheckCircle2 size={14} />
+                        Livraison terminée
+                      </div>
+                    ) : statut === 'solde_requis' ? (
+                      <div className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-4 text-[11px] font-black text-[#C2410C]">
+                        <Clock3 size={14} />
+                        Paiement du solde en attente
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => executerProchaineActionSurCommande(commande, transport)}
+                        disabled={enCours}
+                        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0B1E3D] px-4 text-[11px] font-black text-white shadow-sm transition hover:bg-[#163665] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {enCours ? (
+                          <>
+                            <RefreshCw size={13} className="animate-spin" />
+                            Traitement…
+                          </>
+                        ) : (
+                          <>
+                            <Clock3 size={13} />
+                            {statut === 'acompte_requis'
+                              ? 'Confirmer l’acompte'
+                              : statut === 'acompte_confirme'
+                                ? 'Lancer l’achat fournisseur'
+                                : statut === 'achat_fournisseur'
+                                  ? 'Préparer en Chine'
+                                  : statut === 'preparation_chine'
+                                    ? 'Charger le transport'
+                                    : statut === 'chargee'
+                                      ? 'Faire partir de Chine'
+                                      : statut === 'partie_chine'
+                                        ? 'Mettre en transit'
+                                        : statut === 'en_transit'
+                                          ? 'Confirmer l’arrivée à Cotonou'
+                                          : statut === 'arrivee_cotonou'
+                                            ? 'Confirmer le solde'
+                                            : statut === 'solde_requis'
+                                              ? 'Paiement du solde en attente'
+                                              : statut === 'solde_confirme'
+                                                ? 'Préparer la remise'
+                                                : statut === 'pret'
+                                                  ? String(commande.mode_reception || '').toLowerCase() === 'retrait'
+                                                    ? 'Confirmer le retrait'
+                                                    : 'Programmer la livraison'
+                                                  : 'Prochaine étape'}
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>

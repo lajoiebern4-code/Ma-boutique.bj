@@ -425,6 +425,24 @@ export default function Promotions() {
     }))
   }
 
+  const prixPromotionnel = (() => {
+    const prixOriginal = Number(formulaire.prixOriginal)
+    const promo = Number(formulaire.promo)
+
+    if (
+      !Number.isFinite(prixOriginal) ||
+      prixOriginal <= 0 ||
+      !Number.isFinite(promo) ||
+      promo <= 0
+    ) {
+      return null
+    }
+
+    return Math.round(
+      prixOriginal * (1 - Math.min(100, Math.max(0, promo)) / 100),
+    )
+  })()
+
   async function enregistrerPromotion() {
     if (!produitSelectionne) return
 
@@ -843,6 +861,27 @@ export default function Promotions() {
                     className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800 outline-none focus:border-[#0284C7]"
                   />
                 </label>
+              </div>
+
+              <div className="rounded-2xl border border-[#BAE6FD] bg-[#F0F9FF] p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-[#0284C7]">
+                      Prix promotionnel calculé
+                    </p>
+                    <p className="mt-1 text-2xl font-black text-[#0B1E3D]">
+                      {prixPromotionnel != null
+                        ? formatPrix(prixPromotionnel)
+                        : '—'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-white px-3 py-2 text-xs font-black text-[#0284C7] shadow-sm">
+                    {prixPromotionnel != null
+                      ? `-${Math.min(100, Math.max(0, Number(formulaire.promo) || 0))}%`
+                      : 'Remplissez les champs'}
+                  </div>
+                </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

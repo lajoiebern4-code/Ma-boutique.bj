@@ -548,11 +548,11 @@ export default function Assistance() {
     !afficherFormulaireVisiteur
   ) {
     return (
-      <div className="min-h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-[calc(100vh-80px)] bg-[#FAF9FC] dark:bg-[#17131D]">
         <div className="mx-auto flex min-h-[calc(100vh-80px)] max-w-4xl items-center justify-center">
           <Loader2
             size={28}
-            className="animate-spin text-orange-500"
+            className="animate-spin text-[#7654C6]"
           />
         </div>
       </div>
@@ -561,21 +561,21 @@ export default function Assistance() {
 
   if (afficherFormulaireVisiteur) {
     return (
-      <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-8 dark:bg-slate-950">
+      <div className="min-h-[calc(100vh-80px)] bg-[#FAF9FC] px-4 py-8 dark:bg-[#17131D]">
         <div className="mx-auto max-w-md">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-3xl border border-[#E8E3EF] bg-white p-6 shadow-sm dark:border-[#3A3344] dark:bg-[#211C29]">
             <div className="mb-6 flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-100 text-orange-600 dark:bg-orange-500/10">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#F1ECFA] text-[#7654C6] dark:bg-[#7654C6]/10">
                 <Headphones size={30} />
               </div>
             </div>
 
             <div className="text-center">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-xl font-bold text-[#18151F] dark:text-white">
                 Assistance ChinaShop
               </h1>
 
-              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-[#6F687A] dark:text-[#9A93A5]">
                 Avant de commencer, indiquez-nous
                 quelques informations pour que notre
                 équipe puisse vous identifier.
@@ -587,7 +587,7 @@ export default function Assistance() {
               className="mt-6 space-y-4"
             >
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                <label className="mb-1.5 block text-sm font-medium text-[#18151F] dark:text-[#F8F6FB]">
                   Nom *
                 </label>
 
@@ -600,13 +600,13 @@ export default function Assistance() {
                   placeholder="Votre nom"
                   autoComplete="name"
                   disabled={creationVisiteur}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-orange-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 text-sm outline-none transition focus:border-[#8B6DD1] dark:border-[#3A3344] dark:bg-[#17131D] dark:text-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                <label className="mb-1.5 block text-sm font-medium text-[#18151F] dark:text-[#F8F6FB]">
                   Téléphone / WhatsApp *
                 </label>
 
@@ -619,15 +619,15 @@ export default function Assistance() {
                   placeholder="+229 XX XX XX XX"
                   autoComplete="tel"
                   disabled={creationVisiteur}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-orange-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 text-sm outline-none transition focus:border-[#8B6DD1] dark:border-[#3A3344] dark:bg-[#17131D] dark:text-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                <label className="mb-1.5 block text-sm font-medium text-[#18151F] dark:text-[#F8F6FB]">
                   Email
-                  <span className="ml-1 text-slate-400">
+                  <span className="ml-1 text-[#9A93A5]">
                     (facultatif)
                   </span>
                 </label>
@@ -641,7 +641,7 @@ export default function Assistance() {
                   placeholder="vous@example.com"
                   autoComplete="email"
                   disabled={creationVisiteur}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-orange-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 text-sm outline-none transition focus:border-[#8B6DD1] dark:border-[#3A3344] dark:bg-[#17131D] dark:text-white"
                 />
               </div>
 
@@ -658,7 +658,7 @@ export default function Assistance() {
                   !telephone.trim() ||
                   creationVisiteur
                 }
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 font-medium text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7654C6] px-4 py-3 font-medium text-white transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {creationVisiteur ? (
                   <>
@@ -683,20 +683,20 @@ export default function Assistance() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-[calc(100vh-80px)] bg-[#FAF9FC] dark:bg-[#17131D]">
       <div className="mx-auto flex min-h-[calc(100vh-80px)] max-w-4xl flex-col">
-        <header className="border-b border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-900">
+        <header className="border-b border-[#E8E3EF] bg-white px-4 py-5 dark:border-[#3A3344] dark:bg-[#211C29]">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-100 text-orange-600 dark:bg-orange-500/10">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F1ECFA] text-[#7654C6] dark:bg-[#7654C6]/10">
               <Headphones size={23} />
             </div>
 
             <div>
-              <h1 className="font-semibold text-slate-900 dark:text-white">
+              <h1 className="font-semibold text-[#18151F] dark:text-white">
                 Assistance ChinaShop
               </h1>
 
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-[#6F687A] dark:text-[#9A93A5]">
                 Notre équipe est là pour vous aider
               </p>
             </div>
@@ -715,15 +715,15 @@ export default function Assistance() {
               <div className="flex-1 space-y-4 overflow-y-auto p-4">
                 {messages.length === 0 && (
                   <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-100 text-orange-600 dark:bg-orange-500/10">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-[#F1ECFA] text-[#7654C6] dark:bg-[#7654C6]/10">
                       <MessageCircle size={30} />
                     </div>
 
-                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                    <h2 className="font-semibold text-[#18151F] dark:text-white">
                       Bonjour 👋
                     </h2>
 
-                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
+                    <p className="mt-2 max-w-md text-sm leading-6 text-[#6F687A] dark:text-[#9A93A5]">
                       Bienvenue dans votre espace
                       d’assistance. Écrivez-nous votre
                       demande et notre équipe vous
@@ -744,8 +744,8 @@ export default function Assistance() {
                     <div
                       className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 ${
                         item.sender_type === 'client'
-                          ? 'rounded-br-md bg-orange-500 text-white'
-                          : 'rounded-bl-md bg-white text-slate-700 shadow-sm dark:bg-slate-900 dark:text-slate-200'
+                          ? 'rounded-br-md bg-[#7654C6] text-white'
+                          : 'rounded-bl-md bg-white text-[#18151F] shadow-sm dark:bg-[#211C29] dark:text-[#F8F6FB]'
                       }`}
                     >
                       {item.contenu}
@@ -754,17 +754,17 @@ export default function Assistance() {
                 ))}
               </div>
 
-              <div className="border-t border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">              {conversation.statut === 'closed' ? (
+              <div className="border-t border-[#E8E3EF] bg-white p-3 dark:border-[#3A3344] dark:bg-[#211C29]">              {conversation.statut === 'closed' ? (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#F1ECFA] text-[#6F687A] dark:bg-[#3A3344] dark:text-[#9A93A5]">
                     <X size={22} />
                   </div>
 
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                  <p className="text-sm font-bold text-[#18151F] dark:text-[#F8F6FB]">
                     Cette discussion est fermée.
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-[#9A93A5]">
                     Vous pouvez la rouvrir pour continuer la conversation.
                   </p>
 
@@ -772,7 +772,7 @@ export default function Assistance() {
                     type="button"
                     onClick={rouvrir}
                     disabled={chargement}
-                    className="mt-4 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-4 rounded-xl bg-[#7654C6] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {chargement ? 'Réouverture...' : 'Rouvrir la discussion'}
                   </button>
@@ -786,8 +786,8 @@ export default function Assistance() {
                 )}
 
                 {fichier && (
-                  <div className="mb-2 flex items-center justify-between rounded-xl bg-orange-50 px-3 py-2 text-xs dark:bg-orange-500/10">
-                    <span className="min-w-0 truncate text-slate-600 dark:text-slate-300">
+                  <div className="mb-2 flex items-center justify-between rounded-xl bg-[#F1ECFA] px-3 py-2 text-xs dark:bg-[#7654C6]/10">
+                    <span className="min-w-0 truncate text-[#6F687A] dark:text-[#B8B0C3]">
                       📎 {fichier.name}
                     </span>
 
@@ -804,12 +804,12 @@ export default function Assistance() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2 focus-within:border-orange-400 dark:border-slate-700 dark:bg-slate-950">
+                <div className="flex items-center gap-2 rounded-2xl border border-[#E8E3EF] bg-[#FAF9FC] p-2 focus-within:border-[#8B6DD1] dark:border-[#3A3344] dark:bg-[#17131D]">
                   <label
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-500 transition ${
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[#6F687A] transition ${
                       visiteurIdentifie
                         ? 'cursor-not-allowed opacity-40'
-                        : 'cursor-pointer hover:bg-orange-100 hover:text-orange-500 dark:hover:bg-orange-500/10'
+                        : 'cursor-pointer hover:bg-[#F1ECFA] hover:text-[#7654C6] dark:hover:bg-[#7654C6]/10'
                     }`}
                     aria-label="Joindre un fichier"
                   >
@@ -861,7 +861,7 @@ export default function Assistance() {
                     }}
                     placeholder="Écrivez votre message..."
                     disabled={envoi}
-                    className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
+                    className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-[#18151F] outline-none placeholder:text-[#9A93A5] dark:text-white"
                   />
 
                   <button
@@ -872,7 +872,7 @@ export default function Assistance() {
                         !fichier) ||
                       envoi
                     }
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7654C6] text-white transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Envoyer"
                   >
                     {envoi ? (
@@ -887,7 +887,7 @@ export default function Assistance() {
                 </div>
 
                 {visiteurIdentifie && (
-                  <p className="mt-2 px-1 text-center text-[11px] text-slate-400">
+                  <p className="mt-2 px-1 text-center text-[11px] text-[#9A93A5]">
                     Les pièces jointes seront
                     disponibles prochainement pour les
                     visiteurs.

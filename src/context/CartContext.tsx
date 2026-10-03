@@ -13,7 +13,12 @@ export type CartProduct = {
   prix: number
   image_url?: string | null
   stock?: number
+  poids_kg?: number | null
+  volume_cbm?: number | null
   surCommande?: boolean
+  categorie?: string | null
+  sous_categorie?: string | null
+  type_transport?: 'avion' | 'bateau'
   variante_id?: string | null
   variante_nom?: string | null
 }
@@ -33,6 +38,10 @@ type CartContextType = {
   augmenter: (id: string) => void
   diminuer: (id: string) => void
   supprimer: (id: string) => void
+  choisirTransport: (
+    id: string,
+    typeTransport: 'avion' | 'bateau',
+  ) => void
   vider: () => void
 }
 
@@ -131,6 +140,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  const choisirTransport = (
+    id: string,
+    typeTransport: 'avion' | 'bateau',
+  ) => {
+    setItems((actuels) =>
+      actuels.map((item) => {
+        const correspond =
+          item.produit.id === id ||
+          obtenirCleLigne(item.produit) === id
+
+        if (!correspond) return item
+
+        return {
+          ...item,
+          produit: {
+            ...item.produit,
+            type_transport: typeTransport,
+          },
+        }
+      }),
+    )
+  }
+
   const vider = () => setItems([])
 
   const nombreArticles = useMemo(
@@ -166,6 +198,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         augmenter,
         diminuer,
         supprimer,
+        choisirTransport,
         vider,
       }}
     >

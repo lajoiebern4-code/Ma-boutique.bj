@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import PromotionVideo from '../components/PromotionVideo'
+
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
@@ -23,6 +25,34 @@ import {
 } from '../services/supabase'
 import { obtenirProduits, type Produit } from '../services/produits'
 import { useCart } from '../context/CartContext'
+
+function useRevealOnScroll() {
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    element.classList.add('opacity-0', 'translate-y-5')
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+
+        element.classList.remove('opacity-0', 'translate-y-5')
+        element.classList.add('opacity-100', 'translate-y-0')
+        observer.disconnect()
+      },
+      { threshold: 0.12 },
+    )
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [])
+
+  return ref
+}
 
 function formatPrix(prix: number) {
   return `${Number(prix || 0).toLocaleString('fr-FR')} FCFA`
@@ -121,6 +151,17 @@ const styleTitreAnnonce = `
     transform: scale(1.06);
   }
 }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 `
 
 function BandeauPremium() {
@@ -146,7 +187,7 @@ function BandeauPremium() {
 
   if (annonces.length === 0) {
     return (
-      <div className="overflow-hidden bg-[#081A33] text-white">
+      <div className="overflow-hidden border-b border-[#E8E3EF] bg-[#FAF9FC] text-[#18151F]">
         <div className="flex min-h-[42px] items-center overflow-hidden">
           <div className="flex shrink-0 items-center gap-2 whitespace-nowrap px-4 text-[11px] font-semibold sm:text-xs">
             <Sparkles size={13} className="shrink-0 text-[#FF8A3D]" />
@@ -180,7 +221,7 @@ function BandeauPremium() {
   ))
 
   return (
-    <div className="overflow-hidden bg-[#081A33] text-white">
+    <div className="overflow-hidden border-b border-[#E8E3EF] bg-[#FAF9FC] text-[#18151F]">
         <style>{styleTitreAnnonce}</style>
       <div className="relative flex min-h-[42px] items-center overflow-hidden">
         <div className="flex w-max shrink-0 items-center whitespace-nowrap animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused]">
@@ -193,22 +234,26 @@ function BandeauPremium() {
 }
 function HeroPremium() {
   const [recherche, setRecherche] = useState('')
+  const heroReveal = useRevealOnScroll()
 
   return (
-    <section className="relative overflow-hidden bg-[#F7F9FC]">
-      <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-blue-100/70 blur-3xl" />
-      <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-orange-100/60 blur-3xl" />
+    <section className="relative overflow-hidden bg-[#FAF9FC]">
+      <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#F1ECFA]/80 blur-3xl" />
+      <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#F1ECFA]/60 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-24">
+      <div
+        ref={heroReveal}
+        className="relative mx-auto grid max-w-7xl translate-y-0 items-center gap-12 px-4 py-14 opacity-100 transition-all duration-700 ease-out sm:px-6 md:py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-24"
+      >
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 text-xs font-bold text-[#0052CC] shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2 text-xs font-bold text-[#7654C6] shadow-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             ChinaShop-Bénin
           </div>
 
-          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-tight text-[#081A33] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-tight text-[#18151F] sm:text-5xl lg:text-6xl">
             Trouvez ce qu'il vous faut.
-            <span className="mt-2 block text-[#0052CC]">
+            <span className="mt-2 block text-[#7654C6]">
               Commandez en toute simplicité.
             </span>
           </h1>
@@ -218,17 +263,17 @@ function HeroPremium() {
             Choisissez vos articles et laissez ChinaShop s'occuper du reste.
           </p>
 
-          <div className="mt-8 flex max-w-xl items-center rounded-2xl border border-slate-200 bg-white p-2 shadow-lg shadow-slate-200/50">
+          <div className="mt-8 flex max-w-xl items-center rounded-[14px] border border-[#E8E3EF] bg-white p-1.5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
             <Search className="ml-3 shrink-0 text-slate-400" size={20} />
             <input
               value={recherche}
               onChange={(e) => setRecherche(e.target.value)}
               placeholder="Que recherchez-vous ?"
-              className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#081A33] outline-none placeholder:text-slate-400"
+              className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#18151F] outline-none placeholder:text-slate-400"
             />
             <Link
               to={recherche.trim() ? `/catalogue?recherche=${encodeURIComponent(recherche)}` : '/catalogue'}
-              className="rounded-xl bg-[#0052CC] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003D99]"
+              className="rounded-[10px] bg-[#7654C6] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#6544B3]"
             >
               Rechercher
             </Link>
@@ -237,7 +282,7 @@ function HeroPremium() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               to="/catalogue"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A1A] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-[#F06D0A]"
+              className="inline-flex items-center gap-2 rounded-[10px] bg-[#7654C6] px-6 py-3.5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition hover:bg-[#6544B3]"
             >
               <ShoppingBag size={18} />
               Découvrir les produits
@@ -246,7 +291,7 @@ function HeroPremium() {
 
             <Link
               to="/infos"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-[#081A33] shadow-sm transition hover:border-blue-200 hover:text-[#0052CC]"
+              className="inline-flex items-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-6 py-3.5 text-sm font-bold text-[#18151F] shadow-sm transition hover:border-[#D8CDED] hover:text-[#7654C6]"
             >
               Comment ça marche
               <ChevronRight size={16} />
@@ -255,32 +300,32 @@ function HeroPremium() {
 
           <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-slate-500">
             <span className="flex items-center gap-2">
-              <ShieldCheck size={15} className="text-[#0052CC]" />
+              <ShieldCheck size={15} className="text-[#7654C6]" />
               Paiement sécurisé
             </span>
             <span className="flex items-center gap-2">
-              <Truck size={15} className="text-[#0052CC]" />
+              <Truck size={15} className="text-[#7654C6]" />
               Livraison au Bénin
             </span>
             <span className="flex items-center gap-2">
-              <Package size={15} className="text-[#0052CC]" />
+              <Package size={15} className="text-[#7654C6]" />
               Retrait disponible
             </span>
           </div>
         </div>
 
         <div className="relative hidden min-h-[440px] lg:block">
-          <div className="absolute inset-8 rounded-[2.5rem] bg-[#081A33] shadow-2xl shadow-blue-950/20" />
+          <div className="absolute inset-8 rounded-[18px] border border-[#E8E3EF] bg-[#F1ECFA] shadow-[0_8px_24px_rgba(24,21,31,0.08)]" />
 
-          <div className="absolute left-0 top-12 w-64 rounded-3xl border border-white/60 bg-white p-5 shadow-2xl">
-            <div className="flex h-36 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-slate-100">
-              <ShoppingBag size={64} className="text-[#0052CC]" strokeWidth={1.2} />
+          <div className="absolute left-0 top-12 w-64 rounded-[18px] border border-[#E8E3EF] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+            <div className="flex h-36 items-center justify-center rounded-[14px] bg-[#F1ECFA]">
+              <ShoppingBag size={64} className="text-[#7654C6]" strokeWidth={1.2} />
             </div>
             <div className="mt-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#0052CC]">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#7654C6]">
                 Sélection
               </p>
-              <p className="mt-1 text-lg font-black text-[#081A33]">
+              <p className="mt-1 text-lg font-black text-[#18151F]">
                 Produits populaires
               </p>
               <p className="mt-1 text-xs text-slate-500">
@@ -289,13 +334,13 @@ function HeroPremium() {
             </div>
           </div>
 
-          <div className="absolute bottom-8 right-0 w-72 rounded-3xl border border-white/60 bg-white p-5 shadow-2xl">
+          <div className="absolute bottom-8 right-0 w-72 rounded-[18px] border border-[#E8E3EF] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#F1ECFA] text-[#7654C6]">
                 <BadgeCheck size={28} />
               </div>
               <div>
-                <p className="text-sm font-black text-[#081A33]">
+                <p className="text-sm font-black text-[#18151F]">
                   Commande simplifiée
                 </p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -305,8 +350,8 @@ function HeroPremium() {
             </div>
           </div>
 
-          <div className="absolute right-8 top-0 rounded-2xl bg-[#FF7A1A] px-5 py-4 text-white shadow-xl shadow-orange-500/20">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-white/80">
+          <div className="absolute right-8 top-0 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-4 text-[#18151F] shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7654C6]">
               ChinaShop
             </p>
             <p className="mt-1 text-xl font-black">Simple.</p>
@@ -329,19 +374,19 @@ function Categories() {
   ]
 
   return (
-    <section className="border-b border-slate-100 bg-white">
+    <section className="border-b border-[#E8E3EF] bg-white">
       <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
         <div className="flex gap-3 overflow-x-auto pb-1">
           {categories.map((categorie) => (
             <Link
               key={categorie.nom}
               to={`/catalogue?categorie=${encodeURIComponent(categorie.nom)}`}
-              className="group flex min-w-[150px] items-center gap-3 rounded-2xl border border-slate-100 bg-[#F8FAFC] px-4 py-3 transition hover:border-blue-100 hover:bg-blue-50"
+              className="group flex min-w-[150px] items-center gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 shadow-[0_2px_10px_rgba(24,21,31,0.04)] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA]"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[10px] font-black text-[#0052CC] shadow-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white text-[10px] font-black text-[#7654C6] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                 {categorie.symbole}
               </span>
-              <span className="text-xs font-bold text-[#081A33] group-hover:text-[#0052CC]">
+              <span className="text-xs font-bold text-[#18151F] group-hover:text-[#7654C6]">
                 {categorie.nom}
               </span>
             </Link>
@@ -389,14 +434,14 @@ function ProduitsVedette() {
   }, [])
 
   return (
-    <section className="bg-[#F7F9FC] py-16 sm:py-20">
+    <section className="bg-[#FAF9FC] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0052CC]">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
               Sélection ChinaShop
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#081A33] sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
               Produits en vedette
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">
@@ -406,7 +451,7 @@ function ProduitsVedette() {
 
           <Link
             to="/catalogue"
-            className="inline-flex items-center gap-2 text-sm font-black text-[#0052CC] hover:text-[#003D99]"
+            className="inline-flex items-center gap-2 text-sm font-black text-[#7654C6] hover:text-[#6544B3]"
           >
             Voir tout le catalogue
             <ArrowRight size={16} />
@@ -416,26 +461,27 @@ function ProduitsVedette() {
         {chargement ? (
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="h-80 animate-pulse rounded-3xl bg-slate-200" />
+              <div key={item} className="h-80 animate-pulse rounded-[18px] border border-[#E8E3EF] bg-[#F1ECFA]" />
             ))}
           </div>
         ) : (
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {produits.map((produit) => (
+            {produits.filter((p) => p.stock > 0 || p.disponibilite === 'sur_commande').map((produit) => (
               <article
                 key={produit.id}
-                className="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70"
+                className="group overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                style={{ animationDelay: `${Math.min(produits.indexOf(produit) * 70, 490)}ms` }}
               >
                 <Link
                   to={`/produit/${produit.id}`}
-                  className="relative block aspect-square overflow-hidden bg-slate-100"
+                  className="relative block aspect-square overflow-hidden bg-[#F1ECFA]"
                 >
                   {produit.image_url ? (
                     <img
                       src={produit.image_url}
                       alt={produit.nom}
                       loading="lazy"
-                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                      className="h-full w-full object-cover transition duration-300"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-slate-300">
@@ -482,7 +528,7 @@ function ProduitsVedette() {
 
                   {obtenirEtatPromotion(produit) === 'programmee' && (
                     <>
-                      <span className="absolute right-3 top-3 rounded-full bg-[#0052CC] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
+                      <span className="absolute right-3 top-3 rounded-full bg-[#7654C6] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
                         Promotion à venir
                       </span>
                       <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[2] flex justify-center">
@@ -515,18 +561,24 @@ function ProduitsVedette() {
                 </Link>
 
                 <div className="p-4 sm:p-5">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#0052CC]">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#7654C6]">
                     {produit.categorie || 'Produit'}
                   </p>
 
                   <Link to={`/produit/${produit.id}`}>
-                    <h3 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#081A33] transition group-hover:text-[#0052CC]">
+                    <h3 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#18151F] transition group-hover:text-[#7654C6]">
                       {produit.nom}
                     </h3>
                   </Link>
 
+                  {produit.description?.trim() && (
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-[#6F687A]">
+                      {produit.description.trim()}
+                    </p>
+                  )}
+
                   <div className="mt-4 flex items-end justify-between gap-2">
-                    <p className="text-lg font-black tracking-tight text-[#081A33]">
+                    <p className="text-lg font-black tracking-tight text-[#18151F]">
                       {formatPrix(produit.prix)}
                     </p>
                   </div>
@@ -541,13 +593,17 @@ function ProduitsVedette() {
                           prix: produit.prix,
                           image_url: produit.image_url || null,
                           stock: produit.stock,
+                          poids_kg: produit.poids_kg,
+                          volume_cbm: produit.volume_cbm,
+                          categorie: produit.categorie,
+                          sous_categorie: produit.sous_categorie,
                           surCommande:
                             produit.stock <= 0 &&
                             produit.disponibilite === 'sur_commande',
                         })
                       }
                       aria-label="Ajouter au panier"
-                      className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-[#E2E5E9] bg-[#FFFEFC] px-3 text-[#171717] shadow-none transition-all duration-150 hover:border-[#D5D9DE] hover:bg-white active:scale-[0.99]"
+                      className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-white px-3 text-[#18151F] shadow-none transition-colors duration-150 hover:border-[#D8CDED] hover:bg-[#F1ECFA]"
                     >
                       <ShoppingBag size={17} aria-hidden="true" />
                     </button>
@@ -561,13 +617,17 @@ function ProduitsVedette() {
                           prix: produit.prix,
                           image_url: produit.image_url || null,
                           stock: produit.stock,
+                          poids_kg: produit.poids_kg,
+                          volume_cbm: produit.volume_cbm,
+                          categorie: produit.categorie,
+                          sous_categorie: produit.sous_categorie,
                           surCommande:
                             produit.stock <= 0 &&
                             produit.disponibilite === 'sur_commande',
                         })
                         navigate('/commande')
                       }}
-                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-[#D92D20] px-4 text-xs font-bold text-white shadow-[0_2px_8px_rgba(217,45,32,0.12)] transition-all duration-150 hover:bg-[#C6281D] active:scale-[0.99]"
+                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-[#7654C6] px-4 text-xs font-bold text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition-colors duration-150 hover:bg-[#6544B3]"
                     >
                       <Zap size={15} aria-hidden="true" />
                       <span>Commander</span>
@@ -615,10 +675,10 @@ function CommentCaMarche() {
     <section className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0052CC]">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
             Simple du début à la fin
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#081A33] sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
             Comment ça marche ?
           </h2>
           <p className="mt-4 text-sm leading-6 text-slate-500">
@@ -633,18 +693,19 @@ function CommentCaMarche() {
             return (
               <div
                 key={etape.numero}
-                className="relative rounded-3xl border border-slate-100 bg-[#F8FAFC] p-6"
+                className="relative rounded-[18px] border border-[#E8E3EF] bg-white p-6 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                style={{ animationDelay: `${(Number(etape.numero) - 1) * 100}ms` }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-[#0052CC]">
+                  <span className="text-xs font-black text-[#7654C6]">
                     {etape.numero}
                   </span>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#0052CC] shadow-sm">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                     <Icon size={20} />
                   </div>
                 </div>
 
-                <h3 className="mt-7 text-lg font-black text-[#081A33]">
+                <h3 className="mt-7 text-lg font-black text-[#18151F]">
                   {etape.titre}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -684,14 +745,14 @@ function BlocConfiance() {
   ]
 
   return (
-    <section className="bg-[#F7F9FC] py-16 sm:py-20">
+    <section className="bg-[#FAF9FC] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0052CC]">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
               L'essentiel
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#081A33] sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
               Une boutique conçue pour votre quotidien.
             </h2>
             <p className="mt-5 text-sm leading-7 text-slate-500">
@@ -701,7 +762,7 @@ function BlocConfiance() {
 
             <Link
               to="/infos"
-              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#081A33] px-5 py-3 text-sm font-black text-white transition hover:bg-[#0052CC]"
+              className="mt-7 inline-flex items-center gap-2 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-3 text-sm font-black text-[#18151F] shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
             >
               En savoir plus
               <ArrowRight size={16} />
@@ -715,12 +776,13 @@ function BlocConfiance() {
               return (
                 <div
                   key={avantage.titre}
-                  className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
+                  className="rounded-[18px] border border-[#E8E3EF] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                  style={{ animationDelay: `${avantages.indexOf(avantage) * 90}ms` }}
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#0052CC]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
                     <Icon size={20} />
                   </div>
-                  <h3 className="mt-4 font-black text-[#081A33]">
+                  <h3 className="mt-4 font-black text-[#18151F]">
                     {avantage.titre}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -781,27 +843,27 @@ function TemoignagesPremium() {
     return null
   }
   return (
-    <section className="bg-[#081A33] py-20">
+    <section className="bg-[#FAF9FC] py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <div className="text-center">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-400">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
             Expérience client
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
             Ce que nos clients pensent
           </h2>
         </div>
 
-        <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 shadow-2xl sm:p-10">
+        <div className="mt-10 rounded-[18px] border border-[#E8E3EF] bg-white p-7 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:p-10 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
           <div className="flex items-start justify-between gap-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0052CC] to-[#1A6BFF] font-black text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#F1ECFA] font-black text-[#7654C6]">
                 {temoignage.nom.slice(0, 2).toUpperCase()}
               </div>
 
               <div>
-                <p className="font-black text-white">{temoignage.nom}</p>
-                <p className="mt-1 text-xs text-blue-200">{temoignage.ville}</p>
+                <p className="font-black text-[#18151F]">{temoignage.nom}</p>
+                <p className="mt-1 text-xs text-[#6F687A]">{temoignage.ville}</p>
               </div>
             </div>
 
@@ -814,11 +876,11 @@ function TemoignagesPremium() {
             </div>
           </div>
 
-          <p className="mt-8 text-lg font-medium leading-8 text-blue-50 sm:text-xl">
+          <p className="mt-8 text-lg font-medium leading-8 text-[#6F687A] sm:text-xl">
             “{temoignage.texte}”
           </p>
 
-          <div className="mt-8 h-1 overflow-hidden rounded-full bg-white/10">
+          <div className="mt-8 h-1 overflow-hidden rounded-full bg-[#E8E3EF]">
             <div
               key={index}
               className="h-full rounded-full bg-orange-400"
@@ -837,8 +899,8 @@ function TemoignagesPremium() {
                   aria-label={`Afficher le témoignage ${i + 1}`}
                   className={`h-2 rounded-full transition-all ${
                     i === index
-                      ? 'w-8 bg-orange-400'
-                      : 'w-2 bg-white/20'
+                      ? 'w-8 bg-[#7654C6]'
+                      : 'w-2 bg-[#E8E3EF]'
                   }`}
                 />
               ))}
@@ -851,7 +913,7 @@ function TemoignagesPremium() {
                     (index - 1 + temoignages.length) % temoignages.length
                   )
                 }
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white transition hover:bg-white/10"
+                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#E8E3EF] text-[#6F687A] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
                 aria-label="Témoignage précédent"
               >
                 <ChevronLeft size={17} />
@@ -859,7 +921,7 @@ function TemoignagesPremium() {
 
               <button
                 onClick={() => setIndex((index + 1) % temoignages.length)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white transition hover:bg-white/10"
+                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#E8E3EF] text-[#6F687A] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
                 aria-label="Témoignage suivant"
               >
                 <ChevronRight size={17} />
@@ -882,24 +944,24 @@ function TemoignagesPremium() {
 function AppelAction() {
   return (
     <section className="bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0052CC] to-[#081A33] px-6 py-12 text-center shadow-2xl sm:px-10 sm:py-16">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-[#FAF9FC] px-6 py-12 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:px-10 sm:py-16 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)] sm:px-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-300">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
             Prêt à commencer ?
           </p>
 
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
             Votre prochaine commande commence ici.
           </h2>
 
-          <p className="mt-4 text-sm leading-6 text-blue-100">
+          <p className="mt-4 text-sm leading-6 text-[#6F687A]">
             Parcourez le catalogue, choisissez vos produits et passez votre
             commande en quelques étapes.
           </p>
 
           <Link
             to="/catalogue"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#FF7A1A] px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-900/20 transition hover:bg-[#FF8B35]"
+            className="mt-8 inline-flex items-center gap-2 rounded-[14px] bg-[#7654C6] px-7 py-3.5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition hover:bg-[#6544B3] hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
           >
             Commencer mes achats
             <ArrowRight size={17} />
@@ -915,6 +977,7 @@ export default function Accueil() {
     <div className="min-h-screen bg-white">
       <BandeauPremium />
       <HeroPremium />
+      <PromotionVideo />
       <Categories />
       <ProduitsVedette />
       <CommentCaMarche />

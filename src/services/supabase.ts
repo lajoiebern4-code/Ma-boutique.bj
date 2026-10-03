@@ -1,9 +1,5 @@
 import { supabase } from "../lib/supabase"
 export { supabase } from "../lib/supabase"
-export function isSupabaseConfigured() {
-  return !!supabase;
-}
-
 type ProduitAdminInput = {
   nom?: string
   description?: string
@@ -16,9 +12,13 @@ type ProduitAdminInput = {
   disponibilite?: 'stock' | 'sur_commande' | string
   poidsKg?: string | number | null
   volumeCbm?: string | number | null
+  longueurCm?: string | number | null
+  largeurCm?: string | number | null
+  hauteurCm?: string | number | null
   promo?: string | number
   nouveau?: boolean
   dateAjout?: string | null
+  promoDebut?: string | null
   promoFin?: string | null
   produitSourceId?: string | null
   image?: string | null
@@ -198,6 +198,33 @@ export async function recupererMoyensPaiementActifs() {
 }
 
 
+export async function initierPaiementAcompte(
+  numeroCommande: string,
+  telephone: string,
+  provider: string,
+) {
+  const { data, error } = await supabase.rpc(
+    'cs_initier_paiement_acompte',
+    {
+      p_numero_commande: numeroCommande.trim(),
+      p_telephone: telephone.trim(),
+      p_provider: provider.trim(),
+    },
+  )
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    throw new Error(
+      'Aucune réponse reçue lors de l’initialisation du paiement.',
+    )
+  }
+
+  return data
+}
+
 export async function initierPaiementAcompteInvite(
   numeroCommande: string,
   paiementAccesToken: string,
@@ -225,6 +252,113 @@ export async function initierPaiementAcompteInvite(
   return data
 }
 
+
+
+
+export async function initierPaiementSoldeParSuiviV2(
+  codeSuivi: string,
+  provider: string,
+) {
+  if (!supabase) throw new Error('Supabase non configuré')
+
+  const code = codeSuivi.trim().toUpperCase()
+  const moyen = provider.trim()
+
+  if (!code) throw new Error('Code de suivi requis.')
+  if (!moyen) throw new Error('Moyen de paiement requis.')
+
+  const { data, error } = await supabase.rpc(
+    'cs_initier_paiement_solde_par_suivi_v2',
+    {
+      p_code_suivi: code,
+      p_provider: moyen,
+    },
+  )
+
+  if (error) throw error
+
+  if (!data?.success) {
+    throw new Error(
+      data?.error || 'Impossible d’initialiser le paiement du solde.',
+    )
+  }
+
+  return data
+}
+
+export async function envoyerPreuvePaiementParSuivi(
+  codeSuivi: string,
+  telephone: string,
+  paiementId: string,
+  fichier: File,
+) {
+  if (!supabase) throw new Error('Supabase non configuré')
+  if (!(fichier instanceof File)) throw new Error('Fichier de preuve invalide.')
+  if (fichier.size <= 0 || fichier.size > 5 * 1024 * 1024) {
+    throw new Error('La preuve doit faire au maximum 5 Mo.')
+  }
+
+  const formatsAcceptes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!formatsAcceptes.includes(fichier.type)) {
+    throw new Error('Format accepté : JPG, PNG ou WebP.')
+  }
+
+  const formData = new FormData()
+  formData.append('code_suivi', codeSuivi.trim().toUpperCase())
+  formData.append('telephone', telephone.trim())
+  formData.append('paiement_id', paiementId.trim())
+  formData.append('file', fichier)
+
+  const { data, error } = await supabase.functions.invoke(
+    'upload-payment-proof',
+    { body: formData },
+  )
+
+  if (error) throw error
+  if (!data?.success) {
+    throw new Error(data?.error || 'Impossible d’envoyer la preuve de paiement.')
+  }
+
+  return data
+}
+
+export async function envoyerPreuvePaiementParSuiviV2(
+  codeSuivi: string,
+  paiementId: string,
+  fichier: File,
+) {
+  if (!supabase) throw new Error('Supabase non configuré')
+  if (!(fichier instanceof File)) throw new Error('Fichier de preuve invalide.')
+
+  if (fichier.size <= 0 || fichier.size > 5 * 1024 * 1024) {
+    throw new Error('La preuve doit faire au maximum 5 Mo.')
+  }
+
+  const formatsAcceptes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!formatsAcceptes.includes(fichier.type)) {
+    throw new Error('Format accepté : JPG, PNG ou WebP.')
+  }
+
+  const formData = new FormData()
+  formData.append('code_suivi', codeSuivi.trim().toUpperCase())
+  formData.append('paiement_id', paiementId.trim())
+  formData.append('file', fichier)
+
+  const { data, error } = await supabase.functions.invoke(
+    'upload-payment-proof',
+    { body: formData },
+  )
+
+  if (error) throw error
+
+  if (!data?.success) {
+    throw new Error(
+      data?.error || 'Impossible d’envoyer la preuve de paiement.',
+    )
+  }
+
+  return data
+}
 
 export async function initierPaiementSoldeInvite(
   numeroCommande: string,
@@ -260,6 +394,42 @@ export async function initierPaiementSoldeInvite(
         err instanceof Error
           ? err.message
           : 'Impossible d’initialiser le paiement du solde.',
+    }
+  }
+}
+
+export async function reinitierPaiementNormal(
+  numeroCommande: string,
+  provider: string,
+) {
+  if (!supabase) {
+    return {
+      success: false,
+      error: 'Supabase non configuré',
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc(
+      'cs_reinitier_paiement_normal',
+      {
+        p_numero_commande: numeroCommande,
+        p_provider: provider,
+      },
+    )
+
+    if (error) throw error
+
+    return data
+  } catch (err) {
+    console.error('Erreur réinitialisation paiement normal:', err)
+
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : 'Impossible de réinitialiser le paiement.',
     }
   }
 }
@@ -364,6 +534,50 @@ export async function envoyerPreuvePaiementConnecte(
   return data
 }
 
+export async function calculerCommandeV2(
+  lignes: Array<{
+    produit_id: string
+    quantite: number
+    variante_id?: string | null
+    variante_nom?: string | null
+    type_transport?: 'avion' | 'bateau' | null
+  }>,
+  modeReception: string,
+  zoneCode = 'RETRAIT',
+) {
+  if (!supabase) {
+    throw new Error('Supabase non configuré')
+  }
+
+  const { data, error } = await supabase.rpc(
+    'cs_calculer_commande_v2',
+    {
+      p_lignes: lignes,
+      p_mode_reception: modeReception,
+      p_zone_code: zoneCode,
+    },
+  )
+
+  if (error) throw error
+
+  if (!data) {
+    throw new Error('Supabase n’a retourné aucun calcul de commande.')
+  }
+
+  return {
+    sousTotal: Number(data.sous_total) || 0,
+    reduction: Number(data.reduction) || 0,
+    total: Number(data.total) || 0,
+    totalStock: Number(data.total_stock) || 0,
+    totalSurCommande: Number(data.total_sur_commande) || 0,
+    montantSurCommande: Number(data.montant_sur_commande) || 0,
+    fraisTransportChine: Number(data.frais_transport_chine) || 0,
+    fraisLivraison: Number(data.frais_livraison) || 0,
+    acompteRequis: Number(data.acompte_requis) || 0,
+    typeCommande: data.type_commande || '',
+  }
+}
+
 export async function sauvegarderCommandeV2(
   commande: {
     articles: Array<{
@@ -371,6 +585,7 @@ export async function sauvegarderCommandeV2(
       qte?: number
       variante_id?: string | null
       variante_nom?: string | null
+      type_transport?: 'avion' | 'bateau' | null
     }>
     nomClient?: string
     telephone?: string
@@ -378,8 +593,6 @@ export async function sauvegarderCommandeV2(
     telephonePaiement?: string
     modeReception?: string
     modePaiement?: string
-    zoneLivraisonId?: string | null
-    zoneLivraisonCode?: string | null
     departementLivraison?: string | null
     communeLivraison?: string | null
     quartierLivraison?: string | null
@@ -443,11 +656,13 @@ export async function sauvegarderCommandeV2(
         qte?: number
         variante_id?: string | null
         variante_nom?: string | null
+        type_transport?: 'avion' | 'bateau' | null
       }) => ({
         produit_id: article.id,
         quantite: Number(article.qte || 1),
         variante_id: article.variante_id || null,
         variante_nom: article.variante_nom || null,
+        type_transport: article.type_transport || null,
       }),
     )
 
@@ -524,6 +739,7 @@ export async function sauvegarderCommandeV2(
       total: Number(calcul.total) || 0,
       totalStock: Number(calcul.total_stock) || 0,
       totalSurCommande: Number(calcul.total_sur_commande) || 0,
+      fraisTransportChine: Number(calcul.frais_transport_chine) || 0,
       acompteRequis: Number(calcul.acompte_requis) || 0,
       acomptePaye: Number(commande.acomptePaye || 0),
       typeCommande: calcul.type_commande || '',
@@ -735,43 +951,6 @@ export async function recupererTransportsChineAdmin() {
   }
 }
 
-export async function recupererTrajetsLivraisonAdmin() {
-  if (!supabase) {
-    return {
-      success: false,
-      data: [],
-      error: 'Supabase non configuré',
-    }
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('cs_livraison_trajets')
-      .select('*')
-
-    if (error) throw error
-
-    return {
-      success: true,
-      data: data || [],
-    }
-  } catch (err) {
-    console.error('Erreur récupération trajets livraison Admin:', err)
-
-    return {
-      success: false,
-      data: [],
-      error:
-          err instanceof Error
-            ? err.message
-            : 'Erreur récupération trajets',
-    }
-  }
-}
-
-// ===============================
-// STATUT COMMANDES ADMIN V2
-// ===============================
 
 export async function mettreAJourStatutCommandeV2(
   numeroCommande: string,
@@ -814,6 +993,9 @@ export type ProduitVariante = {
   nom: string
   stock: number
   position: number
+  couleur: string | null
+  taille: string | null
+  pointure: string | null
   created_at: string
   updated_at: string
 }
@@ -825,7 +1007,7 @@ export async function recupererVariantesProduit(produitId: string) {
 
   const { data, error } = await supabase
     .from('cs_produit_variantes')
-    .select('id, produit_id, nom, stock, position, created_at, updated_at')
+    .select('id, produit_id, nom, stock, position, couleur, taille, pointure, created_at, updated_at')
     .eq('produit_id', produitId)
     .order('position', { ascending: true })
 
@@ -846,6 +1028,9 @@ export async function ajouterVarianteProduit(
   nom: string,
   stock: number = 0,
   position?: number,
+  couleur?: string | null,
+  taille?: string | null,
+  pointure?: string | null,
 ) {
   if (!supabase) {
     return { success: false, data: null, error: 'Supabase non configuré' }
@@ -858,6 +1043,9 @@ export async function ajouterVarianteProduit(
       p_nom: nom,
       p_stock: stock,
       p_position: position ?? null,
+      p_couleur: couleur ?? null,
+      p_taille: taille ?? null,
+      p_pointure: pointure ?? null,
     },
   )
 
@@ -874,6 +1062,9 @@ export async function modifierVarianteProduit(
   nom: string,
   stock: number,
   position: number,
+  couleur?: string | null,
+  taille?: string | null,
+  pointure?: string | null,
 ) {
   if (!supabase) {
     return { success: false, data: null, error: 'Supabase non configuré' }
@@ -886,6 +1077,9 @@ export async function modifierVarianteProduit(
       p_nom: nom,
       p_stock: stock,
       p_position: position,
+      p_couleur: couleur ?? null,
+      p_taille: taille ?? null,
+      p_pointure: pointure ?? null,
     },
   )
 
@@ -941,82 +1135,6 @@ export async function reordonnerVariantesProduit(
   return { success: true, data, error: '' }
 }
 
-export async function recupererProduits() {
-  if (!supabase) {
-    console.warn("Supabase non configuré");
-    return { success: false, data: [], error: "Supabase non configuré" };
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("cs_produits")
-      .select(`
-        id,
-        produit_source_id,
-        nom,
-        prix,
-        stock,
-        disponibilite,
-        poids_kg,
-        volume_cbm,
-        actif,
-        created_at,
-        updated_at,
-        cs_produit_details (
-          description,
-          image_url,
-          prix_original,
-          categorie,
-          sous_categorie,
-          genre,
-          promo,
-          nouveau,
-          date_ajout,
-          promo_fin
-        )
-      `)
-      .eq("actif", true)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    const produits = (data || []).map((p) => {
-      const d = Array.isArray(p.cs_produit_details)
-        ? p.cs_produit_details[0]
-        : p.cs_produit_details;
-
-      return {
-        id: p.id,
-        nom: p.nom,
-        description: d?.description || "",
-        prix: Number(p.prix) || 0,
-        prixOriginal:
-          d?.prix_original != null
-            ? Number(d.prix_original)
-            : undefined,
-        categorie: d?.categorie || "",
-        sousCategorie: d?.sous_categorie || null,
-        genre: d?.genre || null,
-        image: d?.image_url || "",
-        stock: Number(p.stock) || 0,
-        disponibilite: p.disponibilite || "stock",
-        promo: Number(d?.promo) || 0,
-        promoFin: d?.promo_fin || "",
-        nouveau: Boolean(d?.nouveau),
-        dateAjout: d?.date_ajout || p.created_at,
-      };
-    });
-
-    return { success: true, data: produits };
-  } catch (err) {
-    console.error("Erreur récupération produits Supabase:", err);
-    return {
-      success: false,
-      data: [],
-      error: err instanceof Error ? err.message : String(err),
-    };
-  }
-}
 
 export async function ajouterProduit(produit: ProduitAdminInput) {
   if (!supabase) {
@@ -1047,6 +1165,21 @@ export async function ajouterProduit(produit: ProduitAdminInput) {
         ? null
         : Math.max(0, Number(produit.volumeCbm) || 0)
 
+    const longueurCm =
+      produit.longueurCm === '' || produit.longueurCm == null
+        ? null
+        : Math.max(0, Number(produit.longueurCm) || 0)
+
+    const largeurCm =
+      produit.largeurCm === '' || produit.largeurCm == null
+        ? null
+        : Math.max(0, Number(produit.largeurCm) || 0)
+
+    const hauteurCm =
+      produit.hauteurCm === '' || produit.hauteurCm == null
+        ? null
+        : Math.max(0, Number(produit.hauteurCm) || 0)
+
     const prix = Math.max(0, Number(produit.prix) || 0)
 
     const prixOriginal =
@@ -1074,7 +1207,11 @@ export async function ajouterProduit(produit: ProduitAdminInput) {
         p_disponibilite: disponibilite,
         p_poids_kg: poidsKg,
         p_volume_cbm: volumeCbm,
+        p_longueur_cm: longueurCm,
+        p_largeur_cm: largeurCm,
+        p_hauteur_cm: hauteurCm,
         p_promo: promo,
+        p_promo_debut: produit.promoDebut || null,
         p_nouveau: Boolean(produit.nouveau),
         p_date_ajout: produit.dateAjout || null,
         p_promo_fin: produit.promoFin || null,
@@ -1150,6 +1287,21 @@ export async function modifierProduit(
         ? null
         : Math.max(0, Number(produit.volumeCbm) || 0)
 
+    const longueurCm =
+      produit.longueurCm === '' || produit.longueurCm == null
+        ? null
+        : Math.max(0, Number(produit.longueurCm) || 0)
+
+    const largeurCm =
+      produit.largeurCm === '' || produit.largeurCm == null
+        ? null
+        : Math.max(0, Number(produit.largeurCm) || 0)
+
+    const hauteurCm =
+      produit.hauteurCm === '' || produit.hauteurCm == null
+        ? null
+        : Math.max(0, Number(produit.hauteurCm) || 0)
+
     const { data, error } = await supabase.rpc(
       'cs_modifier_produit_admin',
       {
@@ -1158,7 +1310,11 @@ export async function modifierProduit(
         p_disponibilite: disponibilite,
         p_poids_kg: poidsKg,
         p_volume_cbm: volumeCbm,
+        p_longueur_cm: longueurCm,
+        p_largeur_cm: largeurCm,
+        p_hauteur_cm: hauteurCm,
         p_promo: Math.max(0, Number(produit.promo) || 0),
+        p_promo_debut: produit.promoDebut || null,
         p_promo_fin: produit.promoFin || null,
         p_prix_original:
           produit.prixOriginal == null || produit.prixOriginal === ''
@@ -1330,7 +1486,16 @@ export async function televerserPhotoProduit(file: File) {
 
     return {
       success: false,
-      error: err instanceof Error ? err.message : String(err)
+      error:
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null
+            ? (err as any).message ||
+              (err as any).error ||
+              (err as any).details ||
+              (err as any).hint ||
+              JSON.stringify(err)
+            : String(err)
     };
   }
 }
@@ -1438,48 +1603,6 @@ export async function supprimerPhotoProduit(chemin: string) {
 }
 
 
-export async function recupererTarifsLivraison() {
-  if (!supabase) {
-    return {
-      success: false,
-      data: [],
-      error: 'Supabase non configuré',
-    }
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('cs_tarifs_livraison')
-      .select('id, code, nom, montant, actif')
-      .eq('actif', true)
-      .neq('code', 'RETRAIT')
-      .order('montant', { ascending: true })
-
-    if (error) throw error
-
-    return {
-      success: true,
-      data: (data || []).map((tarif) => ({
-        id: tarif.id,
-        code: tarif.code,
-        nomZone: tarif.nom,
-        tarif: Number(tarif.montant) || 0,
-        actif: Boolean(tarif.actif),
-      })),
-    }
-  } catch (err) {
-    console.error('Erreur récupération tarifs livraison V2:', err)
-
-    return {
-      success: false,
-      data: [],
-      error:
-        err instanceof Error
-          ? err.message
-          : 'Impossible de récupérer les tarifs de livraison',
-    }
-  }
-}
 
 export async function recupererProduitsAdmin() {
   if (!supabase) {
@@ -1572,12 +1695,8 @@ export async function notifierMiseAJourSuivi(
   try {
     const channel = supabase.channel(`suivi-commande:${code}`)
 
-    await channel.send({
-      type: 'broadcast',
-      event: 'commande_update',
-      payload: {
-        code_suivi: code,
-      },
+    await channel.httpSend('commande_update', {
+      code_suivi: code,
     })
 
     await supabase.removeChannel(channel)
@@ -1610,6 +1729,15 @@ export async function programmerTrajetLivraison(
   )
 
   if (error) throw new Error(error.message)
+
+  if (data && typeof data === 'object' && data.success === false) {
+    throw new Error(
+      typeof data.error === 'string'
+        ? data.error
+        : 'Impossible de programmer la livraison.',
+    )
+  }
+
   return data
 }
 
@@ -1819,24 +1947,26 @@ export async function modifierPromotionAdmin(
       err,
     )
 
+    const erreur = err as {
+      message?: string
+      details?: string
+      hint?: string
+      code?: string
+    }
+
     return {
       success: false,
       error:
-        err instanceof Error
-          ? err.message
-          : String(err),
+        erreur?.message ||
+        erreur?.details ||
+        erreur?.hint ||
+        (erreur?.code
+          ? `Erreur Supabase (${erreur.code}).`
+          : 'Une erreur est survenue lors de l’enregistrement.'),
     }
   }
 }
 
-export async function recupererRecuClient(codeSuivi: string) {
-  const { data, error } = await supabase.rpc('cs_recuperer_recu_client', {
-    p_code_suivi: codeSuivi,
-  })
-
-  if (error) throw error
-  return data
-}
 
 export async function recupererFactureAdmin(commandeId: string) {
   if (!supabase) {
@@ -2409,7 +2539,16 @@ export async function ajouterPhotoProduitAdmin(
 
     return {
       success: false,
-      error: err instanceof Error ? err.message : String(err),
+      error:
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null
+            ? (err as any).message ||
+              (err as any).error ||
+              (err as any).details ||
+              (err as any).hint ||
+              JSON.stringify(err)
+            : String(err),
     }
   }
 }
@@ -2663,6 +2802,190 @@ export async function enregistrerReferenceTransaction(
     )
   }
 
+  return data
+}
+
+
+export async function enregistrerReferenceTransactionNormal(
+  numeroCommande: string,
+  paiementId: string,
+  referenceTransaction: string,
+) {
+  if (!supabase) {
+    return {
+      success: false,
+      error: 'Supabase non configuré',
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc(
+      'cs_enregistrer_reference_transaction_normal',
+      {
+        p_numero_commande: numeroCommande,
+        p_paiement_id: paiementId,
+        p_reference_transaction: referenceTransaction,
+      },
+    )
+
+    if (error) throw error
+
+    return data
+  } catch (err) {
+    console.error(
+      'Erreur enregistrement référence transaction normale:',
+      err,
+    )
+
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : 'Impossible d’enregistrer la référence de transaction.',
+    }
+  }
+}
+
+export async function enregistrerReferenceTransactionAcompteParSuivi(
+  codeSuivi: string,
+  paiementId: string,
+  referenceTransaction: string,
+) {
+  if (!supabase) throw new Error('Supabase non configuré')
+
+  const code = codeSuivi.trim().toUpperCase()
+  const paiement = paiementId.trim()
+  const reference = referenceTransaction.trim()
+
+  if (!code) throw new Error('Code de suivi requis.')
+  if (!paiement) throw new Error('Paiement invalide.')
+  if (!reference) throw new Error('Référence de transaction requise.')
+  if (reference.length > 100) {
+    throw new Error('La référence de transaction est trop longue.')
+  }
+
+  const { data, error } = await supabase.rpc(
+    'cs_enregistrer_reference_transaction_acompte_par_suivi',
+    {
+      p_code_suivi: code,
+      p_paiement_id: paiement,
+      p_reference_transaction: reference,
+    },
+  )
+
+  if (error) throw error
+
+  if (!data?.success) {
+    throw new Error(
+      data?.error || 'Impossible d’enregistrer la référence de transaction.',
+    )
+  }
+
+  return data
+}
+
+export async function enregistrerReferenceTransactionParSuiviV2(
+  codeSuivi: string,
+  paiementId: string,
+  referenceTransaction: string,
+) {
+  if (!supabase) {
+    throw new Error('Supabase non configuré')
+  }
+
+  const code = codeSuivi.trim().toUpperCase()
+  const paiement = paiementId.trim()
+  const reference = referenceTransaction.trim()
+
+  if (!code) {
+    throw new Error('Code de suivi requis.')
+  }
+
+  if (!paiement) {
+    throw new Error('Paiement invalide.')
+  }
+
+  if (!reference) {
+    throw new Error('Référence de transaction requise.')
+  }
+
+  if (reference.length > 100) {
+    throw new Error('La référence de transaction est trop longue.')
+  }
+
+  const { data, error } = await supabase.rpc(
+    'cs_enregistrer_reference_transaction_par_suivi_v2',
+    {
+      p_code_suivi: code,
+      p_paiement_id: paiement,
+      p_reference_transaction: reference,
+    },
+  )
+
+  if (error) {
+    throw error
+  }
+
+  if (!data?.success) {
+    throw new Error(
+      data?.error ||
+        'Impossible d’enregistrer la référence de transaction.',
+    )
+  }
+
+  return data
+}
+
+export async function confirmerReceptionCommande(
+  numeroCommande: string,
+  paiementAccesToken?: string | null,
+) {
+  const { data, error } = await supabase.rpc(
+    'cs_confirmer_reception_commande',
+    {
+      p_numero_commande: numeroCommande,
+      p_paiement_acces_token: paiementAccesToken || null,
+    },
+  )
+
+  if (error) throw error
+  return data
+}
+
+export async function creerAvisClientCommande(
+  numeroCommande: string,
+  note: number,
+  commentaire?: string | null,
+  paiementAccesToken?: string | null,
+) {
+  const { data, error } = await supabase.rpc(
+    'cs_creer_avis_client_commande',
+    {
+      p_numero_commande: numeroCommande,
+      p_note: note,
+      p_commentaire: commentaire || null,
+      p_paiement_acces_token: paiementAccesToken || null,
+    },
+  )
+
+  if (error) throw error
+  return data
+}
+
+export async function recupererAvisClientCommande(
+  numeroCommande: string,
+  paiementAccesToken?: string | null,
+) {
+  const { data, error } = await supabase.rpc(
+    'cs_recuperer_avis_client_commande',
+    {
+      p_numero_commande: numeroCommande,
+      p_paiement_acces_token: paiementAccesToken || null,
+    },
+  )
+
+  if (error) throw error
   return data
 }
 

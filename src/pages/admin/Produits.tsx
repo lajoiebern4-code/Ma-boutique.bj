@@ -57,6 +57,34 @@ const COULEURS_PRODUIT = [
   'Camel',
 ] as const
 
+const TAILLES_VETEMENTS = [
+  'XS',
+  'S',
+  'M',
+  'L',
+  'XL',
+  'XXL',
+  'XXXL',
+  '4XL',
+  '5XL',
+] as const
+
+const POINTURES_CHAUSSURES = [
+  '35',
+  '36',
+  '37',
+  '38',
+  '39',
+  '40',
+  '41',
+  '42',
+  '43',
+  '44',
+  '45',
+  '46',
+  '47',
+] as const
+
 type Produit = {
   id: string
   nom?: string
@@ -66,6 +94,9 @@ type Produit = {
   disponibilite?: string
   poids_kg?: number | null
   volume_cbm?: number | null
+  longueur_cm?: number | null
+  largeur_cm?: number | null
+  hauteur_cm?: number | null
   image_url?: string | null
   description?: string
   categorie?: string | null
@@ -76,6 +107,7 @@ type Produit = {
   date_ajout?: string | null
   created_at?: string | null
   produit_source_id?: string | null
+  promo_debut?: string | null
   promo_fin?: string | null
 }
 
@@ -93,9 +125,13 @@ type FormulaireProduit = {
   disponibilite: Statut
   poidsKg: string
   volumeCbm: string
+  longueurCm: string
+  largeurCm: string
+  hauteurCm: string
   promo: string
   nouveau: boolean
   dateAjout: string
+  promoDebut: string
   promoFin: string
   produitSourceId: string
   image: string
@@ -113,9 +149,13 @@ const formulaireInitial: FormulaireProduit = {
   disponibilite: 'stock',
   poidsKg: '',
   volumeCbm: '',
+  longueurCm: '',
+  largeurCm: '',
+  hauteurCm: '',
   promo: '0',
   nouveau: false,
   dateAjout: new Date().toISOString().slice(0, 10),
+  promoDebut: '',
   promoFin: '',
   produitSourceId: '',
   image: '',
@@ -235,6 +275,8 @@ function detecterCategorieDepuisTitre(titre: string) {
   }
 
   if (
+    t.includes('nuisette') ||
+    t.includes('ensemble') ||
     t.includes('robe') ||
     t.includes('jupe') ||
     t.includes('pantalon') ||
@@ -244,17 +286,30 @@ function detecterCategorieDepuisTitre(titre: string) {
     t.includes('vetement') ||
     t.includes('vetements')
   ) {
-    const femme = /\bfemme\b|\bdame\b/.test(t)
+    const femme = /\bfemme\b|\bdame\b/.test(t) || t.includes('nuisette')
     const homme = /\bhomme\b|\bmonsieur\b/.test(t)
 
     return {
       categorie: 'vetements',
-      sousCategorie: '',
+      sousCategorie: t.includes('nuisette')
+        ? 'nuisette'
+        : t.includes('ensemble')
+          ? 'ensemble'
+          : '',
       genre: femme ? 'femme' : homme ? 'homme' : '',
     }
   }
 
   return null
+}
+
+type VarianteCreationProduit = {
+  id: string
+  nom: string
+  stock: number
+  couleur: string
+  taille: string
+  pointure: string
 }
 
 export default function Produits() {
@@ -280,8 +335,145 @@ export default function Produits() {
   const [variantesProduit, setVariantesProduit] = useState<ProduitVariante[]>([])
   const [varianteNom, setVarianteNom] = useState('')
   const [varianteStock, setVarianteStock] = useState('0')
+  const [varianteCouleur, setVarianteCouleur] = useState('')
+  const [varianteTaille, setVarianteTaille] = useState('')
+  const [variantePointure, setVariantePointure] = useState('')
   const [varianteChargement, setVarianteChargement] = useState(false)
   const [varianteSauvegardeId, setVarianteSauvegardeId] = useState<string | null>(null)
+  const [variantesCreation, setVariantesCreation] = useState<
+    VarianteCreationProduit[]
+  >([])
+  const [varianteCreationStock, setVarianteCreationStock] = useState('0')
+  const [varianteCreationCouleur, setVarianteCreationCouleur] = useState('')
+  const [varianteCreationTaille, setVarianteCreationTaille] = useState('')
+  const [varianteCreationPointure, setVarianteCreationPointure] = useState('')
+
+  // Nouveau configurateur professionnel de variantes.
+  // Les combinaisons générées restent compatibles avec ajouterVarianteProduit().
+  const [attributsVariantes, setAttributsVariantes] = useState<{
+    couleurs: string[]
+    tailles: string[]
+    pointures: string[]
+  }>({
+    couleurs: [],
+    tailles: [],
+    pointures: [],
+  })
+
+  const [combinaisonsVariantes, setCombinaisonsVariantes] = useState<
+    VarianteCreationProduit[]
+  >([])
+
+  const [variantesConfigActive, setVariantesConfigActive] = useState(true)
+
+  function basculerAttributVariante(
+    attribut: 'couleurs' | 'tailles' | 'pointures',
+    valeur: string,
+  ) {
+    setAttributsVariantes((precedent) => {
+      const valeurs = precedent[attribut]
+      const dejaSelectionnee = valeurs.includes(valeur)
+
+      return {
+        ...precedent,
+        [attribut]: dejaSelectionnee
+          ? valeurs.filter((item) => item !== valeur)
+          : [...valeurs, valeur],
+      }
+    })
+  }
+
+  function genererCombinaisonsVariantes() {
+    const couleurs = attributsVariantes.couleurs
+    const tailles =
+      formulaire.categorie === 'vetements'
+        ? attributsVariantes.tailles
+        : ['']
+
+    const pointures =
+      formulaire.categorie === 'chaussures'
+        ? attributsVariantes.pointures
+        : ['']
+
+    if (couleurs.length === 0) {
+      setErreur('Ajoutez au moins une couleur.')
+      return
+    }
+
+    if (formulaire.categorie === 'vetements' && tailles.length === 0) {
+      setErreur('Ajoutez au moins une taille.')
+      return
+    }
+
+    if (formulaire.categorie === 'chaussures' && pointures.length === 0) {
+      setErreur('Ajoutez au moins une pointure.')
+      return
+    }
+
+    const combinaisons: VarianteCreationProduit[] = []
+
+    for (const couleur of couleurs) {
+      for (const taille of tailles) {
+        for (const pointure of pointures) {
+          const nom =
+            formulaire.categorie === 'vetements'
+              ? `${couleur} / ${taille}`
+              : formulaire.categorie === 'chaussures'
+                ? `${couleur} / ${pointure}`
+                : couleur
+
+          combinaisons.push({
+            id: `combinaison-${Date.now()}-${combinaisons.length}`,
+            nom,
+            stock: 0,
+            couleur,
+            taille,
+            pointure,
+          })
+        }
+      }
+    }
+
+    setCombinaisonsVariantes(combinaisons)
+    setVariantesCreation(combinaisons)
+    setErreur('')
+    setMessage('')
+  }
+
+  function modifierStockCombinaison(id: string, stock: number) {
+    const nouveauStock = Math.max(0, Math.floor(stock) || 0)
+
+    setCombinaisonsVariantes((actuelles) =>
+      actuelles.map((variante) =>
+        variante.id === id
+          ? { ...variante, stock: nouveauStock }
+          : variante,
+      ),
+    )
+
+    setVariantesCreation((actuelles) =>
+      actuelles.map((variante) =>
+        variante.id === id
+          ? { ...variante, stock: nouveauStock }
+          : variante,
+      ),
+    )
+  }
+
+  function supprimerCombinaisonVariante(id: string) {
+    setCombinaisonsVariantes((actuelles) =>
+      actuelles.filter((variante) => variante.id !== id),
+    )
+
+    setVariantesCreation((actuelles) =>
+      actuelles.filter((variante) => variante.id !== id),
+    )
+  }
+
+  function synchroniserVariantesCreation() {
+    setVariantesCreation(combinaisonsVariantes)
+  }
+
 
   const chargerProduits = useCallback(async () => {
     setChargement(true)
@@ -313,6 +505,17 @@ export default function Produits() {
       ...actuel,
       [champ]: valeur,
     }))
+
+    if (champ === 'categorie') {
+      setCombinaisonsVariantes([])
+      setVariantesCreation([])
+      setAttributsVariantes((actuels) => ({
+        ...actuels,
+        tailles: [],
+        pointures: [],
+      }))
+    }
+
     setErreur('')
     setMessage('')
   }
@@ -320,14 +523,41 @@ export default function Produits() {
   async function ajouterVariante() {
     if (!produitModificationId) return
 
-    const nom = varianteNom.trim()
+    const couleur = varianteCouleur.trim()
+    const taille =
+      formulaire.categorie === 'vetements'
+        ? varianteTaille.trim()
+        : ''
+    const pointure =
+      formulaire.categorie === 'chaussures'
+        ? variantePointure.trim()
+        : ''
+    const nomSimple = varianteNom.trim()
+
+    const nom =
+      formulaire.categorie === 'vetements'
+        ? `${couleur} / ${taille}`.trim()
+        : formulaire.categorie === 'chaussures'
+          ? `${couleur} / ${pointure}`.trim()
+          : nomSimple || couleur
+
     const stock = Math.max(
       0,
       Math.floor(Number(varianteStock) || 0),
     )
 
-    if (!nom) {
-      setErreur('Le nom de la variante est obligatoire.')
+    if (!couleur) {
+      setErreur('La couleur est obligatoire.')
+      return
+    }
+
+    if (formulaire.categorie === 'vetements' && !taille) {
+      setErreur('La taille est obligatoire pour un vêtement.')
+      return
+    }
+
+    if (formulaire.categorie === 'chaussures' && !pointure) {
+      setErreur('La pointure est obligatoire pour une chaussure.')
       return
     }
 
@@ -340,6 +570,10 @@ export default function Produits() {
         produitModificationId,
         nom,
         stock,
+        undefined,
+        couleur,
+        taille || null,
+        pointure || null,
       )
 
       if (!resultat.success) {
@@ -360,6 +594,9 @@ export default function Produits() {
 
       setVariantesProduit(recharge.data)
       setVarianteNom('')
+      setVarianteCouleur('')
+      setVarianteTaille('')
+      setVariantePointure('')
       setVarianteStock('0')
       setMessage(`Variante « ${nom} » ajoutée.`)
     } catch (err) {
@@ -397,6 +634,9 @@ export default function Produits() {
         nom,
         stock,
         variante.position,
+        variante.couleur ?? null,
+        variante.taille ?? null,
+        variante.pointure ?? null,
       )
 
       if (!resultat.success) {
@@ -483,14 +723,14 @@ export default function Produits() {
     )
 
     ;[
-      nouvelOrdre[index],
-      nouvelOrdre[cible],
+      nouvelOrdre[index]!,
+      nouvelOrdre[cible]!,
     ] = [
-      nouvelOrdre[cible],
-      nouvelOrdre[index],
+      nouvelOrdre[cible]!,
+      nouvelOrdre[index]!,
     ]
 
-    setVarianteSauvegardeId(variantesProduit[index].id)
+    setVarianteSauvegardeId(variantesProduit[index]!.id)
     setErreur('')
     setMessage('')
 
@@ -562,7 +802,8 @@ export default function Produits() {
           : 'stock',
       stock: String(produit.stock ?? 0),
       promo: String(produit.promo ?? 0),
-      promoFin: produit.promo_fin || '',
+      promoDebut: produit.promo_debut || '',
+                                                 promoFin: produit.promo_fin || '',
       dateAjout: produit.created_at
         ? String(produit.created_at).slice(0, 10)
         : '',
@@ -571,6 +812,9 @@ export default function Produits() {
       image: produit.image_url || '',
       poidsKg: String(produit.poids_kg ?? ''),
       volumeCbm: String(produit.volume_cbm ?? ''),
+      longueurCm: String(produit.longueur_cm ?? ''),
+      largeurCm: String(produit.largeur_cm ?? ''),
+      hauteurCm: String(produit.hauteur_cm ?? ''),
     })
 
     setPhotosFichiers([])
@@ -578,6 +822,9 @@ export default function Produits() {
     setVariantesProduit([])
     setVarianteNom('')
     setVarianteStock('0')
+    setVarianteCouleur('')
+    setVarianteTaille('')
+    setVariantePointure('')
     setPhotosApercus(
       produit.image_url ? [produit.image_url] : [],
     )
@@ -667,11 +914,51 @@ export default function Produits() {
       const lecteur = new FileReader()
 
       lecteur.onload = () => {
-        if (typeof lecteur.result === 'string') {
-          resolve(lecteur.result)
-        } else {
+        if (typeof lecteur.result !== 'string') {
           reject(new Error('Impossible de lire la photo sélectionnée.'))
+          return
         }
+
+        const image = new Image()
+
+        image.onload = () => {
+          const tailleMax = 1280
+          const ratio = Math.min(
+            1,
+            tailleMax / Math.max(image.naturalWidth, image.naturalHeight),
+          )
+
+          const largeur = Math.max(1, Math.round(image.naturalWidth * ratio))
+          const hauteur = Math.max(1, Math.round(image.naturalHeight * ratio))
+
+          const canvas = document.createElement('canvas')
+          canvas.width = largeur
+          canvas.height = hauteur
+
+          const contexte = canvas.getContext('2d')
+
+          if (!contexte) {
+            reject(new Error('Impossible de préparer la photo sélectionnée.'))
+            return
+          }
+
+          contexte.drawImage(image, 0, 0, largeur, hauteur)
+
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82)
+
+          if (!dataUrl || dataUrl.length < 100) {
+            reject(new Error('Impossible de préparer la photo sélectionnée.'))
+            return
+          }
+
+          resolve(dataUrl)
+        }
+
+        image.onerror = () => {
+          reject(new Error('Impossible de charger la photo sélectionnée.'))
+        }
+
+        image.src = lecteur.result
       }
 
       lecteur.onerror = () => {
@@ -680,6 +967,69 @@ export default function Produits() {
 
       lecteur.readAsDataURL(fichier)
     })
+  }
+
+  function ajouterVarianteCreation() {
+    const couleur = varianteCreationCouleur.trim()
+    const taille =
+      formulaire.categorie === 'vetements'
+        ? varianteCreationTaille.trim()
+        : ''
+    const pointure =
+      formulaire.categorie === 'chaussures'
+        ? varianteCreationPointure.trim()
+        : ''
+    const stock = Math.max(
+      0,
+      Math.floor(Number(varianteCreationStock) || 0),
+    )
+
+    if (!couleur) {
+      setErreur('La couleur est obligatoire pour la variante.')
+      return
+    }
+
+    if (formulaire.categorie === 'vetements' && !taille) {
+      setErreur('La taille est obligatoire pour cette variante.')
+      return
+    }
+
+    if (formulaire.categorie === 'chaussures' && !pointure) {
+      setErreur('La pointure est obligatoire pour cette variante.')
+      return
+    }
+
+    const nom =
+      formulaire.categorie === 'vetements'
+        ? `${couleur} / ${taille}`
+        : formulaire.categorie === 'chaussures'
+          ? `${couleur} / ${pointure}`
+          : couleur
+
+    setVariantesCreation((actuelles) => [
+      ...actuelles,
+      {
+        id: `${Date.now()}-${actuelles.length}`,
+        nom,
+        stock,
+        couleur,
+        taille,
+        pointure,
+      },
+    ])
+
+    setVarianteCreationCouleur('')
+    setVarianteCreationTaille('')
+    setVarianteCreationPointure('')
+    setVarianteCreationStock('0')
+    setErreur('')
+    setMessage('')
+  }
+
+  function supprimerVarianteCreation(id: string) {
+    setVariantesCreation((actuelles) =>
+      actuelles.filter((variante) => variante.id !== id),
+    )
   }
 
   async function genererDescription() {
@@ -755,10 +1105,20 @@ export default function Produits() {
         )
       }
 
+      const titreGenere = data.titre?.trim() || nom
+      const detection = detecterCategorieDepuisTitre(titreGenere)
+
       setFormulaire((precedent) => ({
         ...precedent,
-        nom: data.titre?.trim() || precedent.nom,
+        nom: titreGenere,
         description: data.description.trim(),
+        ...(detection
+          ? {
+              categorie: detection.categorie,
+              sousCategorie: detection.sousCategorie,
+              genre: detection.genre,
+            }
+          : {}),
       }))
 
       setMessage(
@@ -870,9 +1230,13 @@ export default function Produits() {
         disponibilite: formulaire.disponibilite,
         poidsKg: formulaire.poidsKg,
         volumeCbm: formulaire.volumeCbm,
+        longueurCm: formulaire.longueurCm,
+        largeurCm: formulaire.largeurCm,
+        hauteurCm: formulaire.hauteurCm,
         promo,
         nouveau: formulaire.nouveau,
         dateAjout: formulaire.dateAjout || null,
+        promoDebut: formulaire.promoDebut || null,
         promoFin: formulaire.promoFin || null,
         produitSourceId:
           formulaire.produitSourceId.trim() || null,
@@ -895,14 +1259,34 @@ export default function Produits() {
         )
       }
 
+      for (const variante of variantesCreation) {
+        const resultatVariante = await ajouterVarianteProduit(
+          produitId,
+          variante.nom,
+          variante.stock,
+          undefined,
+          variante.couleur || null,
+          variante.taille || null,
+          variante.pointure || null,
+        )
+
+        if (!resultatVariante.success) {
+          throw new Error(
+            resultatVariante.error ||
+              `Impossible d'enregistrer la variante « ${variante.nom} ».`,
+          )
+        }
+      }
+
       if (photosFichiers.length > 0) {
         for (let index = 0; index < photosFichiers.length; index += 1) {
           const fichier = photosFichiers[index]
+          if (!fichier && index !== 0) continue
 
           const upload =
             index === 0
               ? { success: true, url: imageUrl }
-              : await televerserPhotoProduit(fichier)
+              : await televerserPhotoProduit(fichier!)
 
           if (!upload.success || !upload.url) {
             throw new Error(
@@ -915,7 +1299,7 @@ export default function Produits() {
             upload.url,
             index,
             index === 0,
-            upload.chemin,
+            'chemin' in upload ? upload.chemin : undefined,
           )
 
           if (!photo.success) {
@@ -932,9 +1316,16 @@ export default function Produits() {
       setFormulaire(formulaireInitial)
       setPhotosFichiers([])
       setPhotosApercus([])
+      setVariantesCreation([])
+      setVarianteCreationCouleur('')
+      setVarianteCreationTaille('')
+      setVarianteCreationPointure('')
+      setVarianteCreationStock('0')
 
       await chargerProduits()
     } catch (err) {
+      console.error('DEBUG CREATION PRODUIT ERROR:', err)
+      console.error('DEBUG CREATION PRODUIT ERROR JSON:', JSON.stringify(err))
       setErreur(
         err instanceof Error
           ? err.message
@@ -1038,6 +1429,7 @@ export default function Produits() {
           index += 1
         ) {
           const fichier = photosFichiers[index]
+          if (!fichier) continue
 
           const upload = await televerserPhotoProduit(fichier)
 
@@ -1090,6 +1482,9 @@ export default function Produits() {
       | 'disponibilite'
       | 'poids_kg'
       | 'volume_cbm'
+      | 'longueur_cm'
+      | 'largeur_cm'
+      | 'hauteur_cm'
       | 'promo'
       | 'promo_fin',
     valeur: string | number,
@@ -1249,39 +1644,48 @@ export default function Produits() {
       </div>
 
       {ajoutOuvert && (
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg sm:p-7">
-          <div className="mb-6 flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-[#0284C7]">
-                {produitModificationId
-                  ? 'Modification du produit'
-                  : 'Nouveau produit'}
-              </p>
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_20px_60px_-30px_rgba(76,29,149,0.28)] sm:rounded-[2.25rem]">
+          <div className="border-b border-slate-200/70 bg-gradient-to-br from-violet-50 via-white to-sky-50 px-5 py-6 sm:px-8 sm:py-7">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/80 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-violet-700 shadow-sm">
+                  Gestion catalogue
+                </div>
 
-              <h2 className="mt-1 text-xl font-black text-[#0B1E3D]">
-                {produitModificationId
-                  ? 'Modifier le produit'
-                  : 'Ajouter un article au catalogue'}
-              </h2>
+                <p className="text-sm font-bold text-violet-600">
+                  {produitModificationId
+                    ? 'Modification du produit'
+                    : 'Nouveau produit'}
+                </p>
 
-              <p className="mt-1 text-sm text-slate-500">
-                {produitModificationId
-                  ? 'Modifiez les informations et les photos de ce produit.'
-                  : 'Tous les détails seront enregistrés avec le produit.'}
-              </p>
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                  {produitModificationId
+                    ? 'Modifier le produit'
+                    : 'Ajouter un article au catalogue'}
+                </h2>
+
+                <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-500">
+                  {produitModificationId
+                    ? 'Modifiez les informations et les photos de ce produit.'
+                    : 'Configurez les informations, le stock, les variantes, le transport et les photos depuis un seul espace.'}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={fermerAjout}
+                disabled={creationEnCours}
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:opacity-50 sm:self-start"
+                aria-label="Fermer"
+              >
+                <X size={19} />
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={fermerAjout}
-              disabled={creationEnCours}
-              className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-            >
-              <X size={20} />
-            </button>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="p-5 sm:p-8">
+
+        <div className="grid gap-5 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="sm:col-span-2">
@@ -1310,7 +1714,7 @@ export default function Produits() {
                             setMessage('')
                           }}
                     placeholder="Ex. Sac en main pour femme"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70] focus:ring-4 focus:ring-[#163B70]/10"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1324,7 +1728,7 @@ export default function Produits() {
                       type="button"
                       onClick={genererDescription}
                       disabled={generationDescriptionEnCours || creationEnCours}
-                      className="inline-flex items-center gap-2 rounded-xl border border-[#163B70]/20 bg-[#163B70]/5 px-3 py-2 text-xs font-bold text-[#163B70] transition hover:bg-[#163B70]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3.5 py-2.5 text-xs font-black text-violet-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {generationDescriptionEnCours
                         ? '⏳ Génération...'
@@ -1342,7 +1746,7 @@ export default function Produits() {
                     }
                     rows={5}
                     placeholder="Décrivez précisément le produit : matière, dimensions, caractéristiques, contenu, utilisation..."
-                    className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium leading-6 text-slate-800 outline-none focus:border-[#163B70] focus:ring-4 focus:ring-[#163B70]/10"
+                    className="w-full resize-y rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-medium leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1359,7 +1763,7 @@ export default function Produits() {
                       modifierFormulaire('prix', e.target.value)
                     }
                     placeholder="Ex. 45000"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1379,7 +1783,7 @@ export default function Produits() {
                       )
                     }
                     placeholder="Ex. 50000"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1396,7 +1800,7 @@ export default function Produits() {
                       )
                     }
                     placeholder="Ex. cuisine"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1413,7 +1817,7 @@ export default function Produits() {
                       )
                     }
                     placeholder="Ex. electromenager"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1427,7 +1831,7 @@ export default function Produits() {
                       modifierFormulaire('genre', e.target.value)
                     }
                     placeholder="Ex. femme"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1443,7 +1847,7 @@ export default function Produits() {
                         e.target.value as Statut,
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   >
                     <option value="stock">En stock</option>
                     <option value="sur_commande">
@@ -1468,7 +1872,7 @@ export default function Produits() {
                           e.target.value,
                         )
                       }
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                      className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                     />
                   </label>
                 )}
@@ -1491,7 +1895,67 @@ export default function Produits() {
                           )
                         }
                         placeholder="Ex. 2.5"
-                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                        className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                      />
+                    </label>
+
+                    <label>
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
+                        Longueur (cm)
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={formulaire.longueurCm}
+                        onChange={(e) =>
+                          modifierFormulaire(
+                            'longueurCm',
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Ex. 30"
+                        className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                      />
+                    </label>
+
+                    <label>
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
+                        Largeur (cm)
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={formulaire.largeurCm}
+                        onChange={(e) =>
+                          modifierFormulaire(
+                            'largeurCm',
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Ex. 20"
+                        className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                      />
+                    </label>
+
+                    <label>
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
+                        Hauteur (cm)
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={formulaire.hauteurCm}
+                        onChange={(e) =>
+                          modifierFormulaire(
+                            'hauteurCm',
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Ex. 15"
+                        className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                       />
                     </label>
 
@@ -1499,20 +1963,20 @@ export default function Produits() {
                       <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
                         Volume (CBM)
                       </span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.0001"
-                        value={formulaire.volumeCbm}
-                        onChange={(e) =>
-                          modifierFormulaire(
-                            'volumeCbm',
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex. 0.018"
-                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
-                      />
+                      <div className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">
+                        {formulaire.longueurCm !== '' &&
+                        formulaire.largeurCm !== '' &&
+                        formulaire.hauteurCm !== ''
+                          ? (
+                              (Number(formulaire.longueurCm) *
+                                Number(formulaire.largeurCm) *
+                                Number(formulaire.hauteurCm)) /
+                              1000000
+                            ).toFixed(6)
+                          : formulaire.volumeCbm !== ''
+                            ? Number(formulaire.volumeCbm).toFixed(6)
+                            : '—'}
+                      </div>
                     </label>
                   </>
                 )}
@@ -1530,7 +1994,24 @@ export default function Produits() {
                     onChange={(e) =>
                       modifierFormulaire('promo', e.target.value)
                     }
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                  />
+                </label>
+
+                <label>
+                  <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
+                    Début de promotion
+                  </span>
+                  <input
+                    type="datetime-local"
+                    value={formulaire.promoDebut}
+                    onChange={(e) =>
+                      modifierFormulaire(
+                        'promoDebut',
+                        e.target.value,
+                      )
+                    }
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1539,7 +2020,7 @@ export default function Produits() {
                     Fin de promotion
                   </span>
                   <input
-                    type="date"
+                    type="datetime-local"
                     value={formulaire.promoFin}
                     onChange={(e) =>
                       modifierFormulaire(
@@ -1547,7 +2028,7 @@ export default function Produits() {
                         e.target.value,
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1564,7 +2045,7 @@ export default function Produits() {
                         e.target.value,
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1581,7 +2062,7 @@ export default function Produits() {
                       )
                     }
                     placeholder="Optionnel : référence 1688 / fournisseur / source"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70]"
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   />
                 </label>
 
@@ -1610,12 +2091,274 @@ export default function Produits() {
             </div>
 
             <div>
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
-                <p className="mb-3 text-xs font-black uppercase tracking-wide text-slate-500">
+              <div className="rounded-[1.75rem] border border-violet-100 bg-gradient-to-br from-violet-50/80 via-white to-sky-50/60 p-4 shadow-sm sm:p-5">
+                <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <p className="text-xs font-black uppercase tracking-wide text-violet-700">
+        Variantes du produit
+      </p>
+      <p className="mt-1 text-xs text-slate-500">
+        Configurez les combinaisons couleur, taille ou pointure avec un stock indépendant.
+      </p>
+    </div>
+
+    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+      <input
+        type="checkbox"
+        checked={variantesConfigActive}
+        onChange={(e) => {
+          setVariantesConfigActive(e.target.checked)
+          if (!e.target.checked) {
+            setAttributsVariantes({
+              couleurs: [],
+              tailles: [],
+              pointures: [],
+            })
+            setCombinaisonsVariantes([])
+            setVariantesCreation([])
+          }
+          setErreur('')
+          setMessage('')
+        }}
+        disabled={creationEnCours}
+        className="h-4 w-4 accent-violet-600"
+      />
+      <span className="text-xs font-black text-slate-700">
+        Produit avec variantes
+      </span>
+    </label>
+  </div>
+
+  {variantesConfigActive ? (
+    <div className="mt-5 space-y-5">
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-[11px] font-black uppercase tracking-wide text-slate-500">
+            Couleurs
+          </p>
+          <span className="text-[10px] font-bold text-slate-400">
+            {attributsVariantes.couleurs.length} sélectionnée(s)
+          </span>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {COULEURS_PRODUIT.map((couleur) => {
+            const active = attributsVariantes.couleurs.includes(couleur)
+
+            return (
+              <button
+                key={couleur}
+                type="button"
+                onClick={() => basculerAttributVariante('couleurs', couleur)}
+                disabled={creationEnCours}
+                className={`rounded-xl border px-3 py-2 text-xs font-black transition ${
+                  active
+                    ? 'border-violet-600 bg-violet-600 text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-violet-200 hover:bg-violet-50'
+                } disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                {couleur}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {formulaire.categorie === 'vetements' && (
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[11px] font-black uppercase tracking-wide text-slate-500">
+              Tailles
+            </p>
+            <span className="text-[10px] font-bold text-slate-400">
+              {attributsVariantes.tailles.length} sélectionnée(s)
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {TAILLES_VETEMENTS.map((taille) => {
+              const active = attributsVariantes.tailles.includes(taille)
+
+              return (
+                <button
+                  key={taille}
+                  type="button"
+                  onClick={() => basculerAttributVariante('tailles', taille)}
+                  disabled={creationEnCours}
+                  className={`min-w-12 rounded-xl border px-3 py-2 text-xs font-black transition ${
+                    active
+                      ? 'border-violet-600 bg-violet-600 text-white shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-violet-200 hover:bg-violet-50'
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  {taille}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {formulaire.categorie === 'chaussures' && (
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[11px] font-black uppercase tracking-wide text-slate-500">
+              Pointures
+            </p>
+            <span className="text-[10px] font-bold text-slate-400">
+              {attributsVariantes.pointures.length} sélectionnée(s)
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {POINTURES_CHAUSSURES.map((pointure) => {
+              const active = attributsVariantes.pointures.includes(pointure)
+
+              return (
+                <button
+                  key={pointure}
+                  type="button"
+                  onClick={() => basculerAttributVariante('pointures', pointure)}
+                  disabled={creationEnCours}
+                  className={`min-w-12 rounded-xl border px-3 py-2 text-xs font-black transition ${
+                    active
+                      ? 'border-violet-600 bg-violet-600 text-white shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-violet-200 hover:bg-violet-50'
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  {pointure}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-black text-slate-800">
+            Générer les combinaisons
+          </p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            Chaque combinaison aura son propre stock.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={genererCombinaisonsVariantes}
+          disabled={
+            creationEnCours ||
+            attributsVariantes.couleurs.length === 0 ||
+            (formulaire.categorie === 'vetements' &&
+              attributsVariantes.tailles.length === 0) ||
+            (formulaire.categorie === 'chaussures' &&
+              attributsVariantes.pointures.length === 0)
+          }
+          className="rounded-xl bg-violet-600 px-5 py-3 text-xs font-black text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Générer les variantes
+        </button>
+      </div>
+
+      {combinaisonsVariantes.length > 0 && (
+        <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="flex flex-col gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wide text-slate-700">
+                Combinaisons générées
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-slate-400">
+                {combinaisonsVariantes.length} variante(s)
+              </p>
+            </div>
+
+            <p className="text-sm font-black text-violet-700">
+              Stock total : {combinaisonsVariantes.reduce(
+                (total, variante) => total + variante.stock,
+                0,
+              )}
+            </p>
+          </div>
+
+          <div className="divide-y divide-slate-100 bg-white">
+            {combinaisonsVariantes.map((variante, index) => (
+              <div
+                key={variante.id}
+                className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-black text-slate-500">
+                    {index + 1}
+                  </span>
+
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-slate-800">
+                      {variante.nom}
+                    </p>
+                    <p className="text-[11px] font-semibold text-slate-400">
+                      {formulaire.categorie === 'vetements'
+                        ? `Couleur : ${variante.couleur} · Taille : ${variante.taille}`
+                        : formulaire.categorie === 'chaussures'
+                          ? `Couleur : ${variante.couleur} · Pointure : ${variante.pointure}`
+                          : `Couleur : ${variante.couleur}`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 sm:shrink-0">
+                  <label className="text-[10px] font-black uppercase tracking-wide text-slate-400">
+                    Stock
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={variante.stock}
+                    onChange={(e) =>
+                      modifierStockCombinaison(
+                        variante.id,
+                        Number(e.target.value),
+                      )
+                    }
+                    disabled={creationEnCours}
+                    className="w-24 rounded-2xl border border-slate-200/90 bg-slate-50/70 px-3 py-2.5 text-center text-sm font-black text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => supprimerCombinaisonVariante(variante.id)}
+                    disabled={creationEnCours}
+                    className="rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs font-black text-red-600 shadow-sm transition hover:bg-red-100 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  ) : (
+    <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
+      <p className="text-sm font-black text-slate-700">
+        Produit simple
+      </p>
+      <p className="mt-1 text-xs font-semibold text-slate-400">
+        Le stock global du produit sera utilisé.
+      </p>
+    </div>
+  )}
+</div>
+
+<p className="mb-3 text-xs font-black uppercase tracking-wide text-slate-500">
                   Photo du produit
                 </p>
 
-                <div className="min-h-56 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="min-h-56 overflow-hidden rounded-[1.5rem] border border-violet-100 bg-gradient-to-br from-violet-50/60 via-white to-sky-50/40 shadow-sm">
                   {photosApercus.length > 0 ? (
                     <div className="grid w-full grid-cols-2 gap-3 p-3 sm:grid-cols-3">
                       {photosApercus.map((src, index) => {
@@ -1651,11 +2394,11 @@ export default function Produits() {
                                     )
 
                                     ;[
-                                      nouvelOrdre[index - 1],
-                                      nouvelOrdre[index],
+                                      nouvelOrdre[index - 1]!,
+                                      nouvelOrdre[index]!,
                                     ] = [
-                                      nouvelOrdre[index],
-                                      nouvelOrdre[index - 1],
+                                      nouvelOrdre[index]!,
+                                      nouvelOrdre[index - 1]!,
                                     ]
 
                                     const resultat =
@@ -1706,11 +2449,11 @@ export default function Produits() {
                                     )
 
                                     ;[
-                                      nouvelOrdre[index],
-                                      nouvelOrdre[index + 1],
+                                      nouvelOrdre[index]!,
+                                      nouvelOrdre[index + 1]!,
                                     ] = [
-                                      nouvelOrdre[index + 1],
-                                      nouvelOrdre[index],
+                                      nouvelOrdre[index + 1]!,
+                                      nouvelOrdre[index]!,
                                     ]
 
                                     const resultat =
@@ -1900,7 +2643,7 @@ export default function Produits() {
                         )
                       }
                       placeholder="Ou collez une URL d'image"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-700 outline-none focus:border-[#163B70]"
+                      className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-3.5 py-3 text-xs font-medium text-slate-700 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                     />
                   </label>
                 </div>
@@ -1909,9 +2652,9 @@ export default function Produits() {
           </div>
 
           {produitModificationId && (
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+            <div className="mt-6 rounded-[1.75rem] border border-violet-100 bg-gradient-to-br from-violet-50/70 via-white to-sky-50/50 p-4 shadow-sm sm:p-5">
               <div>
-                <p className="text-xs font-black uppercase tracking-wide text-[#163B70]">
+                <p className="text-xs font-black uppercase tracking-wide text-violet-700">
                   Variantes / couleurs
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
@@ -1919,27 +2662,63 @@ export default function Produits() {
                 </p>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_140px_auto]">
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_140px_auto]">
                 <select
-                  value={varianteNom}
-                  onChange={(e) => setVarianteNom(e.target.value)}
+                  value={varianteCouleur}
+                  onChange={(e) => setVarianteCouleur(e.target.value)}
                   disabled={varianteChargement}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-[#163B70] focus:ring-4 focus:ring-[#163B70]/10 disabled:opacity-60"
+                  className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
                 >
                   <option value="">Sélectionner une couleur</option>
-                  {COULEURS_PRODUIT.filter(
-                    (couleur) =>
-                      !variantesProduit.some(
-                        (variante) =>
-                          variante.nom.trim().toLowerCase() ===
-                          couleur.toLowerCase(),
-                      ),
-                  ).map((couleur) => (
+                  {COULEURS_PRODUIT.map((couleur) => (
                     <option key={couleur} value={couleur}>
                       {couleur}
                     </option>
                   ))}
                 </select>
+
+                {formulaire.categorie === 'vetements' && (
+                  <select
+                    value={varianteTaille}
+                    onChange={(e) => setVarianteTaille(e.target.value)}
+                    disabled={varianteChargement}
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
+                  >
+                    <option value="">Sélectionner une taille</option>
+                    {TAILLES_VETEMENTS.map((taille) => (
+                      <option key={taille} value={taille}>
+                        {taille}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {formulaire.categorie === 'chaussures' && (
+                  <select
+                    value={variantePointure}
+                    onChange={(e) => setVariantePointure(e.target.value)}
+                    disabled={varianteChargement}
+                    className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
+                  >
+                    <option value="">Sélectionner une pointure</option>
+                    {POINTURES_CHAUSSURES.map((pointure) => (
+                      <option key={pointure} value={pointure}>
+                        {pointure}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {formulaire.categorie !== 'vetements' &&
+                  formulaire.categorie !== 'chaussures' && (
+                    <input
+                      value={varianteNom}
+                      onChange={(e) => setVarianteNom(e.target.value)}
+                      disabled={varianteChargement}
+                      placeholder="Nom de la variante"
+                      className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
+                    />
+                  )}
 
                 <input
                   type="number"
@@ -1949,7 +2728,7 @@ export default function Produits() {
                   onChange={(e) => setVarianteStock(e.target.value)}
                   disabled={varianteChargement}
                   placeholder="Stock"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70] focus:ring-4 focus:ring-[#163B70]/10 disabled:opacity-60"
+                  className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 px-4 py-3.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
                 />
 
                 <button
@@ -1957,9 +2736,14 @@ export default function Produits() {
                   onClick={() => void ajouterVariante()}
                   disabled={
                     varianteChargement ||
-                    !varianteNom.trim()
+                    !varianteCouleur.trim() ||
+                    (formulaire.categorie === 'vetements' &&
+                      !varianteTaille.trim()) ||
+                    (formulaire.categorie === 'chaussures' &&
+                      !variantePointure.trim()) ||
+                    false
                   }
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#163B70] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0B1E3D] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {varianteChargement ? (
                     <>
@@ -1992,52 +2776,133 @@ export default function Produits() {
                   {variantesProduit.map((variante, index) => (
                     <div
                       key={variante.id}
-                      className="rounded-xl border border-slate-200 bg-white p-3"
+                      className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm"
                     >
-                      <div className="grid gap-3 sm:grid-cols-[1fr_120px_auto] sm:items-end">
+                      <div className="grid gap-3 sm:grid-cols-[1fr_1fr_120px_auto] sm:items-end">
                         <label>
                           <span className="mb-1 block text-[10px] font-black uppercase tracking-wide text-slate-400">
-                            Nom
+                            Couleur
                           </span>
                           <select
-                            value={variante.nom}
+                            value={variante.couleur || ''}
                             onChange={(e) =>
                               setVariantesProduit((actuelles) =>
                                 actuelles.map((item) =>
                                   item.id === variante.id
                                     ? {
                                         ...item,
-                                        nom: e.target.value,
+                                        couleur: e.target.value,
+                                        nom:
+                                          formulaire.categorie === 'vetements'
+                                            ? `${e.target.value} / ${item.taille || ''}`.trim()
+                                            : formulaire.categorie === 'chaussures'
+                                              ? `${e.target.value} / ${item.pointure || ''}`.trim()
+                                              : e.target.value,
                                       }
                                     : item,
                                 ),
                               )
                             }
-                            disabled={
-                              varianteSauvegardeId ===
-                              variante.id
-                            }
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                            disabled={varianteSauvegardeId === variante.id}
+                            className="w-full rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                           >
-                            {COULEURS_PRODUIT
-                              .filter(
-                                (couleur) =>
-                                  couleur.toLowerCase() ===
-                                    variante.nom.trim().toLowerCase() ||
-                                  !variantesProduit.some(
-                                    (autre) =>
-                                      autre.id !== variante.id &&
-                                      autre.nom.trim().toLowerCase() ===
-                                        couleur.toLowerCase(),
-                                  ),
-                              )
-                              .map((couleur) => (
-                                <option key={couleur} value={couleur}>
-                                  {couleur}
-                                </option>
-                              ))}
+                            <option value="">Couleur</option>
+                            {COULEURS_PRODUIT.map((couleur) => (
+                              <option key={couleur} value={couleur}>
+                                {couleur}
+                              </option>
+                            ))}
                           </select>
                         </label>
+
+                        {formulaire.categorie === 'vetements' && (
+                          <label>
+                            <span className="mb-1 block text-[10px] font-black uppercase tracking-wide text-slate-400">
+                              Taille
+                            </span>
+                            <select
+                              value={variante.taille || ''}
+                              onChange={(e) =>
+                                setVariantesProduit((actuelles) =>
+                                  actuelles.map((item) =>
+                                    item.id === variante.id
+                                      ? {
+                                          ...item,
+                                          taille: e.target.value,
+                                          nom: `${item.couleur || ''} / ${e.target.value}`.trim(),
+                                        }
+                                      : item,
+                                  ),
+                                )
+                              }
+                              disabled={varianteSauvegardeId === variante.id}
+                              className="w-full rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                            >
+                              <option value="">Taille</option>
+                              {TAILLES_VETEMENTS.map((taille) => (
+                                <option key={taille} value={taille}>
+                                  {taille}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        )}
+
+                        {formulaire.categorie === 'chaussures' && (
+                          <label>
+                            <span className="mb-1 block text-[10px] font-black uppercase tracking-wide text-slate-400">
+                              Pointure
+                            </span>
+                            <select
+                              value={variante.pointure || ''}
+                              onChange={(e) =>
+                                setVariantesProduit((actuelles) =>
+                                  actuelles.map((item) =>
+                                    item.id === variante.id
+                                      ? {
+                                          ...item,
+                                          pointure: e.target.value,
+                                          nom: `${item.couleur || ''} / ${e.target.value}`.trim(),
+                                        }
+                                      : item,
+                                  ),
+                                )
+                              }
+                              disabled={varianteSauvegardeId === variante.id}
+                              className="w-full rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                            >
+                              <option value="">Pointure</option>
+                              {POINTURES_CHAUSSURES.map((pointure) => (
+                                <option key={pointure} value={pointure}>
+                                  {pointure}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        )}
+
+                        {formulaire.categorie !== 'vetements' &&
+                          formulaire.categorie !== 'chaussures' && (
+                            <input
+                              value={variante.nom}
+                              onChange={(e) =>
+                                setVariantesProduit((actuelles) =>
+                                  actuelles.map((item) =>
+                                    item.id === variante.id
+                                      ? {
+                                          ...item,
+                                          nom: e.target.value,
+                                          couleur: e.target.value,
+                                        }
+                                      : item,
+                                  ),
+                                )
+                              }
+                              disabled={varianteSauvegardeId === variante.id}
+                              placeholder="Nom / couleur"
+                              className="w-full rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                            />
+                          )}
 
                         <label>
                           <span className="mb-1 block text-[10px] font-black uppercase tracking-wide text-slate-400">
@@ -2056,22 +2921,15 @@ export default function Produits() {
                                         ...item,
                                         stock: Math.max(
                                           0,
-                                          Math.floor(
-                                            Number(
-                                              e.target.value,
-                                            ) || 0,
-                                          ),
+                                          Math.floor(Number(e.target.value) || 0),
                                         ),
                                       }
                                     : item,
                                 ),
                               )
                             }
-                            disabled={
-                              varianteSauvegardeId ===
-                              variante.id
-                            }
-                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-[#163B70]"
+                            disabled={varianteSauvegardeId === variante.id}
+                            className="w-full rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100"
                           />
                         </label>
 
@@ -2088,7 +2946,7 @@ export default function Produits() {
                               index === 0 ||
                               varianteSauvegardeId !== null
                             }
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 text-slate-500 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-40"
                             aria-label="Monter la variante"
                           >
                             <ArrowLeft size={15} />
@@ -2107,7 +2965,7 @@ export default function Produits() {
                                 variantesProduit.length - 1 ||
                               varianteSauvegardeId !== null
                             }
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 text-slate-500 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-40"
                             aria-label="Descendre la variante"
                           >
                             <ArrowRight size={15} />
@@ -2123,7 +2981,7 @@ export default function Produits() {
                             disabled={
                               varianteSauvegardeId !== null
                             }
-                            className="rounded-lg bg-[#0284C7] px-3 py-2.5 text-xs font-black text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-xl bg-violet-600 px-3 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label={`Enregistrer ${variante.nom}`}
                           >
                             {varianteSauvegardeId ===
@@ -2147,7 +3005,7 @@ export default function Produits() {
                             disabled={
                               varianteSauvegardeId !== null
                             }
-                            className="rounded-lg bg-red-600 px-3 py-2.5 text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-red-600 shadow-sm transition hover:bg-red-100 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label={`Supprimer ${variante.nom}`}
                           >
                             <Trash2 size={15} />
@@ -2162,7 +3020,7 @@ export default function Produits() {
           )}
 
           {erreur && (
-            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            <div className="mt-5 rounded-2xl border border-red-100 bg-red-50/80 px-4 py-3.5 text-sm font-semibold text-red-700 shadow-sm">
               {erreur}
             </div>
           )}
@@ -2172,7 +3030,7 @@ export default function Produits() {
               type="button"
               onClick={fermerAjout}
               disabled={creationEnCours}
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              className="rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-black text-slate-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Annuler
             </button>
@@ -2188,7 +3046,7 @@ export default function Produits() {
                 void creerProduit()
               }}
               disabled={creationEnCours}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-6 py-3 text-sm font-bold text-white hover:bg-[#0369A1] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-violet-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creationEnCours ? (
                 <>
@@ -2207,12 +3065,13 @@ export default function Produits() {
             </button>
           </div>
         </div>
+          </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
           <p className="text-sm text-slate-500">Produits</p>
-          <p className="mt-1 text-2xl font-black text-[#0B1E3D]">
+          <p className="mt-1 text-2xl font-black text-violet-700">
             {produits.length}
           </p>
         </div>
@@ -2493,9 +3352,7 @@ export default function Produits() {
                                   type="number"
                                   min="0"
                                   step="0.001"
-                                  value={
-                                    produit.poids_kg ?? ''
-                                  }
+                                  value={produit.poids_kg ?? ''}
                                   onChange={(event) =>
                                     modifierLocal(
                                       produit.id,
@@ -2504,9 +3361,7 @@ export default function Produits() {
                                         ? ''
                                         : Math.max(
                                             0,
-                                            Number(
-                                              event.target.value,
-                                            ) || 0,
+                                            Number(event.target.value) || 0,
                                           ),
                                     )
                                   }
@@ -2517,37 +3372,107 @@ export default function Produits() {
 
                               <label className="block">
                                 <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
-                                  Volume (CBM)
+                                  Longueur (cm)
                                 </span>
 
                                 <input
                                   type="number"
                                   min="0"
-                                  step="0.0001"
-                                  value={
-                                    produit.volume_cbm ?? ''
-                                  }
+                                  step="0.1"
+                                  value={produit.longueur_cm ?? ''}
                                   onChange={(event) =>
                                     modifierLocal(
                                       produit.id,
-                                      'volume_cbm',
+                                      'longueur_cm',
                                       event.target.value === ''
                                         ? ''
                                         : Math.max(
                                             0,
-                                            Number(
-                                              event.target.value,
-                                            ) || 0,
+                                            Number(event.target.value) || 0,
                                           ),
                                     )
                                   }
-                                  placeholder="Ex. 0.018"
+                                  placeholder="Ex. 30"
                                   className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold outline-none focus:border-[#163B70] sm:w-32"
                                 />
                               </label>
+
+                              <label className="block">
+                                <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                                  Largeur (cm)
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  value={produit.largeur_cm ?? ''}
+                                  onChange={(event) =>
+                                    modifierLocal(
+                                      produit.id,
+                                      'largeur_cm',
+                                      event.target.value === ''
+                                        ? ''
+                                        : Math.max(
+                                            0,
+                                            Number(event.target.value) || 0,
+                                          ),
+                                    )
+                                  }
+                                  placeholder="Ex. 20"
+                                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold outline-none focus:border-[#163B70] sm:w-32"
+                                />
+                              </label>
+
+                              <label className="block">
+                                <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                                  Hauteur (cm)
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  value={produit.hauteur_cm ?? ''}
+                                  onChange={(event) =>
+                                    modifierLocal(
+                                      produit.id,
+                                      'hauteur_cm',
+                                      event.target.value === ''
+                                        ? ''
+                                        : Math.max(
+                                            0,
+                                            Number(event.target.value) || 0,
+                                          ),
+                                    )
+                                  }
+                                  placeholder="Ex. 15"
+                                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold outline-none focus:border-[#163B70] sm:w-32"
+                                />
+                              </label>
+
+                              <label className="block">
+                                <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                                  Volume (CBM)
+                                </span>
+
+                                <div className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 sm:w-32">
+                                  {produit.longueur_cm != null &&
+                                  produit.largeur_cm != null &&
+                                  produit.hauteur_cm != null
+                                    ? (
+                                        (Number(produit.longueur_cm) *
+                                          Number(produit.largeur_cm) *
+                                          Number(produit.hauteur_cm)) /
+                                        1000000
+                                      ).toFixed(6)
+                                    : produit.volume_cbm != null
+                                      ? Number(produit.volume_cbm).toFixed(6)
+                                      : '—'}
+                                </div>
+                              </label>
                             </>
                           )}
-
                           <label className="block">
                             <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
                               Promotion (%)

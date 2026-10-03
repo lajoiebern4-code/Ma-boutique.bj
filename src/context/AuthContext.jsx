@@ -74,11 +74,6 @@ export function AuthProvider({ children }) {
 
       const utilisateur = data?.session?.user || null
 
-      console.log(
-        'DEBUG UID SESSION REEL:',
-        utilisateur?.id || 'AUCUN',
-      )
-
       setUser(utilisateur)
 
       if (utilisateur) {
