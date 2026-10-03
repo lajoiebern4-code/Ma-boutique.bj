@@ -215,6 +215,12 @@ export default function Panier() {
                               {item.produit.nom}
                             </h2>
 
+                            {item.produit.variante_nom && (
+                              <p className="mt-1 text-[11px] font-bold text-[#6F687A]">
+                                Variante : {item.produit.variante_nom}
+                              </p>
+                            )}
+
                             <p className="mt-2 text-sm font-black text-[#7654C6]">
                               {formatPrix(item.produit.prix)}
                             </p>

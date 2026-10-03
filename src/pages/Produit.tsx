@@ -498,7 +498,7 @@ export default function Produit() {
     id: produit.id,
     nom: produit.nom,
     prix: produit.prix,
-    image_url: produit.image_url || null,
+    image_url: varianteSelectionnee?.image_url || produit.image_url || null,
     stock: stockPanier,
     poids_kg: produit.poids_kg,
     volume_cbm: produit.volume_cbm,
