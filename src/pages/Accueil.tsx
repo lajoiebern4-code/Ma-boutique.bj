@@ -253,15 +253,15 @@ function HeroPremium() {
           </div>
 
           <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-tight text-[#18151F] sm:text-5xl lg:text-6xl">
-            Trouvez ce qu'il vous faut.
+            Votre passerelle vers la Chine.
             <span className="mt-2 block text-[#7654C6]">
-              Commandez en toute simplicité.
+              Import direct, livraison express au Bénin.
             </span>
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-            Découvrez nos produits disponibles en stock ou sur commande.
-            Choisissez vos articles et laissez ChinaShop s'occuper du reste.
+            ChineShop-Bénin connecte directement le marché chinois à votre porte.
+            Sélection rigoureuse, prix transparents, livraison express partout au Bénin — Cotonou en moins de 24 heures.
           </p>
 
           <div className="mt-8 flex max-w-xl items-center rounded-[14px] border border-[#E8E3EF] bg-white p-1.5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
@@ -305,11 +305,11 @@ function HeroPremium() {
               Paiement sécurisé
             </span>
             <span className="flex items-center gap-2">
-              <Truck size={15} className="text-[#7654C6]" />
+              Livraison express
               Livraison au Bénin
             </span>
             <span className="flex items-center gap-2">
-              <Package size={15} className="text-[#7654C6]" />
+              Suivi en temps réel
               Retrait disponible
             </span>
           </div>
@@ -648,26 +648,20 @@ function CommentCaMarche() {
   const etapes = [
     {
       numero: '01',
-      titre: 'Choisissez',
-      texte: 'Parcourez le catalogue et trouvez les produits qui vous intéressent.',
+      titre: 'Sélectionnez',
+      texte: 'Explorez notre catalogue et choisissez vos articles parmi des produits rigoureusement sélectionnés.',
       icone: Search,
     },
     {
       numero: '02',
-      titre: 'Commandez',
-      texte: 'Ajoutez vos articles au panier et renseignez vos informations.',
+      titre: 'Validez',
+      texte: 'Confirmez votre commande en quelques clics. Paiement sécurisé, confirmation immédiate.',
       icone: ShoppingBag,
     },
     {
       numero: '03',
-      titre: 'Payez',
-      texte: 'Choisissez le mode de paiement disponible pour votre commande.',
-      icone: WalletCards,
-    },
-    {
-      numero: '04',
       titre: 'Recevez',
-      texte: 'Choisissez la livraison ou le retrait et suivez votre commande.',
+      texte: 'Livraison express au Bénin. Cotonou en moins de 24 heures, suivi en temps réel inclus.',
       icone: Truck,
     },
   ]
@@ -680,11 +674,8 @@ function CommentCaMarche() {
             Simple du début à la fin
           </p>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
-            Comment ça marche ?
+            Un processus clair, de la sélection à la réception.
           </h2>
-          <p className="mt-4 text-sm leading-6 text-slate-500">
-            Une expérience pensée pour commander sans complication.
-          </p>
         </div>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -724,26 +715,27 @@ function CommentCaMarche() {
 function BlocConfiance() {
   const avantages = [
     {
-      titre: 'Paiement sécurisé',
-      texte: 'Un parcours de commande clair et sécurisé.',
-      icone: ShieldCheck,
-    },
-    {
-      titre: 'Livraison au Bénin',
-      texte: 'Choisissez la livraison lorsque cette option vous convient.',
+      titre: 'Livraison express',
+      texte: 'Cotonou en moins de 24 heures. Livraison rapide dans tout le Bénin.',
       icone: Truck,
     },
     {
-      titre: 'Retrait',
-      texte: 'Une alternative pratique lorsque vous préférez récupérer votre commande.',
+      titre: 'Paiement sécurisé',
+      texte: 'Transactions protégées. Mobile Money, carte bancaire ou paiement à la livraison.',
+      icone: ShieldCheck,
+    },
+    {
+      titre: 'Qualité contrôlée',
+      texte: 'Chaque article est inspecté avant expédition. Conformité garantie.',
       icone: Package,
     },
     {
-      titre: 'Accompagnement',
-      texte: 'Une expérience pensée pour rester simple et compréhensible.',
+      titre: 'Accompagnement dédié',
+      texte: 'Une équipe disponible en français avant, pendant et après votre achat.',
       icone: Heart,
     },
   ]
+
 
   return (
     <section className="bg-[#FAF9FC] py-16 sm:py-20">
@@ -754,7 +746,7 @@ function BlocConfiance() {
               L'essentiel
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
-              Une boutique conçue pour votre quotidien.
+              L'exigence d'un service pensé pour vous.
             </h2>
             <p className="mt-5 text-sm leading-7 text-slate-500">
               ChinaShop-Bénin vous permet de découvrir, commander et recevoir
@@ -804,27 +796,27 @@ function TemoignagesPremium() {
     {
       nom: 'Mamadou',
       ville: 'Cotonou',
-      texte: 'Une expérience de commande simple et claire. J’ai apprécié la facilité pour choisir mes produits.',
+      texte: 'Commande confirmée en matinée, colis reçu le lendemain. Service irréprochable.',
     },
     {
       nom: 'Fatima',
       ville: 'Porto-Novo',
-      texte: 'Le parcours est pratique et les informations de commande sont faciles à comprendre.',
+      texte: 'Produits parfaitement conformes. Délais respectés à la lettre.',
     },
     {
       nom: 'Jean-Baptiste',
       ville: 'Parakou',
-      texte: 'J’ai trouvé rapidement ce que je cherchais et le processus de commande est vraiment fluide.',
+      texte: 'Une logistique sérieuse et fiable. Je recommande sans réserve.',
     },
     {
       nom: 'Aminata',
       ville: 'Abomey',
-      texte: 'Le choix entre livraison et retrait est très pratique pour organiser ma commande.',
+      texte: 'Processus fluide du début à la fin. Suivi précis et colis soigné.',
     },
     {
       nom: 'Kofi',
       ville: 'Ouidah',
-      texte: 'Une boutique agréable à utiliser avec une présentation claire des produits.',
+      texte: 'Réactivité du support et respect des engagements. Expérience concluante.',
     },
   ]
 
@@ -851,7 +843,7 @@ function TemoignagesPremium() {
             Expérience client
           </p>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
-            Ce que nos clients pensent
+            La confiance de nos clients, notre meilleure référence.
           </h2>
         </div>
 
@@ -948,23 +940,22 @@ function AppelAction() {
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-[#FAF9FC] px-6 py-12 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:px-10 sm:py-16 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)] sm:px-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
-            Prêt à commencer ?
+            Prêt à recevoir votre colis ?
           </p>
 
           <h2 className="mt-4 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
-            Votre prochaine commande commence ici.
+            Passez votre commande dès aujourd'hui.
           </h2>
 
           <p className="mt-4 text-sm leading-6 text-[#6F687A]">
-            Parcourez le catalogue, choisissez vos produits et passez votre
-            commande en quelques étapes.
+            Parcourez notre catalogue, validez en quelques minutes et recevez votre colis en livraison express.
           </p>
 
           <Link
             to="/catalogue"
             className="mt-8 inline-flex items-center gap-2 rounded-[14px] bg-[#7654C6] px-7 py-3.5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition hover:bg-[#6544B3] hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
           >
-            Commencer mes achats
+            Explorer le catalogue
             <ArrowRight size={17} />
           </Link>
         </div>
