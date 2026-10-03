@@ -996,6 +996,7 @@ export type ProduitVariante = {
   couleur: string | null
   taille: string | null
   pointure: string | null
+  image_url: string | null
   created_at: string
   updated_at: string
 }
@@ -1007,7 +1008,7 @@ export async function recupererVariantesProduit(produitId: string) {
 
   const { data, error } = await supabase
     .from('cs_produit_variantes')
-    .select('id, produit_id, nom, stock, position, couleur, taille, pointure, created_at, updated_at')
+    .select('id, produit_id, nom, stock, position, couleur, taille, pointure, image_url, created_at, updated_at')
     .eq('produit_id', produitId)
     .order('position', { ascending: true })
 
@@ -1105,6 +1106,30 @@ export async function supprimerVarianteProduit(varianteId: string) {
 
   if (error) {
     console.error('Erreur suppression variante:', error)
+    return { success: false, data: null, error: error.message }
+  }
+
+  return { success: true, data, error: '' }
+}
+
+export async function definirImageVarianteProduit(
+  varianteId: string,
+  imageUrl: string | null,
+) {
+  if (!supabase) {
+    return { success: false, data: null, error: 'Supabase non configuré' }
+  }
+
+  const { data, error } = await supabase.rpc(
+    'cs_definir_image_variante_admin',
+    {
+      p_variante_id: varianteId,
+      p_image_url: imageUrl ?? '',
+    },
+  )
+
+  if (error) {
+    console.error('Erreur image variante:', error)
     return { success: false, data: null, error: error.message }
   }
 

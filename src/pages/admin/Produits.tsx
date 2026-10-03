@@ -32,6 +32,7 @@ import {
   modifierVarianteProduit,
   recupererVariantesProduit,
   supprimerVarianteProduit,
+  definirImageVarianteProduit,
   reordonnerVariantesProduit,
 } from '../../services/supabase'
 
@@ -340,6 +341,7 @@ export default function Produits() {
   const [variantePointure, setVariantePointure] = useState('')
   const [varianteChargement, setVarianteChargement] = useState(false)
   const [varianteSauvegardeId, setVarianteSauvegardeId] = useState<string | null>(null)
+  const [varianteUploadId, setVarianteUploadId] = useState<string | null>(null)
   const [variantesCreation, setVariantesCreation] = useState<
     VarianteCreationProduit[]
   >([])
@@ -700,6 +702,49 @@ export default function Produits() {
       )
     } finally {
       setVarianteSauvegardeId(null)
+    }
+  }
+
+  async function uploaderImageVariante(
+    variante: ProduitVariante,
+    file: File,
+  ) {
+    if (!file) return
+
+    setVarianteUploadId(variante.id)
+    setErreur('')
+    setMessage('')
+
+    try {
+      const upload = await televerserPhotoProduit(file)
+
+      if (!upload.success || !upload.url) {
+        throw new Error(upload.error || "Impossible image")
+      }
+
+      const resultat = await definirImageVarianteProduit(
+        variante.id,
+        upload.url,
+      )
+
+      if (!resultat.success) {
+        throw new Error(resultat.error || "Impossible enregistrer")
+      }
+
+      setVariantesProduit((actuelles) =>
+        actuelles.map((item) =>
+          item.id === variante.id
+            ? { ...item, image_url: upload.url! }
+            : item,
+        ),
+      )
+      setMessage("Image mise a jour.")
+    } catch (err) {
+      setErreur(
+        err instanceof Error ? err.message : "Erreur image",
+      )
+    } finally {
+      setVarianteUploadId(null)
     }
   }
 
@@ -3011,6 +3056,29 @@ export default function Produits() {
                             <Trash2 size={15} />
                           </button>
                         </div>
+                      </div>
+                      <div className="mt-3 flex items-center gap-3">
+                        <label className="cursor-pointer rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 text-xs font-black text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50">
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            disabled={varianteUploadId === variante.id}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0]
+                              if (f) void uploaderImageVariante(variante, f)
+                              e.target.value = ''
+                            }}
+                          />
+                          {varianteUploadId === variante.id ? 'Envoi...' : 'Choisir une image'}
+                        </label>
+                        {variante.image_url && (
+                          <img
+                            src={variante.image_url}
+                            alt=""
+                            className="h-14 w-14 rounded-lg border border-slate-200 object-cover"
+                          />
+                        )}
                       </div>
                     </div>
                   ))}

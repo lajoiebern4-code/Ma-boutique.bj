@@ -604,6 +604,7 @@ export default function Produit() {
 
               {/* Galerie photos */}
               {(() => {
+                const imageVariante = varianteSelectionnee?.image_url
                 const galerie =
                   photosProduit.length > 0
                     ? photosProduit
@@ -616,7 +617,7 @@ export default function Produit() {
                   Math.max(0, galerie.length - 1),
                 )
 
-                const photoActuelle = galerie[indexSecurise]
+                const photoActuelle = imageVariante || galerie[indexSecurise]
 
                 return (
                   <>
@@ -930,6 +931,7 @@ export default function Produit() {
                                     }
 
                                     setVarianteSelectionnee(variante)
+                                    setImageErreur(false)
                                     setQuantite(1)
                                   }}
                                   className={`min-w-[52px] rounded-xl border px-4 py-2.5 text-xs font-black transition ${
@@ -970,6 +972,7 @@ export default function Produit() {
                               onClick={() => {
                                 if (disponible) {
                                   setVarianteSelectionnee(variante)
+                                  setImageErreur(false)
                                   setCouleurSelectionnee(
                                     variante.couleur?.trim() || '',
                                   )
