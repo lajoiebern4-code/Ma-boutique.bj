@@ -1174,26 +1174,28 @@ export default function Commande() {
                     </div>
 
                     )}
-                  </div>
-                      <div className="mt-6 flex flex-col gap-3 border-t border-[#F0F0F2] pt-6 sm:flex-row sm:items-center sm:justify-between">
-                        <button
-                          type="button"
-                          onClick={precedent}
-                          className="group inline-flex h-12 items-center justify-center gap-2 rounded-[14px] border border-[#E8E3EF] bg-white px-6 text-sm font-black text-[#18151F] shadow-sm transition-all hover:border-[#C9BEE0] hover:bg-[#FAF9FC] hover:shadow-md active:scale-[0.99]"
-                        >
-                          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
-                          Retour
-                        </button>
+                  <div className="mt-5 flex gap-2.5 border-t border-[#E8E3EF] pt-4">
+                    <button
+                      type="button"
+                      onClick={precedent}
+                      className="h-11 rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#6F687A] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC]"
+                    >
+                      Retour
+                    </button>
 
-                        <button
-                          type="button"
-                          onClick={suivant}
-                          className="group flex h-12 flex-1 items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#7654C6] to-[#8B6DD1] text-sm font-black text-white shadow-lg shadow-[#7654C6]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] sm:flex-none sm:px-8"
-                        >
-                          Continuer
-                          <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
-                        </button>
-                      </div>
+                    <button
+                      type="button"
+                      onClick={suivant}
+                      className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+                    >
+                      Continuer
+                      <ArrowRight
+                        size={18}
+                        className="transition-transform group-hover:translate-x-0.5"
+                      />
+                    </button>
+                  </div>
+                  </div>
                 </div>
 
               )}
