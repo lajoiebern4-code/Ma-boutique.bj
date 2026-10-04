@@ -548,13 +548,13 @@ export default function Commande() {
   const etapes = [
     {
       numero: 1,
-      titre: 'Vos informations',
+      titre: 'Informations',
       description: 'Identité et contact',
       icon: User,
     },
     {
       numero: 2,
-      titre: 'Mode de réception',
+      titre: 'Réception',
       description: 'Retrait ou livraison',
       icon: modeReception === 'livraison' ? MapPin : Package,
     },
@@ -614,35 +614,15 @@ export default function Commande() {
         <div className="grid gap-6 lg:grid-cols-[270px_1fr] lg:gap-8">
 
           {/* PROGRESSION */}
-          <div className="overflow-hidden rounded-[20px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] lg:col-span-2">
-            <div className="flex items-center justify-between border-b border-[#F0F0F2] px-5 py-3.5 sm:px-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F1ECFA] text-[#7654C6]">
-                  <Check size={14} strokeWidth={3} />
-                </span>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
-                    Progression
-                  </p>
-                  <p className="text-sm font-black text-[#18151F]">
-                    Étape {etape} sur 4
-                  </p>
-                </div>
-              </div>
-              <span className="rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[11px] font-black text-[#7654C6]">
-                {Math.round((etape / 4) * 100)}%
-              </span>
-            </div>
-
-            <div className="flex items-start px-3 py-5 sm:px-6">
+          <div className="overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-white shadow-[0_1px_3px_rgba(24,21,31,0.04)] lg:col-span-2">
+            <div className="flex items-center gap-4 px-5 py-5 sm:gap-2 sm:px-8">
               {etapes.map((item, index) => {
-                const Icon = item.icon
                 const actif = etape === item.numero
                 const termine = etape > item.numero
                 const dernier = index === etapes.length - 1
 
                 return (
-                  <div key={item.numero} className="flex min-w-0 flex-1 items-start">
+                  <div key={item.numero} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                     <button
                       type="button"
                       onClick={() => {
@@ -650,34 +630,30 @@ export default function Commande() {
                           setEtape(item.numero as Etape)
                         }
                       }}
-                      className="group flex min-w-0 flex-col items-center text-center"
+                      className="group flex shrink-0 items-center gap-2 sm:gap-2.5"
                     >
                       <div
-                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-black ring-1 transition-all duration-300 sm:h-11 sm:w-11 ${
+                        className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-black transition-all duration-300 sm:h-9 sm:w-9 sm:text-[13px] ${
                           termine
-                            ? 'bg-emerald-500 text-white ring-emerald-500 shadow-md shadow-emerald-100'
+                            ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100'
                             : actif
-                              ? 'scale-105 bg-[#7654C6] text-white shadow-lg shadow-[#7654C6]/25 ring-[#7654C6]'
-                              : 'bg-[#F1ECFA] text-[#9A93A5] ring-[#E8E3EF]'
+                              ? 'bg-[#7654C6] text-white shadow-md shadow-[#7654C6]/25'
+                              : 'bg-[#F1ECFA] text-[#9A93A5]'
                         }`}
                       >
-                        {termine ? (
-                          <Check size={16} strokeWidth={3.5} />
-                        ) : (
-                          <Icon size={16} />
-                        )}
+                        {termine ? <Check size={14} strokeWidth={3.5} /> : item.numero}
                       </div>
-                      <p
-                        className={`mt-2 max-w-[78px] text-[10px] font-black leading-4 transition-colors sm:max-w-[90px] sm:text-[11px] ${
+                      <span
+                        className={`hidden text-[12px] font-black leading-tight transition-colors sm:block ${
                           termine || actif ? 'text-[#18151F]' : 'text-[#9A93A5]'
                         }`}
                       >
-                        {item.numero}. {item.titre}
-                      </p>
+                        {item.titre}
+                      </span>
                     </button>
 
                     {!dernier && (
-                      <div className="mt-[20px] h-1 min-w-2 flex-1 overflow-hidden rounded-full bg-[#F1ECFA] sm:mt-[22px]">
+                      <div className="h-[2px] min-w-2 flex-1 overflow-hidden rounded-full bg-[#F1ECFA]">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
                             etape > item.numero ? 'w-full bg-emerald-500' : 'w-0'
@@ -688,6 +664,16 @@ export default function Commande() {
                   </div>
                 )
               })}
+            </div>
+
+            {/* Barre mobile : nom de l'étape en cours */}
+            <div className="flex items-center justify-between border-t border-[#F0F0F2] px-5 py-3 sm:hidden">
+              <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
+                Étape {etape}/4
+              </span>
+              <span className="text-[12px] font-black text-[#7654C6]">
+                {etapes.find((e) => e.numero === etape)?.titre}
+              </span>
             </div>
           </div>
           {/* FORMULAIRE */}
@@ -847,84 +833,111 @@ export default function Commande() {
                 </div>
 
                 <div className="px-6 py-7 sm:px-8 sm:py-8">
-
-                  <div className="grid gap-2.5 sm:grid-cols-2">
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModeReception('retrait')
-                        setModePaiement('especes')
-                      }}
-                      className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left transition-all sm:p-4 ${
-                        modeReception === 'retrait'
-                          ? 'border-[#7654C6] bg-[#F1ECFA]/80 shadow-sm shadow-[0_8px_24px_rgba(118,84,198,0.12)]'
-                          : 'border-[#E8E3EF] bg-white hover:border-[#DCD5E8] hover:shadow-sm'
-                      }`}
-                    >
-                      {modeReception === 'retrait' && (
-                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
-                          <Check size={15} strokeWidth={3} />
-                        </div>
-                      )}
-
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-                        <Package size={23} />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {/* RETRAIT */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModeReception('retrait')
+                      setModePaiement('especes')
+                    }}
+                    className={`group relative overflow-hidden rounded-[16px] border-2 p-5 text-left transition-all ${
+                      modeReception === 'retrait'
+                        ? 'border-[#7654C6] bg-[#F1ECFA]/50 shadow-lg shadow-[#7654C6]/10'
+                        : 'border-[#E8E3EF] bg-white hover:border-[#C9BEE0] hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-[12px] transition-colors ${
+                          modeReception === 'retrait'
+                            ? 'bg-[#7654C6] text-white shadow-md shadow-[#7654C6]/25'
+                            : 'bg-orange-50 text-orange-600'
+                        }`}
+                      >
+                        <Package size={22} />
                       </div>
 
-                      <h3 className="mt-2.5 text-sm font-black text-[#18151F]">
-                        Retrait
-                      </h3>
-
-                      <p className="mt-0.5 max-w-xs text-[11px] leading-4 text-[#6F687A]">
-                        Récupérez vous-même votre commande au point de retrait.
-                      </p>
-
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">
-                          Gratuit
-                        </span>
+                      <div
+                        className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all ${
+                          modeReception === 'retrait'
+                            ? 'border-[#7654C6] bg-[#7654C6]'
+                            : 'border-[#E8E3EF] bg-white'
+                        }`}
+                      >
+                        {modeReception === 'retrait' && (
+                          <Check size={13} strokeWidth={3.5} className="text-white" />
+                        )}
                       </div>
-                    </button>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModeReception('livraison')
-                        setModePaiement('mobile_money')
-                      }}
-                      className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left transition-all sm:p-4 ${
-                        modeReception === 'livraison'
-                          ? 'border-[#7654C6] bg-[#F1ECFA]/80 shadow-sm shadow-[0_8px_24px_rgba(118,84,198,0.12)]'
-                          : 'border-[#E8E3EF] bg-white hover:border-[#DCD5E8] hover:shadow-sm'
-                      }`}
-                    >
-                      {modeReception === 'livraison' && (
-                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
-                          <Check size={15} strokeWidth={3} />
-                        </div>
-                      )}
+                    <h3 className="mt-4 text-[15px] font-black text-[#18151F]">
+                      Retrait
+                    </h3>
 
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
-                        <MapPin size={23} />
+                    <p className="mt-1 max-w-xs text-[12px] leading-5 text-[#6F687A]">
+                      Récupérez votre commande au point de retrait.
+                    </p>
+
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">
+                        ✓ Gratuit
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* LIVRAISON */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModeReception('livraison')
+                      setModePaiement('mobile_money')
+                    }}
+                    className={`group relative overflow-hidden rounded-[16px] border-2 p-5 text-left transition-all ${
+                      modeReception === 'livraison'
+                        ? 'border-[#7654C6] bg-[#F1ECFA]/50 shadow-lg shadow-[#7654C6]/10'
+                        : 'border-[#E8E3EF] bg-white hover:border-[#C9BEE0] hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-[12px] transition-colors ${
+                          modeReception === 'livraison'
+                            ? 'bg-[#7654C6] text-white shadow-md shadow-[#7654C6]/25'
+                            : 'bg-[#F1ECFA] text-[#7654C6]'
+                        }`}
+                      >
+                        <MapPin size={22} />
                       </div>
 
-                      <h3 className="mt-2.5 text-sm font-black text-[#18151F]">
-                        Livraison à domicile
-                      </h3>
-
-                      <p className="mt-0.5 max-w-xs text-[11px] leading-4 text-[#6F687A]">
-                        Recevez votre commande directement à l'adresse indiquée.
-                      </p>
-
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="rounded-full bg-[#E8DFF7] px-2.5 py-1 text-[10px] font-black text-[#7654C6]">
-                          Livraison à domicile · frais non inclus
-                        </span>
+                      <div
+                        className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all ${
+                          modeReception === 'livraison'
+                            ? 'border-[#7654C6] bg-[#7654C6]'
+                            : 'border-[#E8E3EF] bg-white'
+                        }`}
+                      >
+                        {modeReception === 'livraison' && (
+                          <Check size={13} strokeWidth={3.5} className="text-white" />
+                        )}
                       </div>
-                    </button>
+                    </div>
 
-                  </div>
+                    <h3 className="mt-4 text-[15px] font-black text-[#18151F]">
+                      Livraison
+                    </h3>
+
+                    <p className="mt-1 max-w-xs text-[12px] leading-5 text-[#6F687A]">
+                      Recevez votre commande à l'adresse indiquée.
+                    </p>
+
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="rounded-full bg-[#F1ECFA] px-2.5 py-1 text-[10px] font-black text-[#7654C6]">
+                        Frais à convenir
+                      </span>
+                    </div>
+                  </button>
+                </div>
 
                   {modeReception === 'livraison' && (
                     <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/60 p-3.5 sm:p-4">
@@ -1162,24 +1175,25 @@ export default function Commande() {
 
                     )}
                   </div>
-                      <div className="mt-4 flex flex-col gap-2.5 border-t border-[#E8E3EF] pt-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-6 flex flex-col gap-3 border-t border-[#F0F0F2] pt-6 sm:flex-row sm:items-center sm:justify-between">
                         <button
                           type="button"
                           onClick={precedent}
-                          className="inline-flex h-11 items-center justify-center rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#18151F] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC]"
+                          className="group inline-flex h-12 items-center justify-center gap-2 rounded-[14px] border border-[#E8E3EF] bg-white px-6 text-sm font-black text-[#18151F] shadow-sm transition-all hover:border-[#C9BEE0] hover:bg-[#FAF9FC] hover:shadow-md active:scale-[0.99]"
                         >
+                          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
                           Retour
                         </button>
 
                         <button
                           type="button"
                           onClick={suivant}
-                          className="inline-flex h-11 items-center justify-center rounded-[10px] bg-[#7654C6] px-7 text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+                          className="group flex h-12 flex-1 items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#7654C6] to-[#8B6DD1] text-sm font-black text-white shadow-lg shadow-[#7654C6]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] sm:flex-none sm:px-8"
                         >
                           Continuer
+                          <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
                         </button>
                       </div>
-
                 </div>
 
               )}
