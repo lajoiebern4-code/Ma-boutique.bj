@@ -14,6 +14,11 @@ import {
   AlertCircle,
   MessageCircle,
   Star,
+  ArrowLeft,
+  ShieldCheck,
+  KeyRound,
+  Calendar,
+  Check,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -127,53 +132,108 @@ const formatDate = (v?: string) => {
 }
 
 // ============ COMPOSANT: TIMELINE ============
+
 function Timeline({ etapes }: { etapes: Etape[] }) {
   return (
     <div className="relative">
-      {/* Ligne verticale */}
-      <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-[#E8E3EF]" />
+      <div className="space-y-5">
+        {etapes.map((etape, idx) => {
+          const estTermine = etape.statut === 'termine'
+          const estEnCours = etape.statut === 'en_cours'
+          const estAttente = etape.statut === 'attente'
 
-      <div className="space-y-6">
-        {etapes.map((etape, idx) => (
-          <div key={etape.id || idx} className="relative flex gap-4">
-            {/* Point */}
-            <div className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-              etape.statut === 'termine' ? 'bg-green-500 text-white' :
-              etape.statut === 'en_cours' ? 'bg-[#7654C6] text-white' :
-              'bg-[#E8E3EF] text-[#9A93A5]'
-            }`}>
-              {etape.statut === 'termine' ? <CheckCircle2 size={16} /> :
-               etape.statut === 'en_cours' ? <Clock3 size={16} /> :
-               <Package size={16} />}
-            </div>
-
-            {/* Contenu */}
-            <div className="flex-1 pb-2">
-              <div className="flex items-center justify-between">
-                <h4 className={`text-sm font-bold ${
-                  etape.statut === 'attente' ? 'text-[#9A93A5]' : 'text-[#18151F]'
-                }`}>
-                  {etape.titre}
-                </h4>
-                {etape.date && (
-                  <span className="text-xs text-[#9A93A5]">{formatDate(etape.date)}</span>
-                )}
-              </div>
-              {etape.description && (
-                <p className={`mt-1 text-xs ${
-                  etape.statut === 'attente' ? 'text-[#9A93A5]' : 'text-[#6F687A]'
-                }`}>
-                  {etape.description}
-                </p>
+          return (
+            <div key={etape.id || idx} className="relative flex gap-4">
+              {/* LIGNE VERTICALE */}
+              {idx < etapes.length - 1 && (
+                <div
+                  className={`absolute left-[18px] top-10 bottom-0 w-0.5 ${
+                    estTermine ? 'bg-emerald-400' : 'bg-[#E8E3EF]'
+                  }`}
+                />
               )}
+
+              {/* POINT */}
+              <div className="relative z-10 shrink-0">
+                {estEnCours && (
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[#7654C6]/30" />
+                )}
+                <div
+                  className={`relative flex h-9 w-9 items-center justify-center rounded-full ring-4 ring-white transition ${
+                    estTermine
+                      ? 'bg-emerald-500 text-white shadow-[0_2px_8px_rgba(16,185,129,0.35)]'
+                      : estEnCours
+                        ? 'bg-[#7654C6] text-white shadow-[0_2px_10px_rgba(118,84,198,0.4)]'
+                        : 'bg-[#F1ECFA] text-[#9A93A5] ring-[#FAF9FC]'
+                  }`}
+                >
+                  {estTermine ? (
+                    <Check size={16} strokeWidth={3} />
+                  ) : estEnCours ? (
+                    <Clock3 size={16} strokeWidth={2.5} />
+                  ) : (
+                    <span className="text-[11px] font-black">{idx + 1}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* CONTENU */}
+              <div className="flex-1 pb-1">
+                <div
+                  className={`rounded-[12px] border px-4 py-3 transition ${
+                    estEnCours
+                      ? 'border-[#7654C6]/30 bg-[#F1ECFA]/60 shadow-[0_2px_12px_rgba(118,84,198,0.08)]'
+                      : estTermine
+                        ? 'border-emerald-100 bg-emerald-50/50'
+                        : 'border-[#E8E3EF] bg-white'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h4
+                      className={`text-sm font-black ${
+                        estAttente ? 'text-[#9A93A5]' : 'text-[#18151F]'
+                      }`}
+                    >
+                      {etape.titre}
+                    </h4>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      {estEnCours && (
+                        <span className="rounded-full bg-[#7654C6] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
+                          Actuel
+                        </span>
+                      )}
+                      {estTermine && (
+                        <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
+                          Fait
+                        </span>
+                      )}
+                      {etape.date && (
+                        <span className="text-[10px] font-bold text-[#9A93A5]">
+                          {formatDate(etape.date)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {etape.description && (
+                    <p
+                      className={`mt-1.5 text-xs leading-5 ${
+                        estAttente ? 'text-[#9A93A5]' : 'text-[#6F687A]'
+                      }`}
+                    >
+                      {etape.description}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
 }
-
 // ============ COMPOSANT: CARTE INFO ============
 function InfoCard({ titre, valeur, icone: Icon, couleur = 'bleu' }: any) {
   const colors: Record<string, string> = {
@@ -1382,87 +1442,92 @@ function SuiviV2Page() {
     const estCommandeStock =
       commande.articles.length > 0 &&
       !commande.articles.some((article) => article.origine === 'sur_commande')
-
       return (
         <div className="min-h-screen bg-[#FAF9FC] text-[#18151F]">
-          <header className="bg-white text-[#18151F] shadow-sm border-b border-[#E8E3EF]">
-            <div className="mx-auto max-w-5xl px-4 pb-8 pt-5 sm:px-8">
-              <div className="text-[#18151F]">
-                <div className="p-6 sm:p-8">
-                  <div className="flex items-center justify-between gap-4">
-                    <button
-                      type="button"
-                      onClick={() => navigate(-1)}
-                      className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] text-[#18151F] transition hover:bg-[#F1ECFA]"
-                      aria-label="Retour"
-                    >
-                      <span className="text-xl leading-none">←</span>
-                    </button>
+          <header className="relative overflow-hidden bg-gradient-to-br from-[#7654C6] via-[#8B6DD1] to-[#3B2D5F] text-white shadow-[0_20px_60px_rgba(118,84,198,0.25)]">
+            <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
 
-                    <div className="shrink-0 rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 text-left shadow-sm backdrop-blur-sm sm:min-w-[180px] sm:text-right">
-                      <div className="text-[10px] font-black uppercase tracking-[0.28em] text-[#6F687A]">
-                        ChinaShop
-                      </div>
-                      <div className="mt-1 text-[10px] font-medium text-[#9A93A5]">
-                        Suivi sécurisé
-                      </div>
+            <div className="relative mx-auto max-w-5xl px-4 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-6">
+              {/* BARRE DU HAUT */}
+              <div className="flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-white/20 bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
+                  aria-label="Retour"
+                >
+                  <ArrowLeft size={18} strokeWidth={2.5} />
+                </button>
+
+                <div className="rounded-[10px] border border-white/20 bg-white/10 px-4 py-2.5 text-right backdrop-blur-sm">
+                  <div className="text-[10px] font-black uppercase tracking-[0.24em] text-white/90">
+                    ChinaShop
+                  </div>
+                  <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[9px] font-semibold text-white/70">
+                    <ShieldCheck size={10} strokeWidth={2.5} />
+                    Suivi sécurisé
+                  </div>
+                </div>
+              </div>
+
+              {/* TITRE + NUMÉRO */}
+              <div className="mt-8 sm:mt-10">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/85">
+                    Suivi de commande
+                  </p>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+                    {commande.numero}
+                  </h1>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] ${
+                    estSoldeRequis
+                      ? 'bg-amber-400 text-amber-950 shadow-sm'
+                      : statut === 'pret'
+                        ? 'bg-emerald-400 text-emerald-950 shadow-sm'
+                        : statut === 'retire' || estLivree
+                          ? 'bg-white text-[#7654C6] shadow-sm'
+                          : 'bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm'
+                  }`}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    {estSoldeRequis
+                      ? 'Action requise'
+                      : statut === 'pret'
+                        ? 'Prête'
+                        : statut === 'retire' || estLivree
+                          ? 'Terminée'
+                          : 'En cours'}
+                  </span>
+                </div>
+              </div>
+
+              {/* CARTES INFO */}
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[12px] border border-white/15 bg-white/10 px-4 py-3.5 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <KeyRound size={12} strokeWidth={2.5} className="text-white/70" />
+                    <div className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70">
+                      Code de suivi
                     </div>
                   </div>
+                  <div className="mt-2 font-mono text-base font-black tracking-wide text-white">
+                    {commande.code_suivi}
+                  </div>
+                </div>
 
-                  <div className="mt-10">
-                    <div className="text-[10px] font-black uppercase tracking-[0.3em] text-[#9A93A5]">
-                      Suivi de commande
+                <div className="rounded-[12px] border border-white/15 bg-white/10 px-4 py-3.5 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <Calendar size={12} strokeWidth={2.5} className="text-white/70" />
+                    <div className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70">
+                      Commande créée
                     </div>
-
-                    <div className="mt-3">
-                      <div className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#9A93A5]">
-                        N° de commande
-                      </div>
-                      <div className="mt-1 text-sm font-semibold tracking-[0.01em] text-[#18151F]">
-                        {commande.numero}
-                      </div>
-
-                      <div className="mt-4">
-                        <span className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[9px] font-black uppercase tracking-[0.16em] ${
-                          estSoldeRequis
-                            ? 'bg-[#7654C6] text-[#18151F]'
-                            : statut === 'pret'
-                              ? 'bg-emerald-400/15 text-emerald-200 ring-1 ring-emerald-300/20'
-                              : estLivree
-                                ? 'bg-white/10 text-[#6F687A] ring-1 ring-white/10'
-                                : 'bg-white/10 text-[#18151F]/90 ring-1 ring-white/15'
-                        }`}>
-                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                          {estSoldeRequis
-                            ? 'Action requise'
-                            : statut === 'pret'
-                              ? 'Prête'
-                              : statut === 'retire' || estLivree
-                                ? 'Terminée'
-                                : 'En cours'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3.5 shadow-sm backdrop-blur-sm">
-                        <div className="text-[8px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
-                          Code de suivi
-                        </div>
-                        <div className="mt-1.5 font-mono text-sm font-bold tracking-wide text-[#18151F]">
-                          {commande.code_suivi}
-                        </div>
-                      </div>
-
-                      <div className="rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3.5 shadow-sm backdrop-blur-sm">
-                        <div className="text-[8px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
-                          Commande créée
-                        </div>
-                        <div className="mt-1.5 text-sm font-semibold text-[#18151F]">
-                          {formatDate(commande.created_at)}
-                        </div>
-                      </div>
-                    </div>
+                  </div>
+                  <div className="mt-2 text-sm font-bold text-white">
+                    {formatDate(commande.created_at)}
                   </div>
                 </div>
               </div>
