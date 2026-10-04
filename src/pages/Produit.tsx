@@ -963,6 +963,7 @@ export default function Produit() {
                             varianteSelectionnee?.id === variante.id
                           const nomAffiche =
                             variante.couleur?.trim() || variante.nom
+                          const imageVar = variante.image_url
 
                           return (
                             <button
@@ -984,24 +985,50 @@ export default function Produit() {
                                   ? `Variante ${nomAffiche}`
                                   : `Variante ${nomAffiche} épuisée`
                               }
-                              className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition ${
-                                selectionnee
-                                  ? 'border-[#7654C6] ring-4 ring-[#E8E3EF]'
-                                  : disponible
-                                    ? 'border-white shadow-md hover:scale-105'
-                                    : 'cursor-not-allowed border-[#DCD5E8] opacity-35 grayscale'
+                              className={`group flex flex-col items-center gap-1.5 transition ${
+                                disponible ? '' : 'cursor-not-allowed opacity-40 grayscale'
                               }`}
                             >
                               <span
-                                className="h-8 w-8 rounded-full border border-black/10 shadow-inner"
-                                style={{
-                                  backgroundColor:
-                                    obtenirCouleurVisuelle(nomAffiche),
-                                }}
-                              />
-                              {!disponible && (
-                                <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-[#6F687A]" />
-                              )}
+                                className={`relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 transition ${
+                                  selectionnee
+                                    ? 'border-[#7654C6] ring-4 ring-[#E8E3EF]'
+                                    : 'border-white shadow-md group-hover:scale-105'
+                                }`}
+                              >
+                                {imageVar ? (
+                                  <img
+                                    src={imageVar}
+                                    alt={nomAffiche}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <span
+                                    className="h-full w-full"
+                                    style={{
+                                      backgroundColor: obtenirCouleurVisuelle(nomAffiche),
+                                    }}
+                                  />
+                                )}
+
+                                {selectionnee && (
+                                  <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+                                    <Check size={20} className="text-white" strokeWidth={3} />
+                                  </span>
+                                )}
+
+                                {!disponible && (
+                                  <span className="absolute h-0.5 w-16 rotate-45 rounded-full bg-[#6F687A]" />
+                                )}
+                              </span>
+
+                              <span
+                                className={`max-w-[80px] truncate text-[10px] font-bold leading-tight ${
+                                  selectionnee ? 'text-[#7654C6]' : 'text-[#6F687A]'
+                                }`}
+                              >
+                                {nomAffiche}
+                              </span>
                             </button>
                           )
                         })}
