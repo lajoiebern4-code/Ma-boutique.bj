@@ -129,7 +129,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
     setErreur('')
 
     try {
-      await creerVisiteurAssistance(nom.trim(), '-', email.trim().toLowerCase())
+      await creerVisiteurAssistance(nom.trim(), '000000', email.trim().toLowerCase())
       const conv = await ouvrirConversationVisiteurAssistance()
       setConversationId(conv.id)
       setBesoinIdentification(false)
