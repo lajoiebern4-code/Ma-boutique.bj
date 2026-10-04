@@ -677,17 +677,25 @@ function PaiementSolde({
                   </p>
                 </div>
               ) : (
-                <div className="px-4 py-5 text-center">
-                  <l-quantum size="38" speed="1.75" color="black"></l-quantum>
-                  <p className="mt-2 text-sm font-black text-[#18151F]">
-                    Paiement en attente de validation
+                <div className="px-4 py-6 text-center">
+                  <div className="relative mx-auto flex h-14 w-14 items-center justify-center">
+                    <span className="absolute inset-0 animate-ping rounded-full bg-amber-400/30" />
+                    <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-amber-50 ring-1 ring-amber-200">
+                      <Clock3 size={26} strokeWidth={2.5} className="text-amber-600" />
+                    </div>
+                  </div>
+                  <p className="mt-4 text-base font-black text-[#18151F]">
+                    Paiement en cours de validation
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-[#6F687A]">
-                    Votre paiement est reçu. Notre équipe vérifie votre référence et votre preuve.
+                  <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-[#6F687A]">
+                    Votre paiement a bien été reçu. Notre équipe vérifie votre référence et votre preuve.
                   </p>
-                  <p className="mt-2 text-[10px] font-bold text-amber-700">
-                    N'effectuez pas un second paiement.
-                  </p>
+                  <div className="mx-auto mt-4 flex max-w-xs items-start gap-2.5 rounded-[12px] border border-amber-200 bg-amber-50/70 px-3.5 py-2.5 text-left">
+                    <AlertCircle size={15} strokeWidth={2.5} className="mt-0.5 shrink-0 text-amber-600" />
+                    <p className="text-[11px] font-bold leading-4 text-amber-800">
+                      N'effectuez pas un second paiement.
+                    </p>
+                  </div>
                 </div>
               )
 
@@ -2507,29 +2515,33 @@ function SuiviV2Page() {
                               : 'Préparation de la livraison'}
                         </div>
                       </div>
-
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] shadow-sm">
-                        <Truck size={18} />
                       </div>
-                    </div>
 
-                        <div className="relative mt-8">
+                        <div className="relative mt-4">
 
                           {estCommandeStock ? (
                             <div className="space-y-5">
                               <div className="rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5 sm:p-6">
                                 <div className="flex items-start justify-between gap-4">
-                                  <div className="min-w-0">
-
-
-                                    <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
-                                      {livraisonEstArrivee
-                                        ? 'Votre commande a été livrée avec succès. Merci pour votre confiance.'
-                                        : commande.departReel
-                                          ? 'Votre colis est en route vers votre adresse.'
-                                          : 'Votre commande est en préparation avant sa remise au livreur.'}
-                                    </p>
+                                <div className="min-w-0">
+                                  <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
+                                    Statut
                                   </div>
+                                  <p className="mt-1.5 text-sm font-black text-[#18151F]">
+                                    {livraisonEstArrivee
+                                      ? 'Commande livrée'
+                                      : commande.departReel
+                                        ? 'En route vers votre adresse'
+                                        : 'Préparation en cours'}
+                                  </p>
+                                  <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
+                                    {livraisonEstArrivee
+                                      ? 'Votre commande a été livrée avec succès. Merci pour votre confiance.'
+                                      : commande.departReel
+                                        ? 'Votre colis est en route vers votre adresse.'
+                                        : 'Votre commande est en préparation avant sa remise au livreur.'}
+                                  </p>
+                                </div>
 
                                 </div>
 
