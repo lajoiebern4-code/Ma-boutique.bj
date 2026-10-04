@@ -28,6 +28,7 @@ import {
   obtenirMessagesConversationIA,
   type ConversationIA,
   type MessageIA,
+  marquerMessagesConversationLus,
   marquerConversationLue,
 } from '../../services/assistance-messages'
 import { envoyerReponseAssistanceAdmin } from '../../services/assistance'
@@ -111,6 +112,7 @@ export default function AdminAssistance() {
     setErreurIA('')
     const r = await obtenirMessagesConversationIA(c.id)
     if (r.success) setMessagesIA(r.data)
+    void marquerMessagesConversationLus(c.id).then(() => window.dispatchEvent(new Event('cs-assistance-compteur-refresh')))
     void marquerConversationLue(c.id)
     setConversations((prev) => prev.map((x) => (x.id === c.id ? { ...x, non_lu: false } : x)))
     setChargementMsg(false)

@@ -89,3 +89,24 @@ export async function marquerConversationLue(conversationId: string): Promise<{
     }
   }
 }
+
+export async function marquerMessagesConversationLus(conversationId: string): Promise<{
+  success: boolean
+  error: string
+}> {
+  if (!supabase) return { success: false, error: 'Supabase non configuré' }
+
+  try {
+    const { error } = await supabase.rpc('cs_admin_marquer_messages_lus', {
+      p_conversation_id: conversationId,
+    })
+    if (error) throw error
+    return { success: true, error: '' }
+  } catch (err) {
+    console.error('Erreur marquage messages lus:', err)
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Erreur inconnue',
+    }
+  }
+}
