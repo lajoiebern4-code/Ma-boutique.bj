@@ -217,11 +217,11 @@ export default function AdminAssistance() {
               {demandesFiltrees.map((d) => {
                 const actif = selection?.id === d.id
                 return (
-                  <button
+                  <div
                     key={d.id}
-                    type="button"
+                    role="button"
                     onClick={() => void ouvrir(d)}
-                    className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                    className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition-all ${
                       actif
                         ? 'border-violet-300 bg-violet-50 shadow-md'
                         : d.statut === 'nouveau' && !d.lu
@@ -256,7 +256,7 @@ export default function AdminAssistance() {
                         Répondu
                       </span>
                     )}
-                  </button>
+                  </div>
                 )
               })}
             </div>
