@@ -42,6 +42,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
   const [besoinIdentification, setBesoinIdentification] = useState(false)
   const [nom, setNom] = useState('')
   const [email, setEmail] = useState('')
+  const [telephone, setTelephone] = useState('')
   const [identifEnCours, setIdentifEnCours] = useState(false)
 
   const messagesFin = useRef<HTMLDivElement | null>(null)
@@ -121,20 +122,38 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
 
   async function identifier(e: React.FormEvent) {
     e.preventDefault()
-    if (!nom.trim() || !email.trim() || !email.includes('@')) {
-      setErreur('Nom et email valides requis.')
-      return
-    }
-    setIdentifEnCours(true)
     setErreur('')
 
+    const telPropre = telephone.replace(/\D/g, '')
+
+    if (!nom.trim() || nom.trim().length < 2) {
+      setErreur('Veuillez saisir votre nom (2 caractères minimum).')
+      return
+    }
+    if (!email.trim() || !email.includes('@')) {
+      setErreur('Veuillez saisir un email valide.')
+      return
+    }
+    if (!/^01\d{8}$/.test(telPropre)) {
+      setErreur('Numéro invalide. Format attendu : 01XXXXXXXX (10 chiffres).')
+      return
+    }
+
+    setIdentifEnCours(true)
+
     try {
-      await creerVisiteurAssistance(nom.trim(), '000000', email.trim().toLowerCase())
+      await creerVisiteurAssistance(
+        nom.trim(),
+        telPropre,
+        email.trim().toLowerCase(),
+      )
       const conv = await ouvrirConversationVisiteurAssistance()
       setConversationId(conv.id)
       setBesoinIdentification(false)
     } catch (err) {
-      setErreur('ERREUR: ' + (err instanceof Error ? err.message : JSON.stringify(err)))
+      setErreur(
+        err instanceof Error ? err.message : "Impossible de démarrer la discussion.",
+      )
     } finally {
       setIdentifEnCours(false)
     }
@@ -246,6 +265,24 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                   disabled={identifEnCours}
                   className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                 />
+              <div>
+                <label className="mb-1.5 block text-[12px] font-bold text-[#18151F]">
+                  Numéro de téléphone
+                </label>
+                <input
+                  type="tel"
+                  value={telephone}
+                  onChange={(e) => setTelephone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="01XXXXXXXX"
+                  inputMode="numeric"
+                  maxLength={10}
+                  disabled={identifEnCours}
+                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                />
+                <p className="mt-1 text-[10px] font-medium text-[#9A93A5]">
+                  Format : 01XXXXXXXX (10 chiffres)
+                </p>
+              </div>
               </div>
 
               {erreur && (
