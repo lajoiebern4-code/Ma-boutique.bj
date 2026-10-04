@@ -43,7 +43,7 @@ export type AssistanceVisitor = {
 
 const VISITOR_STORAGE_KEY = 'cs_assistance_visitor'
 
-function obtenirVisiteurLocal(): AssistanceVisitor | null {
+export function obtenirVisiteurLocal(): AssistanceVisitor | null {
   try {
     const raw = sessionStorage.getItem(VISITOR_STORAGE_KEY)
 

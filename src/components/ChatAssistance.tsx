@@ -1,22 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
-import { Send, Loader2, Bot, User, Sparkles } from 'lucide-react'
+import { X, Send, Loader2, Bot, Sparkles, ArrowRight, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import {
   obtenirConversationAssistance,
   creerConversationAssistance,
   appelerRobotAssistance,
   envoyerMessageAssistance,
+  creerVisiteurAssistance,
+  ouvrirConversationVisiteurAssistance,
+  obtenirVisiteurLocal,
 } from '../services/assistance'
 
 type Message = {
   id: string
   role: 'client' | 'assistant'
   contenu: string
-  created_at: string
 }
 
 type Props = {
-  onTransferer?: () => void
+  ouvert: boolean
+  onFermer: () => void
 }
 
 const SUGGESTIONS = [
@@ -26,7 +29,7 @@ const SUGGESTIONS = [
   'Comment suivre ma commande ?',
 ]
 
-export default function ChatAssistance({ onTransferer }: Props) {
+export default function ChatAssistance({ ouvert, onFermer }: Props) {
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [texte, setTexte] = useState('')
@@ -35,47 +38,44 @@ export default function ChatAssistance({ onTransferer }: Props) {
   const [erreur, setErreur] = useState('')
   const [robotReflechit, setRobotReflechit] = useState(false)
 
+  // Identification visiteur
+  const [besoinIdentification, setBesoinIdentification] = useState(false)
+  const [nom, setNom] = useState('')
+  const [email, setEmail] = useState('')
+  const [identifEnCours, setIdentifEnCours] = useState(false)
+
   const messagesFin = useRef<HTMLDivElement | null>(null)
 
-  // Créer/récupérer la conversation
   useEffect(() => {
+    if (!ouvert) return
     let actif = true
 
     async function init() {
       try {
         setChargement(true)
+        setErreur('')
+
         const { data: session } = await supabase.auth.getSession()
-        if (!session.session?.user) {
-          setErreur('Connectez-vous pour discuter avec notre assistant.')
-          setChargement(false)
-          return
-        }
 
-        let conv = await obtenirConversationAssistance()
-        if (!conv) {
-          conv = await creerConversationAssistance()
-        }
-
-        if (actif && conv) {
-          setConversationId(conv.id)
-          // Charger les messages existants
-          const { data: msgs } = await supabase
-            .from('cs_assistance_messages')
-            .select('id, sender_type, contenu, created_at')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: true })
-
-          if (actif && msgs) {
-            setMessages(
-              msgs
-                .filter((m) => m.sender_type === 'client' || m.sender_type === 'assistant')
-                .map((m) => ({
-                  id: m.id,
-                  role: m.sender_type === 'client' ? ('client' as const) : ('assistant' as const),
-                  contenu: m.contenu,
-                  created_at: m.created_at,
-                })),
-            )
+        if (session.session?.user) {
+          // Client connecté
+          let conv = await obtenirConversationAssistance()
+          if (!conv) conv = await creerConversationAssistance()
+          if (actif && conv) {
+            setConversationId(conv.id)
+            await chargerHistorique(conv.id, actif)
+          }
+        } else {
+          // Visiteur — vérifie s'il existe localement
+          const visiteur = obtenirVisiteurLocal()
+          if (visiteur) {
+            const conv = await ouvrirConversationVisiteurAssistance()
+            if (actif && conv) {
+              setConversationId(conv.id)
+              await chargerHistorique(conv.id, actif)
+            }
+          } else {
+            if (actif) setBesoinIdentification(true)
           }
         }
       } catch (err) {
@@ -85,231 +85,294 @@ export default function ChatAssistance({ onTransferer }: Props) {
       }
     }
 
+    async function chargerHistorique(convId: string, actif: boolean) {
+      const { data: msgs } = await supabase
+        .from('cs_assistance_messages')
+        .select('id, sender_type, contenu, created_at')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (actif && msgs) {
+        setMessages(
+          msgs
+            .reverse()
+            .filter((m) => m.sender_type === 'client' || m.sender_type === 'assistant')
+            .map((m) => ({
+              id: m.id,
+              role: m.sender_type === 'client' ? ('client' as const) : ('assistant' as const),
+              contenu: m.contenu,
+            })),
+        )
+      }
+    }
+
     void init()
     return () => {
       actif = false
     }
-  }, [])
+  }, [ouvert])
 
-  // Scroll automatique en bas
   useEffect(() => {
-    messagesFin.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messages.length > 0 || robotReflechit) {
+      messagesFin.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages, robotReflechit])
+
+  async function identifier(e: React.FormEvent) {
+    e.preventDefault()
+    if (!nom.trim() || !email.trim() || !email.includes('@')) {
+      setErreur('Nom et email valides requis.')
+      return
+    }
+    setIdentifEnCours(true)
+    setErreur('')
+
+    try {
+      await creerVisiteurAssistance(nom.trim(), '-', email.trim().toLowerCase())
+      const conv = await ouvrirConversationVisiteurAssistance()
+      setConversationId(conv.id)
+      setBesoinIdentification(false)
+    } catch (err) {
+      setErreur(err instanceof Error ? err.message : "Impossible de démarrer.")
+    } finally {
+      setIdentifEnCours(false)
+    }
+  }
 
   async function envoyer() {
     if (!conversationId || !texte.trim() || envoi) return
 
-    const monMessage = texte.trim()
+    const mon = texte.trim()
     setTexte('')
     setErreur('')
 
-    // Ajouter mon message optimiste
-    const tempId = 'temp-' + Date.now()
-    setMessages((prev) => [
-      ...prev,
-      { id: tempId, role: 'client', contenu: monMessage, created_at: new Date().toISOString() },
-    ])
-
+    setMessages((prev) => [...prev, { id: 'temp-' + Date.now(), role: 'client', contenu: mon }])
     setEnvoi(true)
     setRobotReflechit(true)
 
     try {
-      await envoyerMessageAssistance(conversationId, monMessage)
-      const reponse = await appelerRobotAssistance(conversationId, monMessage)
+      await envoyerMessageAssistance(conversationId, mon)
+      const reponse = await appelerRobotAssistance(conversationId, mon)
 
       if (reponse?.answer) {
         setMessages((prev) => [
           ...prev,
-          {
-            id: 'ia-' + Date.now(),
-            role: 'assistant',
-            contenu: reponse.answer!,
-            created_at: new Date().toISOString(),
-          },
-        ])
-      }
-
-      if (reponse?.status === 'human_requested' || reponse?.status === 'human') {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: 'sys-' + Date.now(),
-            role: 'assistant',
-            contenu:
-              "Je vous mets en relation avec un membre de notre équipe. Vous pouvez aussi remplir le formulaire ci-dessous, nous vous répondrons par email sous 24h.",
-            created_at: new Date().toISOString(),
-          },
+          { id: 'ia-' + Date.now(), role: 'assistant', contenu: reponse.answer! },
         ])
       }
     } catch (err) {
-      setErreur(err instanceof Error ? err.message : 'Erreur envoi message')
+      setErreur(err instanceof Error ? err.message : 'Erreur envoi')
     } finally {
       setEnvoi(false)
       setRobotReflechit(false)
     }
   }
 
-  if (chargement) {
-    return (
-      <div className="flex items-center justify-center rounded-2xl border border-[#E8E3EF] bg-white py-12">
-        <Loader2 size={22} className="animate-spin text-[#7654C6]" />
-      </div>
-    )
-  }
-
-  if (erreur && !conversationId) {
-    return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-center">
-        <Bot size={28} className="mx-auto text-amber-600" />
-        <p className="mt-3 text-sm font-bold text-amber-900">{erreur}</p>
-        <p className="mt-1 text-xs text-amber-700">
-          Utilisez le formulaire ci-dessous ou WhatsApp.
-        </p>
-      </div>
-    )
-  }
+  if (!ouvert) return null
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E8E3EF] bg-white shadow-sm">
-      {/* Header */}
-      <div className="flex items-center gap-3 border-b border-[#F0F0F2] bg-gradient-to-r from-[#F1ECFA] to-white px-4 py-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#7654C6] to-[#8B6DD1] text-white shadow-md">
-          <Sparkles size={18} />
-        </div>
-        <div className="flex-1">
-          <p className="text-[13px] font-black text-[#18151F]">Assistant ChinaShop</p>
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            En ligne · Réponse instantanée
-          </p>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="max-h-[400px] min-h-[240px] space-y-3 overflow-y-auto bg-[#FAF9FC] px-4 py-4">
-        {messages.length === 0 && (
-          <div className="py-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
-              <Bot size={22} />
-            </div>
-            <p className="text-sm font-bold text-[#18151F]">
-              Bonjour 👋 Comment puis-je vous aider ?
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+      onClick={onFermer}
+    >
+      <div
+        className="flex h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[85vh] sm:rounded-3xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="relative flex items-center gap-3 bg-gradient-to-br from-[#1E1B2E] via-[#2A2344] to-[#3B2D5F] px-5 py-4 text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur ring-1 ring-white/20">
+            <Sparkles size={20} />
+          </div>
+          <div className="flex-1">
+            <p className="text-[15px] font-black">Assistant ChinaShop</p>
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              En ligne · Réponse instantanée
             </p>
-            <p className="mt-1 text-xs text-[#6F687A]">
-              Posez votre question, je réponds immédiatement.
-            </p>
-
-            <div className="mx-auto mt-5 flex max-w-md flex-wrap justify-center gap-2">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setTexte(s)}
-                  className="rounded-full border border-[#E8E3EF] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6F687A] transition-colors hover:border-[#7654C6]/30 hover:bg-[#F1ECFA] hover:text-[#7654C6]"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
           </div>
-        )}
-
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`flex items-start gap-2.5 ${m.role === 'client' ? 'justify-end' : 'justify-start'}`}
-          >
-            {m.role === 'assistant' && (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
-                <Bot size={14} />
-              </div>
-            )}
-            <div
-              className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6 ${
-                m.role === 'client'
-                  ? 'bg-[#7654C6] text-white'
-                  : 'border border-[#E8E3EF] bg-white text-[#18151F]'
-              }`}
-            >
-              {m.contenu}
-            </div>
-            {m.role === 'client' && (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8E3EF] text-[#6F687A]">
-                <User size={14} />
-              </div>
-            )}
-          </div>
-        ))}
-
-        {robotReflechit && (
-          <div className="flex items-start gap-2.5">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
-              <Bot size={14} />
-            </div>
-            <div className="rounded-2xl border border-[#E8E3EF] bg-white px-3.5 py-3">
-              <div className="flex gap-1">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5] [animation-delay:120ms]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5] [animation-delay:240ms]" />
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesFin} />
-      </div>
-
-      {/* Bouton transfert */}
-      {messages.length > 0 && onTransferer && (
-        <div className="border-t border-[#F0F0F2] bg-[#FAF9FC] px-4 py-2">
           <button
             type="button"
-            onClick={onTransferer}
-            className="text-[11px] font-bold text-[#7654C6] hover:text-[#6544B3]"
+            onClick={onFermer}
+            aria-label="Fermer"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-white/70 transition-colors hover:bg-white/10 hover:text-white"
           >
-            ⚡ Besoin d'un humain ? Envoyer une demande →
+            <X size={18} />
           </button>
         </div>
-      )}
 
-      {/* Input */}
-      <div className="border-t border-[#F0F0F2] bg-white p-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            void envoyer()
-          }}
-          className="flex items-end gap-2"
-        >
-          <textarea
-            value={texte}
-            onChange={(e) => setTexte(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                void envoyer()
-              }
-            }}
-            placeholder="Écrivez votre question..."
-            rows={1}
-            disabled={envoi}
-            className="min-h-[42px] w-full resize-none rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-3.5 py-2.5 text-[13px] font-medium text-[#18151F] outline-none transition-colors placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white disabled:opacity-60"
-            style={{ maxHeight: 120 }}
-          />
-          <button
-            type="submit"
-            disabled={envoi || !texte.trim()}
-            className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-md transition-all hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {envoi ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Send size={16} />
-            )}
-          </button>
-        </form>
-        {erreur && conversationId && (
-          <p className="mt-2 text-[11px] font-semibold text-red-600">{erreur}</p>
+        {/* Body */}
+        {chargement ? (
+          <div className="flex flex-1 items-center justify-center py-20">
+            <Loader2 size={24} className="animate-spin text-[#7654C6]" />
+          </div>
+        ) : besoinIdentification ? (
+          /* Écran d'identification */
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="mb-6 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1ECFA] text-[#7654C6]">
+                <Sparkles size={24} />
+              </div>
+              <h3 className="text-lg font-black text-[#18151F]">Démarrer une discussion</h3>
+              <p className="mt-1.5 text-[13px] leading-5 text-[#6F687A]">
+                Renseignez vos coordonnées pour discuter avec notre assistant.
+              </p>
+            </div>
+
+            <form onSubmit={identifier} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-[12px] font-bold text-[#18151F]">
+                  Nom complet
+                </label>
+                <input
+                  type="text"
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
+                  placeholder="Votre nom"
+                  disabled={identifEnCours}
+                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-[12px] font-bold text-[#18151F]">
+                  Adresse email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="vous@exemple.com"
+                  disabled={identifEnCours}
+                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                />
+              </div>
+
+              {erreur && (
+                <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12px] font-semibold text-red-700">
+                  <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                  <span>{erreur}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={identifEnCours}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#7654C6] text-[13px] font-black text-white shadow-lg shadow-[#7654C6]/25 transition-all hover:bg-[#6544B3] disabled:opacity-60"
+              >
+                {identifEnCours ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Démarrage…
+                  </>
+                ) : (
+                  <>
+                    Commencer la discussion
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        ) : (
+          <>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto bg-[#FAF9FC] px-4 py-4">
+              {messages.length === 0 && (
+                <div className="py-8 text-center">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
+                    <Bot size={22} />
+                  </div>
+                  <p className="text-sm font-bold text-[#18151F]">Bonjour 👋</p>
+                  <p className="mt-1 text-xs text-[#6F687A]">
+                    Posez votre question, je réponds immédiatement.
+                  </p>
+                  <div className="mx-auto mt-5 flex max-w-sm flex-wrap justify-center gap-2">
+                    {SUGGESTIONS.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setTexte(s)}
+                        className="rounded-full border border-[#E8E3EF] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6F687A] transition-colors hover:border-[#7654C6]/30 hover:bg-[#F1ECFA] hover:text-[#7654C6]"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`flex ${m.role === 'client' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6 ${
+                        m.role === 'client'
+                          ? 'rounded-br-md bg-[#7654C6] text-white'
+                          : 'rounded-bl-md border border-[#E8E3EF] bg-white text-[#18151F]'
+                      }`}
+                    >
+                      {m.contenu}
+                    </div>
+                  </div>
+                ))}
+
+                {robotReflechit && (
+                  <div className="flex justify-start">
+                    <div className="rounded-2xl rounded-bl-md border border-[#E8E3EF] bg-white px-4 py-3">
+                      <div className="flex gap-1">
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5]" />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5] [animation-delay:120ms]" />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5] [animation-delay:240ms]" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div ref={messagesFin} />
+            </div>
+
+            {/* Input */}
+            <div className="border-t border-[#F0F0F2] bg-white p-3">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  void envoyer()
+                }}
+                className="flex items-end gap-2"
+              >
+                <textarea
+                  value={texte}
+                  onChange={(e) => setTexte(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      void envoyer()
+                    }
+                  }}
+                  placeholder="Écrivez votre question..."
+                  rows={1}
+                  disabled={envoi}
+                  className="min-h-[44px] w-full resize-none rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-3.5 py-3 text-[13px] font-medium text-[#18151F] outline-none transition-colors placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white disabled:opacity-60"
+                  style={{ maxHeight: 120 }}
+                />
+                <button
+                  type="submit"
+                  disabled={envoi || !texte.trim()}
+                  className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-md transition-all hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {envoi ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                </button>
+              </form>
+              {erreur && (
+                <p className="mt-2 text-[11px] font-semibold text-red-600">{erreur}</p>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
