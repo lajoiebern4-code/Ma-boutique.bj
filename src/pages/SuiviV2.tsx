@@ -853,15 +853,21 @@ function PaiementSolde({
         )}
       </div>
 
-      {/* Messages */}
       {erreur && (
-        <div className="rounded-[14px] border border-red-200/80 bg-gradient-to-br from-red-50 to-white px-4 py-3.5 shadow-[0_2px_10px_rgba(239,68,68,0.05)]">
-          <p className="text-sm font-bold leading-5 text-red-700">{erreur}</p>
+        <div className="flex items-start gap-3 rounded-[12px] border border-red-200 bg-red-50/60 px-4 py-3.5">
+          <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+            <AlertCircle size={14} strokeWidth={2.5} />
+          </div>
+          <p className="text-sm font-semibold leading-5 text-red-800">{erreur}</p>
         </div>
       )}
+
       {message && (
-        <div className="rounded-[14px] border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white px-4 py-3.5 shadow-[0_2px_10px_rgba(16,185,129,0.05)]">
-          <p className="text-sm font-bold leading-5 text-emerald-700">{message}</p>
+        <div className="flex items-start gap-3 rounded-[12px] border border-emerald-200 bg-emerald-50/60 px-4 py-3.5">
+          <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+            <CheckCircle2 size={14} strokeWidth={2.5} />
+          </div>
+          <p className="text-sm font-semibold leading-5 text-emerald-800">{message}</p>
         </div>
       )}
     </div>
@@ -2545,14 +2551,14 @@ function SuiviV2Page() {
                                 )}
 
                                 {String(commande.livraisonStatut || '').toLowerCase() === 'arrivee' && (
-                                  <div className="mt-5 rounded-[20px] border border-red-200 bg-red-50 p-4">
+                                  <div className="mt-5 rounded-[14px] border border-[#7654C6]/20 bg-[#F1ECFA] p-4">
                                     <div className="flex items-center gap-2">
                                       <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-[#7654C6]" />
                                       <span className="text-xs font-black uppercase tracking-[0.12em] text-[#7654C6]">
                                         Livreur arrivé
                                       </span>
                                     </div>
-                                    <p className="mt-2 text-xs leading-5 text-red-700">
+                                    <p className="mt-2 text-xs leading-5 text-[#6F687A]">
                                       Votre livreur est arrivé à destination. Confirmez la réception lorsque vous avez reçu votre commande.
                                     </p>
                                     <button
@@ -2593,7 +2599,7 @@ function SuiviV2Page() {
                                       <div className="mt-4 grid grid-cols-2 gap-2.5">
                                         <a
                                           href={`tel:${commande.livreur.telephone}`}
-                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#18151F] shadow-sm transition hover:border-[#18151F] hover:bg-[#FAF9FC]"
+                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#18151F] shadow-sm transition hover:border-[#7654C6] hover:bg-[#FAF9FC]"
                                         >
                                           <Phone size={14} />
                                           Appeler
@@ -2603,7 +2609,7 @@ function SuiviV2Page() {
                                           href={`https://wa.me/${commande.livreur.telephone.replace(/\D/g, '')}`}
                                           target="_blank"
                                           rel="noreferrer"
-                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#18151F] shadow-sm transition hover:border-[#18151F] hover:bg-[#FAF9FC]"
+                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#18151F] shadow-sm transition hover:border-[#7654C6] hover:bg-[#FAF9FC]"
                                         >
                                           <MessageCircle size={14} />
                                           WhatsApp
