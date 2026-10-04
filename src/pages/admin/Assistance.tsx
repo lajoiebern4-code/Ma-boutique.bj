@@ -75,6 +75,9 @@ export default function AdminAssistance() {
       setDemandes((prev) =>
         prev.map((x) => (x.id === d.id ? { ...x, lu: true } : x)),
       )
+    setTimeout(() => {
+      document.getElementById('detail-demande')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
     }
   }
 
@@ -261,7 +264,7 @@ export default function AdminAssistance() {
         </div>
 
         {/* Colonne droite : détail */}
-        <div>
+        <div id="detail-demande">
           {!selection ? (
             <div className="flex h-full min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white">
               <div className="text-center">
