@@ -12,6 +12,7 @@ export type ConversationIA = {
   nb_messages: number
   dernier_message: string | null
   dernier_message_at: string | null
+  non_lu: boolean
 }
 
 export type MessageIA = {
@@ -63,6 +64,27 @@ export async function obtenirMessagesConversationIA(conversationId: string): Pro
     return {
       success: false,
       data: [],
+      error: err instanceof Error ? err.message : 'Erreur inconnue',
+    }
+  }
+}
+
+export async function marquerConversationLue(conversationId: string): Promise<{
+  success: boolean
+  error: string
+}> {
+  if (!supabase) return { success: false, error: 'Supabase non configuré' }
+
+  try {
+    const { error } = await supabase.rpc('cs_admin_marquer_conversation_lue', {
+      p_conversation_id: conversationId,
+    })
+    if (error) throw error
+    return { success: true, error: '' }
+  } catch (err) {
+    console.error('Erreur marquage conversation lue:', err)
+    return {
+      success: false,
       error: err instanceof Error ? err.message : 'Erreur inconnue',
     }
   }

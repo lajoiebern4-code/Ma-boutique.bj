@@ -28,6 +28,7 @@ import {
   obtenirMessagesConversationIA,
   type ConversationIA,
   type MessageIA,
+  marquerConversationLue,
 } from '../../services/assistance-messages'
 import { envoyerReponseAssistanceAdmin } from '../../services/assistance'
 
@@ -110,6 +111,8 @@ export default function AdminAssistance() {
     setErreurIA('')
     const r = await obtenirMessagesConversationIA(c.id)
     if (r.success) setMessagesIA(r.data)
+    void marquerConversationLue(c.id)
+    setConversations((prev) => prev.map((x) => (x.id === c.id ? { ...x, non_lu: false } : x)))
     setChargementMsg(false)
   }
 
@@ -387,7 +390,8 @@ export default function AdminAssistance() {
                           <UserRound size={16} />
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-slate-900">
+                          <p className="flex items-center gap-2 truncate text-sm font-black text-slate-900">
+                            {c.non_lu && <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />}
                             {c.visiteur_nom || 'Visiteur anonyme'}
                           </p>
                           {c.visiteur_email && (
