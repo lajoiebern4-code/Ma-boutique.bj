@@ -134,7 +134,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
       setConversationId(conv.id)
       setBesoinIdentification(false)
     } catch (err) {
-      setErreur(err instanceof Error ? err.message : "Impossible de démarrer.")
+      setErreur('ERREUR: ' + (err instanceof Error ? err.message : JSON.stringify(err)))
     } finally {
       setIdentifEnCours(false)
     }
