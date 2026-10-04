@@ -28,6 +28,7 @@ import {
   SUJETS_ASSISTANCE,
   type AssistanceDemande,
 } from '../services/assistance-demandes'
+import ChatAssistance from "../components/ChatAssistance"
 
 const FAQ = [
   {
@@ -216,6 +217,16 @@ export default function Assistance() {
 
       {/* Contenu principal */}
       <section className="relative mx-auto -mt-8 max-w-5xl px-4 sm:px-6 lg:px-8">
+
+        {/* Chat IA */}
+        <div className="mb-6">
+          <ChatAssistance
+            onTransferer={() => {
+              const el = document.getElementById('formulaire-demande')
+              el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }}
+          />
+        </div>
         <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
 
           {/* Colonne gauche — FAQ + Contact */}
@@ -352,7 +363,7 @@ export default function Assistance() {
           </div>
 
           {/* Colonne droite — Formulaire */}
-          <div className="rounded-2xl border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-7">
+          <div id="formulaire-demande" className="rounded-2xl border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-7">
             <div className="mb-5 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                 <MessageSquare size={20} />
