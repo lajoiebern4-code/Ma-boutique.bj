@@ -11,6 +11,13 @@ import {
   Phone,
   ShoppingBag,
   User,
+  Building2,
+  Home,
+  MessageSquare,
+  Clock,
+  Truck,
+  UserCheck,
+  ChevronDown,
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import {
@@ -24,6 +31,36 @@ import {
   sauvegarderCommandeV2,
 } from '../services/supabase'
 
+const QUARTIERS_PAR_COMMUNE: Record<string, string[]> = {
+  "Cotonou": ["Akpakpa", "Agla", "Cadjèhoun", "Fidjrossè", "Ganhi", "Gbégamey", "Godomey", "Houéyiho", "Jéricho", "Kouhounou", "Ladji", "Mènontin", "Sainte-Rita", "Sègbèya", "Sikècodji", "Vèdoko", "Zogbo", "Zongo"],
+  "Porto-Novo": ["Djègan-Kpèvi", "Djassin", "Djègan", "Houinmè", "Ouando", "Sèmè-Podji", "Tokpa", "Zongo"],
+  "Abomey-Calavi": ["Akassato", "Calavi Centre", "Godomey", "Hêvié", "Kpota", "Togba", "Zopah"],
+  "Parakou": ["Banikanni", "Dépôt", "Ladji-Farani", "Titirou", "Tourou", "Zongo"],
+}
+function getQuartiersPourCommune(commune: string): string[] {
+  return QUARTIERS_PAR_COMMUNE[commune] || []
+}
+function filtrerQuartiers(quartiers: string[], recherche: string): string[] {
+  const q = recherche.toLowerCase().trim()
+  if (!q) return quartiers
+  return quartiers.filter((quartier) => {
+    const nom = quartier.toLowerCase()
+    let i = 0
+    for (const c of q) {
+      i = nom.indexOf(c, i)
+      if (i === -1) return false
+      i++
+    }
+    return true
+  })
+}
+
+function getDelaiLivraison(commune: string): string | null {
+  if (!commune) return null
+  if (commune === "Cotonou") return "Livraison estimée : moins de 24h"
+  if (commune === "Porto-Novo" || commune === "Abomey-Calavi") return "Livraison estimée : environ 1 jour"
+  return "Livraison estimée : environ 3 jours"
+}
 function formatPrix(prix: number) {
   return `${prix.toLocaleString('fr-FR')} FCFA`
 }
@@ -67,8 +104,12 @@ export default function Commande() {
   const [departement, setDepartement] = useState('')
   const [commune, setCommune] = useState('')
   const [quartier, setQuartier] = useState('')
+  const [quartierFocus, setQuartierFocus] = useState(false)
   const [rue, setRue] = useState('')
   const [repere, setRepere] = useState('')
+  const [livrerAutrePersonne, setLivrerAutrePersonne] = useState(false)
+  const [nomDestinataire, setNomDestinataire] = useState('')
+  const [telephoneDestinataire, setTelephoneDestinataire] = useState('')
 
   const [chargement, setChargement] = useState(false)
 
@@ -281,6 +322,16 @@ export default function Commande() {
       if (!rue.trim()) {
         setErreurCommande('Veuillez renseigner votre rue ou adresse précise.')
         return false
+      }
+      if (livrerAutrePersonne) {
+        if (!nomDestinataire.trim()) {
+          setErreurCommande("Veuillez renseigner le nom du destinataire.")
+          return false
+        }
+        if (!/^01\d{8}$/.test(telephoneDestinataire.trim())) {
+          setErreurCommande("Le téléphone du destinataire doit contenir 10 chiffres et commencer par 01.")
+          return false
+        }
       }
     }
 
@@ -956,13 +1007,14 @@ export default function Commande() {
                             Département
                             <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
+                          <div className="relative">
                           <select
                             value={departement}
                             onChange={(e) => {
                               setDepartement(e.target.value)
                               setCommune("")
                             }}
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition appearance-none pr-10 hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
                           >
                             <option value="">Sélectionner un département</option>
                             <option value="Alibori">Alibori</option>
@@ -978,6 +1030,8 @@ export default function Commande() {
                             <option value="Plateau">Plateau</option>
                             <option value="Zou">Zou</option>
                           </select>
+                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7654C6]" strokeWidth={2.5} />
+                          </div>
                         </div>
 
                         <div>
@@ -985,11 +1039,12 @@ export default function Commande() {
                             Commune
                             <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
+                          <div className="relative">
                           <select
                             value={commune}
                             onChange={(e) => setCommune(e.target.value)}
                             disabled={!departement}
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA] disabled:cursor-not-allowed disabled:bg-[#F1ECFA] disabled:text-[#9A93A5]"
+                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition appearance-none pr-10 hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA] disabled:cursor-not-allowed disabled:bg-[#F1ECFA] disabled:text-[#9A93A5]"
                           >
                             <option value="">
                               {departement ? "Sélectionner une commune" : "Choisissez d’abord un département"}
@@ -1114,20 +1169,56 @@ export default function Commande() {
                               </>
                             )}
                           </select>
+                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7654C6]" strokeWidth={2.5} />
+                          </div>
                         </div>
+                        {getDelaiLivraison(commune) && (
+                          <div className="flex items-center gap-2 rounded-xl border border-[#E8E3EF] bg-white px-3.5 py-2.5">
+                            <Clock className="h-4 w-4 shrink-0 text-[#7654C6]" strokeWidth={2.5} />
+                            <p className="text-xs font-bold text-[#18151F]">{getDelaiLivraison(commune)}</p>
+                          </div>
+                        )}
 
                         <div>
                           <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
                             Quartier
                             <span className="ml-1 text-[#7654C6]">*</span>
                           </label>
-                          <input
-                            type="text"
-                            value={quartier}
-                            onChange={(e) => setQuartier(e.target.value)}
-                            placeholder="Ex. Zongo, Agla, Cadjèhoun..."
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
-                          />
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={quartier}
+                              onChange={(e) => setQuartier(e.target.value)}
+                              onFocus={() => setQuartierFocus(true)}
+                              onBlur={() => setTimeout(() => setQuartierFocus(false), 200)}
+                              placeholder="Ex. Zongo, Agla, Cadjèhoun..."
+                              autoComplete="off"
+                              className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                            />
+                            {quartierFocus && getQuartiersPourCommune(commune).length > 0 && (
+                              <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-[#E8E3EF] bg-white py-1 shadow-[0_8px_24px_rgba(24,21,31,0.12)]">
+                                {filtrerQuartiers(getQuartiersPourCommune(commune), quartier).length === 0 ? (
+                                  <div className="px-4 py-2.5 text-xs font-semibold text-[#9A93A5]">Aucune suggestion — vous pouvez taper librement</div>
+                                ) : (
+                                  filtrerQuartiers(getQuartiersPourCommune(commune), quartier).map((q) => (
+                                    <button
+                                      key={q}
+                                      type="button"
+                                      onMouseDown={(e) => e.preventDefault()}
+                                      onClick={() => {
+                                        setQuartier(q)
+                                        setQuartierFocus(false)
+                                      }}
+                                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-[#18151F] transition hover:bg-[#F1ECFA] active:bg-[#F1ECFA]"
+                                    >
+                                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[#7654C6]" strokeWidth={2.5} />
+                                      <span>{q}</span>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         <div>
@@ -1156,6 +1247,77 @@ export default function Commande() {
                             placeholder="Ex. près de..., en face de..."
                             className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
                           />
+                        </div>
+
+                        <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5">
+                          <p className="mb-3 text-[11px] font-black text-[#18151F]">
+                            Qui reçoit la commande ?
+                          </p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setLivrerAutrePersonne(false)}
+                              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition ${
+                                !livrerAutrePersonne
+                                  ? "border-[#7654C6] bg-[#F1ECFA]"
+                                  : "border-[#E8E3EF] bg-white hover:border-[#DCD5E8]"
+                              }`}
+                            >
+                              <User className={`h-5 w-5 ${!livrerAutrePersonne ? "text-[#7654C6]" : "text-[#9A93A5]"}`} strokeWidth={2.5} />
+                              <span className={`text-xs font-black ${!livrerAutrePersonne ? "text-[#7654C6]" : "text-[#6F687A]"}`}>
+                                Moi-même
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setLivrerAutrePersonne(true)}
+                              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition ${
+                                livrerAutrePersonne
+                                  ? "border-[#7654C6] bg-[#F1ECFA]"
+                                  : "border-[#E8E3EF] bg-white hover:border-[#DCD5E8]"
+                              }`}
+                            >
+                              <UserCheck className={`h-5 w-5 ${livrerAutrePersonne ? "text-[#7654C6]" : "text-[#9A93A5]"}`} strokeWidth={2.5} />
+                              <span className={`text-xs font-black ${livrerAutrePersonne ? "text-[#7654C6]" : "text-[#6F687A]"}`}>
+                                Une autre personne
+                              </span>
+                            </button>
+                          </div>
+
+                          {livrerAutrePersonne && (
+                            <div className="mt-3 space-y-3">
+                              <div>
+                                <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                                  Nom complet du destinataire
+                                  <span className="ml-1 text-[#7654C6]">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  value={nomDestinataire}
+                                  onChange={(e) => setNomDestinataire(e.target.value)}
+                                  placeholder="Ex. Jean Dossou"
+                                  className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                                />
+                              </div>
+                              <div>
+                                <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                                  Téléphone du destinataire
+                                  <span className="ml-1 text-[#7654C6]">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={telephoneDestinataire}
+                                  onChange={(e) => {
+                                    const chiffres = e.target.value.replace(/\D/g, "").slice(0, 10)
+                                    setTelephoneDestinataire(chiffres)
+                                  }}
+                                  placeholder="Ex. 0197000000"
+                                  className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4">
