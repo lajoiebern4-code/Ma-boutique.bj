@@ -13,6 +13,8 @@ import {
   Search,
   X,
   Filter,
+  Bot,
+  User,
 } from 'lucide-react'
 import {
   listerDemandesAssistance,
@@ -21,8 +23,15 @@ import {
   envoyerEmailReponseDemande,
   type AssistanceDemande,
 } from '../../services/assistance-demandes'
+import {
+  listerConversationsIA,
+  obtenirMessagesConversationIA,
+  type ConversationIA,
+  type MessageIA,
+} from '../../services/assistance-messages'
 
 type FiltreStatut = 'tous' | 'nouveau' | 'repondu'
+type Onglet = 'demandes' | 'messages'
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -37,7 +46,14 @@ function formatDate(iso: string) {
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
 }
 
+function formatHeure(iso: string) {
+  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+}
+
 export default function AdminAssistance() {
+  const [onglet, setOnglet] = useState<Onglet>('demandes')
+
+  // ---- Demandes ----
   const [demandes, setDemandes] = useState<AssistanceDemande[]>([])
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState('')
@@ -48,6 +64,13 @@ export default function AdminAssistance() {
   const [envoi, setEnvoi] = useState(false)
   const [succesMsg, setSuccesMsg] = useState('')
 
+  // ---- Conversations IA ----
+  const [conversations, setConversations] = useState<ConversationIA[]>([])
+  const [chargementConv, setChargementConv] = useState(false)
+  const [convSelectionnee, setConvSelectionnee] = useState<ConversationIA | null>(null)
+  const [messagesIA, setMessagesIA] = useState<MessageIA[]>([])
+  const [chargementMsg, setChargementMsg] = useState(false)
+
   async function charger() {
     setChargement(true)
     setErreur('')
@@ -57,9 +80,35 @@ export default function AdminAssistance() {
     setChargement(false)
   }
 
+  async function chargerConversations() {
+    setChargementConv(true)
+    const r = await listerConversationsIA()
+    if (r.success) setConversations(r.data)
+    setChargementConv(false)
+  }
+
   useEffect(() => {
     void charger()
   }, [])
+
+  useEffect(() => {
+    if (onglet === 'messages') {
+      void chargerConversations()
+    }
+  }, [onglet])
+
+  async function ouvrirConversation(c: ConversationIA) {
+    setConvSelectionnee(c)
+    setChargementMsg(true)
+    const r = await obtenirMessagesConversationIA(c.id)
+    if (r.success) setMessagesIA(r.data)
+    setChargementMsg(false)
+  }
+
+  function fermerConversation() {
+    setConvSelectionnee(null)
+    setMessagesIA([])
+  }
 
   function ouvrir(d: AssistanceDemande) {
     setSelection(d)
@@ -130,124 +179,232 @@ export default function AdminAssistance() {
               <Inbox size={22} />
             </div>
             <div>
-              <h1 className="text-lg font-black text-slate-900 sm:text-xl">
-                Demandes d'assistance
-              </h1>
+              <h1 className="text-lg font-black text-slate-900 sm:text-xl">Assistance</h1>
               <p className="text-xs font-medium text-slate-500">
-                {demandes.length} au total · {nbNouveaux} non traitées
+                {onglet === 'demandes'
+                  ? `${demandes.length} demandes · ${nbNouveaux} non traitées`
+                  : `${conversations.length} conversations IA`}
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => void charger()}
+            onClick={() => (onglet === 'demandes' ? void charger() : void chargerConversations())}
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
           >
-            <RefreshCw size={15} className={chargement ? 'animate-spin' : ''} />
+            <RefreshCw
+              size={15}
+              className={chargement || chargementConv ? 'animate-spin' : ''}
+            />
             Rafraîchir
+          </button>
+        </div>
+
+        {/* Onglets */}
+        <div className="mx-auto mt-4 flex max-w-5xl gap-1 rounded-2xl bg-slate-100 p-1">
+          <button
+            type="button"
+            onClick={() => setOnglet('demandes')}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black transition-all ${
+              onglet === 'demandes'
+                ? 'bg-white text-violet-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Inbox size={15} />
+            Demandes
+            {nbNouveaux > 0 && (
+              <span className="rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white">
+                {nbNouveaux}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setOnglet('messages')}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black transition-all ${
+              onglet === 'messages'
+                ? 'bg-white text-violet-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Bot size={15} />
+            Messages IA
           </button>
         </div>
       </div>
 
+      {/* Contenu */}
       <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6 lg:p-8">
-        {/* Filtres */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-3">
-          <div className="relative mb-3">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={recherche}
-              onChange={(e) => setRecherche(e.target.value)}
-              placeholder="Rechercher (nom, email, sujet...)"
-              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:border-violet-300 focus:bg-white"
-            />
-          </div>
-          <div className="flex gap-1.5">
-            {(
-              [
-                { v: 'tous', l: 'Toutes' },
-                { v: 'nouveau', l: 'Non traitées' },
-                { v: 'repondu', l: 'Répondues' },
-              ] as const
-            ).map((f) => (
-              <button
-                key={f.v}
-                type="button"
-                onClick={() => setFiltre(f.v)}
-                className={`flex-1 rounded-lg px-3 py-2 text-xs font-black transition-colors ${
-                  filtre === f.v
-                    ? 'bg-violet-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {f.l}
-              </button>
-            ))}
-          </div>
-        </div>
 
-        {/* Liste */}
-        {chargement ? (
-          <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-16">
-            <Loader2 size={24} className="animate-spin text-violet-600" />
-          </div>
-        ) : demandesFiltrees.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
-            <Inbox size={32} className="mx-auto text-slate-300" />
-            <p className="mt-3 text-sm font-bold text-slate-500">Aucune demande</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {demandesFiltrees.map((d) => (
-              <div
-                key={d.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => ouvrir(d)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') ouvrir(d)
-                }}
-                className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition-all active:scale-[0.99] ${
-                  d.statut === 'nouveau' && !d.lu
-                    ? 'border-violet-200 bg-white shadow-sm hover:border-violet-400 hover:shadow-md'
-                    : 'border-slate-200 bg-white hover:border-slate-300'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    {d.statut === 'nouveau' && !d.lu && (
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
-                    )}
-                    <span className="truncate text-sm font-black text-slate-900">
-                      {d.nom}
-                    </span>
-                  </div>
-                  <span className="shrink-0 text-[11px] font-medium text-slate-400">
-                    {formatDate(d.created_at)}
-                  </span>
-                </div>
-                <p className="mt-1.5 truncate text-[11px] font-semibold text-violet-700">
-                  {d.sujet}
-                </p>
-                <p className="mt-1 line-clamp-2 text-xs text-slate-500">{d.message}</p>
-                {d.statut === 'repondu' && (
-                  <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">
-                    <CheckCircle2 size={10} />
-                    Répondu
-                  </span>
-                )}
-                <div className="mt-3 flex items-center justify-end">
-                  <span className="text-[11px] font-bold text-violet-600">
-                    Ouvrir →
-                  </span>
-                </div>
+        {/* ============ ONGLET DEMANDES ============ */}
+        {onglet === 'demandes' && (
+          <>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3">
+              <div className="relative mb-3">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={recherche}
+                  onChange={(e) => setRecherche(e.target.value)}
+                  placeholder="Rechercher (nom, email, sujet...)"
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:border-violet-300 focus:bg-white"
+                />
               </div>
-            ))}
-          </div>
+              <div className="flex gap-1.5">
+                {(
+                  [
+                    { v: 'tous', l: 'Toutes' },
+                    { v: 'nouveau', l: 'Non traitées' },
+                    { v: 'repondu', l: 'Répondues' },
+                  ] as const
+                ).map((f) => (
+                  <button
+                    key={f.v}
+                    type="button"
+                    onClick={() => setFiltre(f.v)}
+                    className={`flex-1 rounded-lg px-3 py-2 text-xs font-black transition-colors ${
+                      filtre === f.v
+                        ? 'bg-violet-600 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {f.l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {chargement ? (
+              <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-16">
+                <Loader2 size={24} className="animate-spin text-violet-600" />
+              </div>
+            ) : demandesFiltrees.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
+                <Inbox size={32} className="mx-auto text-slate-300" />
+                <p className="mt-3 text-sm font-bold text-slate-500">Aucune demande</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {demandesFiltrees.map((d) => (
+                  <div
+                    key={d.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => ouvrir(d)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') ouvrir(d)
+                    }}
+                    className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition-all active:scale-[0.99] ${
+                      d.statut === 'nouveau' && !d.lu
+                        ? 'border-violet-200 bg-white shadow-sm hover:border-violet-400 hover:shadow-md'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        {d.statut === 'nouveau' && !d.lu && (
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                        )}
+                        <span className="truncate text-sm font-black text-slate-900">
+                          {d.nom}
+                        </span>
+                      </div>
+                      <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                        {formatDate(d.created_at)}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 truncate text-[11px] font-semibold text-violet-700">
+                      {d.sujet}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">{d.message}</p>
+                    {d.statut === 'repondu' && (
+                      <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">
+                        <CheckCircle2 size={10} />
+                        Répondu
+                      </span>
+                    )}
+                    <div className="mt-3 flex items-center justify-end">
+                      <span className="text-[11px] font-bold text-violet-600">Ouvrir →</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ============ ONGLET MESSAGES IA ============ */}
+        {onglet === 'messages' && (
+          <>
+            {chargementConv ? (
+              <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-16">
+                <Loader2 size={24} className="animate-spin text-violet-600" />
+              </div>
+            ) : conversations.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
+                <Bot size={32} className="mx-auto text-slate-300" />
+                <p className="mt-3 text-sm font-bold text-slate-500">
+                  Aucune conversation avec l'IA
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {conversations.map((c) => (
+                  <div
+                    key={c.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => void ouvrirConversation(c)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') void ouvrirConversation(c)
+                    }}
+                    className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-4 text-left transition-all active:scale-[0.99] hover:border-violet-300 hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+                          <UserRound size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-slate-900">
+                            {c.visiteur_nom || 'Visiteur anonyme'}
+                          </p>
+                          {c.visiteur_email && (
+                            <p className="truncate text-[11px] font-medium text-slate-500">
+                              {c.visiteur_email}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        <span className="text-[11px] font-medium text-slate-400">
+                          {formatDate(c.dernier_message_at || c.updated_at)}
+                        </span>
+                        <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-black text-violet-700">
+                          {c.nb_messages} msg
+                        </span>
+                      </div>
+                    </div>
+                    {c.dernier_message && (
+                      <p className="mt-2 line-clamp-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        {c.dernier_message}
+                      </p>
+                    )}
+                    <div className="mt-3 flex items-center justify-end">
+                      <span className="text-[11px] font-bold text-violet-600">
+                        Voir la conversation →
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Modal */}
+      {/* ============ MODAL DEMANDE ============ */}
       {selection && (
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
@@ -257,16 +414,13 @@ export default function AdminAssistance() {
             className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[88vh] sm:rounded-3xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header modal */}
             <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-100 text-violet-700">
                   <UserRound size={20} />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-base font-black text-slate-900">
-                    {selection.nom}
-                  </p>
+                  <p className="truncate text-base font-black text-slate-900">{selection.nom}</p>
                   <a
                     href={`mailto:${selection.email}`}
                     onClick={(e) => e.stopPropagation()}
@@ -287,7 +441,6 @@ export default function AdminAssistance() {
               </button>
             </div>
 
-            {/* Badge statut */}
             <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-slate-50 px-5 py-2.5 text-[11px] text-slate-500">
               <span className="flex items-center gap-1">
                 <Clock size={11} />
@@ -308,9 +461,7 @@ export default function AdminAssistance() {
               </span>
             </div>
 
-            {/* Body défilable */}
             <div className="flex-1 overflow-y-auto p-5">
-              {/* Message client */}
               <p className="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
                 Message du client
               </p>
@@ -318,7 +469,6 @@ export default function AdminAssistance() {
                 {selection.message}
               </div>
 
-              {/* Réponse */}
               <p className="mb-2 mt-5 text-[10px] font-black uppercase tracking-wider text-slate-400">
                 {selection.reponse ? 'Votre réponse' : 'Votre réponse au client'}
               </p>
@@ -350,7 +500,6 @@ export default function AdminAssistance() {
               )}
             </div>
 
-            {/* Footer actions */}
             <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4">
               <button
                 type="button"
@@ -359,7 +508,6 @@ export default function AdminAssistance() {
               >
                 Fermer
               </button>
-
               <button
                 type="button"
                 onClick={() => void envoyerReponse()}
@@ -377,6 +525,117 @@ export default function AdminAssistance() {
                     Envoyer
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ MODAL CONVERSATION IA ============ */}
+      {convSelectionnee && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={fermerConversation}
+        >
+          <div
+            className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[88vh] sm:rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-gradient-to-br from-[#1E1B2E] to-[#3B2D5F] px-5 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20">
+                  <Bot size={20} />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-base font-black">
+                    {convSelectionnee.visiteur_nom || 'Visiteur anonyme'}
+                  </p>
+                  <p className="truncate text-xs text-white/70">
+                    {convSelectionnee.visiteur_email || 'Sans email'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={fermerConversation}
+                aria-label="Fermer"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-slate-50 px-5 py-2.5 text-[11px] text-slate-500">
+              <span className="flex items-center gap-1">
+                <Clock size={11} />
+                {new Date(convSelectionnee.created_at).toLocaleString('fr-FR')}
+              </span>
+              <span className="ml-auto rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-black uppercase text-violet-700">
+                {messagesIA.length} messages
+              </span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto bg-[#FAF9FC] p-4">
+              {chargementMsg ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 size={22} className="animate-spin text-violet-600" />
+                </div>
+              ) : messagesIA.length === 0 ? (
+                <div className="py-16 text-center">
+                  <MessageSquare size={28} className="mx-auto text-slate-300" />
+                  <p className="mt-2 text-sm font-bold text-slate-500">Aucun message</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {messagesIA.map((m) => {
+                    const estClient = m.sender_type === 'client'
+                    return (
+                      <div
+                        key={m.id}
+                        className={`flex items-start gap-2.5 ${
+                          estClient ? 'justify-end' : 'justify-start'
+                        }`}
+                      >
+                        {!estClient && (
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
+                            <Bot size={13} />
+                          </div>
+                        )}
+                        <div
+                          className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6 ${
+                            estClient
+                              ? 'rounded-br-md bg-[#7654C6] text-white'
+                              : 'rounded-bl-md border border-[#E8E3EF] bg-white text-[#18151F]'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap">{m.contenu}</p>
+                          <p
+                            className={`mt-1 text-[10px] ${
+                              estClient ? 'text-white/60' : 'text-[#9A93A5]'
+                            }`}
+                          >
+                            {formatHeure(m.created_at)}
+                          </p>
+                        </div>
+                        {estClient && (
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8E3EF] text-[#6F687A]">
+                            <User size={13} />
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-slate-200 bg-white px-5 py-4">
+              <button
+                type="button"
+                onClick={fermerConversation}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+              >
+                Fermer
               </button>
             </div>
           </div>
