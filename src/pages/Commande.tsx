@@ -695,22 +695,19 @@ export default function Commande() {
 
             {/* ÉTAPE 1 */}
             {etape === 1 && (
-              <div className="overflow-hidden rounded-[30px] border border-[#E8E3EF] bg-white shadow-sm">
-                <div className="border-b border-[#E8E3EF] px-6 py-7 sm:px-8 sm:py-8">
+              <div className="overflow-hidden rounded-[24px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                <div className="border-b border-[#F0F0F2] bg-gradient-to-br from-[#FAF9FC] to-white px-6 py-7 sm:px-8">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-[#7654C6] to-[#8B6DD1] text-white shadow-lg shadow-[#7654C6]/25">
                       <User size={20} />
                     </div>
-
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
+                      <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#7654C6]">
                         Étape 01
                       </span>
-
-                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#18151F] sm:text-[27px]">
+                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#18151F] sm:text-[26px]">
                         Vos informations
                       </h2>
-
                       <p className="mt-1.5 max-w-xl text-sm leading-6 text-[#6F687A]">
                         Indiquez vos coordonnées pour que nous puissions vous contacter concernant votre commande.
                       </p>
@@ -718,26 +715,23 @@ export default function Commande() {
                   </div>
                 </div>
 
-                <div className="px-6 py-7 sm:px-8 sm:py-8">
+                <div className="px-6 py-7 sm:px-8">
                   <div className="space-y-5">
-
                     <div>
                       <label className="mb-2.5 block text-xs font-black text-[#18151F]">
                         Nom complet
                         <span className="ml-1 text-[#7654C6]">*</span>
                       </label>
-
                       <div className="group relative">
                         <User
                           className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#7654C6]"
                           size={18}
                         />
-
                         <input
                           value={nom}
                           onChange={(e) => setNom(e.target.value)}
                           placeholder="Ex. Jean Dupont"
-                          className="h-12 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                          className="h-12 w-full rounded-[12px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                         />
                       </div>
                     </div>
@@ -747,13 +741,11 @@ export default function Commande() {
                         Numéro de téléphone
                         <span className="ml-1 text-[#7654C6]">*</span>
                       </label>
-
                       <div className="group relative">
                         <Phone
                           className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#7654C6]"
                           size={18}
                         />
-
                         <input
                           value={telephone}
                           onChange={(e) => {
@@ -765,23 +757,22 @@ export default function Commande() {
                           inputMode="numeric"
                           pattern="01[0-9]{8}"
                           placeholder="01XXXXXXXX"
-                          className="h-12 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                          className="h-12 w-full rounded-[12px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                         />
                       </div>
-
                       {erreurTelephone ? (
-                          <p className="mt-2 text-[11px] font-bold leading-5 text-red-600">
-                            {erreurTelephone}
-                          </p>
-                        ) : telephone.length > 0 && !/^01\d{8}$/.test(telephone) ? (
-                          <p className="mt-2 text-[11px] font-bold leading-5 text-red-600">
-                            Le numéro doit contenir 10 chiffres et commencer par 01.
-                          </p>
-                        ) : (
-                          <p className="mt-2 text-[11px] leading-5 text-[#9A93A5]">
-                            Format obligatoire : 01XXXXXXXX
-                          </p>
-                        )}
+                        <p className="mt-2 text-[11px] font-bold leading-5 text-red-600">
+                          {erreurTelephone}
+                        </p>
+                      ) : telephone.length > 0 && !/^01\d{8}$/.test(telephone) ? (
+                        <p className="mt-2 text-[11px] font-bold leading-5 text-red-600">
+                          Le numéro doit contenir 10 chiffres et commencer par 01.
+                        </p>
+                      ) : (
+                        <p className="mt-2 text-[11px] leading-5 text-[#9A93A5]">
+                          Format obligatoire : 01XXXXXXXX
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -791,27 +782,24 @@ export default function Commande() {
                           (facultatif)
                         </span>
                       </label>
-
                       <input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre@email.com"
                         type="email"
-                        className="h-12 w-full rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                        className="h-12 w-full rounded-[12px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
                       />
-
                       <p className="mt-2 text-[11px] leading-5 text-[#9A93A5]">
                         Pour recevoir les informations importantes liées à votre commande.
                       </p>
                     </div>
-
                   </div>
 
-                  <div className="mt-8 border-t border-[#E8E3EF] pt-6">
+                  <div className="mt-8 border-t border-[#F0F0F2] pt-6">
                     <button
                       type="button"
                       onClick={suivant}
-                      className="group flex h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+                      className="group flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#7654C6] to-[#8B6DD1] text-sm font-black text-white shadow-lg shadow-[#7654C6]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99]"
                     >
                       Continuer
                       <ArrowRight
@@ -820,7 +808,7 @@ export default function Commande() {
                       />
                     </button>
 
-                    <p className="mt-3 text-center text-[11px] text-[#9A93A5]">
+                    <p className="mt-3 text-center text-[11px] font-semibold text-[#9A93A5]">
                       Étape 1 sur 4
                     </p>
                   </div>
