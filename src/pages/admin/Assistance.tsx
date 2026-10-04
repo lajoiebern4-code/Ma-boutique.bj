@@ -1,673 +1,410 @@
 import { useEffect, useState } from 'react'
 import {
-  MessageCircle,
+  Mail,
   Send,
   Loader2,
-  UserRound,
   CheckCircle2,
-  Mail,
+  AlertCircle,
+  Clock,
+  Inbox,
+  MessageSquare,
+  UserRound,
+  RefreshCw,
+  Search,
+  ChevronLeft,
+  Filter,
 } from 'lucide-react'
 import {
-  obtenirMessagesAssistance,
-  marquerMessagesAssistanceLus,
-  envoyerReponseAssistanceAdmin,
-  obtenirUrlPieceJointeAssistance,
-  fermerConversationAssistanceAdmin,
-  notifierEmailAssistanceAdmin,
-  ecouterMessagesAssistance,
-  type AssistanceConversation,
-  type AssistanceMessage,
-} from '../../services/assistance'
-import { supabase } from '../../lib/supabase'
+  listerDemandesAssistance,
+  repondreDemandeAssistance,
+  marquerDemandeLue,
+  envoyerEmailReponseDemande,
+  type AssistanceDemande,
+} from '../../services/assistance-demandes'
 
-function PieceJointeAdmin({
-  message,
-}: {
-  message: AssistanceMessage
-}) {
-  const [chargement, setChargement] = useState(false)
+type FiltreStatut = 'tous' | 'nouveau' | 'repondu'
 
-  async function ouvrir() {
-    if (!message.attachment_path || chargement) return
+function formatDate(iso: string) {
+  const d = new Date(iso)
+  const maintenant = Date.now()
+  const diff = maintenant - d.getTime()
+  const min = Math.floor(diff / 60000)
+  const h = Math.floor(diff / 3600000)
+  const j = Math.floor(diff / 86400000)
 
-    try {
-      setChargement(true)
-const url = await obtenirUrlPieceJointeAssistance(
-        message.attachment_path,
-      )
-
-      if (!url) {
-        throw new Error('URL signée introuvable')
-      }
-window.open(url, '_blank')
-    } catch (error) {
-      console.error(
-        '[Assistance] Impossible d’ouvrir la pièce jointe :',
-        error,
-      )
-
-      alert(
-        error instanceof Error
-          ? `Impossible d’ouvrir le fichier : ${error.message}`
-          : 'Impossible d’ouvrir le fichier.',
-      )
-    } finally {
-      setChargement(false)
-    }
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={ouvrir}
-      disabled={chargement}
-      className="mt-2 flex max-w-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 disabled:opacity-50"
-    >
-      <span>
-        {message.attachment_type?.startsWith('image/')
-          ? '🖼️'
-          : '📎'}
-      </span>
-
-      <span className="min-w-0 truncate">
-        {chargement
-          ? 'Ouverture...'
-          : message.attachment_name || 'Pièce jointe'}
-      </span>
-    </button>
-  )
+  if (min < 1) return "à l'instant"
+  if (min < 60) return `il y a ${min} min`
+  if (h < 24) return `il y a ${h}h`
+  if (j < 7) return `il y a ${j}j`
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
 }
 
-export default function Assistance() {
-type ConversationInbox = AssistanceConversation & {
-    client_email?: string | null
-    dernierMessage: AssistanceMessage | null
-    messagesNonLus: number
+export default function AdminAssistance() {
+  const [demandes, setDemandes] = useState<AssistanceDemande[]>([])
+  const [chargement, setChargement] = useState(true)
+  const [erreur, setErreur] = useState('')
+  const [filtre, setFiltre] = useState<FiltreStatut>('tous')
+  const [recherche, setRecherche] = useState('')
+  const [selection, setSelection] = useState<AssistanceDemande | null>(null)
+  const [reponse, setReponse] = useState('')
+  const [envoi, setEnvoi] = useState(false)
+  const [succesMsg, setSuccesMsg] = useState('')
+
+  async function charger() {
+    setChargement(true)
+    setErreur('')
+    const r = await listerDemandesAssistance()
+    if (r.success) {
+      setDemandes(r.data)
+    } else {
+      setErreur(r.error)
+    }
+    setChargement(false)
   }
 
-  const [conversations, setConversations] = useState<ConversationInbox[]>([])
-  const [conversationSelectionnee, setConversationSelectionnee] =
-    useState<ConversationInbox | null>(null)
-  const [messages, setMessages] = useState<AssistanceMessage[]>([])
-  const [message, setMessage] = useState('')
-  const [chargement, setChargement] = useState(true)
-  const [chargementMessages, setChargementMessages] = useState(false)
-  const [envoi, setEnvoi] = useState(false)
-  const [erreur, setErreur] = useState<string | null>(null)
-
   useEffect(() => {
-    let actif = true
-
-    async function chargerConversations() {
-      try {
-        setChargement(true)
-        setErreur(null)
-        const { data, error } = await supabase.rpc(
-          'cs_assistance_admin_inbox',
-        )
-
-        if (error) throw error
-
-        const conversationsBrutes = (data ?? []) as Array<
-          AssistanceConversation & {
-            visitor_id?: string | null
-            client_nom?: string | null
-            client_telephone?: string | null
-            client_email?: string | null
-            commande_numero?: string | null
-            commande_statut?: string | null
-            commande_total?: number | null
-          }
-        >
-
-        const conversationsVisibles = conversationsBrutes
-
-        const conversationIds = conversationsVisibles.map(
-          (conversation) => conversation.id,
-        )
-
-        const informationsMessages = new Map<
-          string,
-          { dernierMessage: AssistanceMessage | null; messagesNonLus: number }
-        >()
-
-        if (conversationIds.length > 0) {
-          const { data: messagesData, error: messagesError } =
-            await supabase
-              .from('cs_assistance_messages')
-              .select(
-                'id, conversation_id, sender_type, sender_user_id, contenu, created_at, lu_at, has_attachment, attachment_path, attachment_name, attachment_type',
-              )
-              .in('conversation_id', conversationIds)
-              .order('created_at', { ascending: true })
-
-          if (messagesError) throw messagesError
-
-          for (const item of (messagesData ?? []) as AssistanceMessage[]) {
-            const actuel =
-              informationsMessages.get(item.conversation_id) ?? {
-                dernierMessage: null,
-                messagesNonLus: 0,
-              }
-
-            actuel.dernierMessage = item
-
-            if (
-              item.sender_type === 'client' &&
-              item.lu_at === null
-            ) {
-              actuel.messagesNonLus += 1
-            }
-
-            informationsMessages.set(item.conversation_id, actuel)
-          }
-        }
-
-        const conversationsEnrichies: ConversationInbox[] =
-          conversationsVisibles.map((conversation) => {
-            const informations =
-              informationsMessages.get(conversation.id)
-
-            return {
-              ...conversation,
-              client: {
-                nom: conversation.client_nom ?? null,
-                telephone: conversation.client_telephone ?? null,
-              },
-              client_email: conversation.client_email ?? null,
-              owner_type: conversation.owner_type ?? 'client',
-              commande: conversation.commande_numero
-                ? {
-                    numero: conversation.commande_numero,
-                    statut: conversation.commande_statut ?? null,
-                    total: conversation.commande_total ?? null,
-                  }
-                : null,
-              dernierMessage:
-                informations?.dernierMessage ?? null,
-              messagesNonLus:
-                informations?.messagesNonLus ?? 0,
-            }
-          })
-
-        if (actif) {
-          setConversations(conversationsEnrichies)
-        }
-      } catch (error) {
-        console.error('Assistance admin:', error)
-        if (actif) {
-          setErreur(
-            error instanceof Error
-              ? `Erreur Assistance : ${error.message}`
-              : `Erreur Assistance : ${String(error)}`
-          )
-        }
-      } finally {
-        if (actif) setChargement(false)
-      }
-    }
-
-    chargerConversations()
-
-    const channel = supabase
-      .channel('admin-assistance-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'cs_assistance_conversations',
-        },
-        () => {
-          chargerConversations()
-        },
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'cs_assistance_messages',
-        },
-        () => {
-          chargerConversations()
-        },
-      )
-      .subscribe()
-
-    return () => {
-      actif = false
-      channel.unsubscribe()
-    }
+    void charger()
   }, [])
 
-  useEffect(() => {
-    if (!conversationSelectionnee) {
-      setMessages([])
+  async function ouvrir(d: AssistanceDemande) {
+    setSelection(d)
+    setReponse(d.reponse || '')
+    setSuccesMsg('')
+    if (!d.lu) {
+      void marquerDemandeLue(d.id)
+      setDemandes((prev) =>
+        prev.map((x) => (x.id === d.id ? { ...x, lu: true } : x)),
+      )
+    }
+  }
+
+  async function envoyerReponse() {
+    if (!selection) return
+    if (reponse.trim().length < 5) {
+      setErreur('La réponse doit contenir au moins 5 caractères.')
       return
     }
 
-    let actif = true
-    let channel: ReturnType<typeof ecouterMessagesAssistance> | null = null
-
-    async function chargerMessages() {
-      try {
-        setChargementMessages(true)
-        const historique = await obtenirMessagesAssistance(
-          conversationSelectionnee!.id,
-        )
-
-        if (!actif) return
-
-        setMessages(historique)
-
-        await marquerMessagesAssistanceLus(
-          conversationSelectionnee!.id,
-        )
-
-        window.dispatchEvent(
-          new Event('cs-assistance-compteur-refresh'),
-        )
-
-        channel = ecouterMessagesAssistance(
-          conversationSelectionnee!.id,
-          async () => {
-            const nouveauxMessages = await obtenirMessagesAssistance(
-              conversationSelectionnee!.id,
-            )
-
-            if (actif) {
-              setMessages(nouveauxMessages)
-            }
-          },
-        )
-      } catch (error) {
-        console.error('Messages assistance admin:', error)
-        if (actif) {
-          setErreur(
-              error instanceof Error
-                ? `Erreur Assistance : ${error.message}`
-                : `Erreur Assistance : ${String(error)}`
-            )
-        }
-      } finally {
-        if (actif) setChargementMessages(false)
-      }
-    }
-
-    chargerMessages()
-
-    return () => {
-      actif = false
-      if (channel) channel.unsubscribe()
-    }
-  }, [conversationSelectionnee])
-
-  async function fermer() {
-    if (!conversationSelectionnee) return
-
-    const conversationId = conversationSelectionnee.id
-
-    try {
-      await fermerConversationAssistanceAdmin(conversationId)
-
-      // L'email est secondaire : une erreur ne doit jamais bloquer la fermeture.
-      void notifierEmailAssistanceAdmin(
-        'closed',
-        conversationId,
-      )
-
-      setConversationSelectionnee(null)
-      setMessages([])
-    } catch (error) {
-      console.error('Fermeture assistance:', error)
-      setErreur("Impossible de fermer la conversation.")
-    }
-  }
-
-  async function envoyer() {
-    const texte = message.trim()
-
-    if (!texte || !conversationSelectionnee || envoi) return
-
-    setMessage('')
     setEnvoi(true)
-    setErreur(null)
+    setErreur('')
 
     try {
-      const nouveauMessage = await envoyerReponseAssistanceAdmin(
-        conversationSelectionnee.id,
-        texte,
-      )
+      const r = await repondreDemandeAssistance(selection.id, reponse.trim())
+      if (!r.success) throw new Error(r.error)
 
-      setMessages((anciens) => [...anciens, nouveauMessage])
+      void envoyerEmailReponseDemande(selection.id)
 
-      // L'email est secondaire : une erreur ne doit jamais bloquer le chat.
-      void notifierEmailAssistanceAdmin(
-        'reply',
-        conversationSelectionnee.id,
-        nouveauMessage.id,
+      setSuccesMsg('Réponse envoyée au client par email.')
+      setDemandes((prev) =>
+        prev.map((x) => (x.id === selection.id ? { ...x, ...r.data! } : x)),
       )
-    } catch (error) {
-      console.error('Réponse assistance:', error)
-      setMessage(texte)
-      setErreur("Impossible d'envoyer la réponse.")
+      setSelection(r.data)
+
+      setTimeout(() => setSuccesMsg(''), 4000)
+    } catch (err) {
+      setErreur(err instanceof Error ? err.message : 'Erreur')
     } finally {
       setEnvoi(false)
     }
   }
 
+  const demandesFiltrees = demandes.filter((d) => {
+    if (filtre !== 'tous' && d.statut !== filtre) return false
+    if (recherche.trim()) {
+      const terme = recherche.toLowerCase()
+      return (
+        d.nom.toLowerCase().includes(terme) ||
+        d.email.toLowerCase().includes(terme) ||
+        d.sujet.toLowerCase().includes(terme) ||
+        d.message.toLowerCase().includes(terme)
+      )
+    }
+    return true
+  })
+
+  const nbNouveaux = demandes.filter((d) => d.statut === 'nouveau').length
+
   return (
-    <div className="flex min-h-[calc(100vh-136px)] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-      <aside className="flex w-[340px] shrink-0 flex-col border-r border-slate-200">
-        <div className="border-b border-slate-100 px-5 py-5">
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="border-b border-slate-200 bg-white px-6 py-5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E8F5FB] text-[#0284C7]">
-              <MessageCircle size={22} />
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+              <Inbox size={22} />
             </div>
             <div>
-              <h2 className="text-base font-black text-[#0B1E3D]">
-                Assistance
-              </h2>
-              <p className="text-xs font-medium text-slate-400">
-                Conversations clients
+              <h1 className="text-xl font-black text-slate-900">
+                Demandes d'assistance
+              </h1>
+              <p className="text-xs font-medium text-slate-500">
+                {demandes.length} au total · {nbNouveaux} non traitées
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto">
-          {chargement ? (
-            <div className="flex justify-center py-12">
-              <Loader2
-                size={24}
-                className="animate-spin text-[#0284C7]"
+          <button
+            type="button"
+            onClick={() => void charger()}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <RefreshCw size={15} className={chargement ? 'animate-spin' : ''} />
+            Rafraîchir
+          </button>
+        </div>
+      </div>
+
+      <div className="mx-auto grid max-w-7xl gap-6 p-6 lg:grid-cols-[400px_1fr] lg:p-8">
+        {/* Colonne gauche : liste */}
+        <div className="space-y-4">
+          {/* Filtres */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="relative mb-3">
+              <Search
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="text"
+                value={recherche}
+                onChange={(e) => setRecherche(e.target.value)}
+                placeholder="Rechercher (nom, email, sujet...)"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:border-violet-300 focus:bg-white"
               />
             </div>
-          ) : conversations.length === 0 ? (
-            <div className="px-6 py-14 text-center">
-              <MessageCircle
-                size={30}
-                className="mx-auto mb-3 text-slate-300"
-              />
-              <p className="text-sm font-bold text-slate-500">
-                Aucune conversation
-              </p>
-              <p className="mt-1 text-xs leading-5 text-slate-400">
-                Les nouvelles demandes clients apparaîtront ici.
+
+            <div className="flex gap-1.5">
+              {(
+                [
+                  { v: 'tous', l: 'Toutes' },
+                  { v: 'nouveau', l: 'Non traitées' },
+                  { v: 'repondu', l: 'Répondues' },
+                ] as const
+              ).map((f) => (
+                <button
+                  key={f.v}
+                  type="button"
+                  onClick={() => setFiltre(f.v)}
+                  className={`flex-1 rounded-lg px-3 py-2 text-xs font-black transition-colors ${
+                    filtre === f.v
+                      ? 'bg-violet-600 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {f.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Liste */}
+          {chargement ? (
+            <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-16">
+              <Loader2 size={24} className="animate-spin text-violet-600" />
+            </div>
+          ) : demandesFiltrees.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
+              <Inbox size={32} className="mx-auto text-slate-300" />
+              <p className="mt-3 text-sm font-bold text-slate-500">
+                Aucune demande
               </p>
             </div>
           ) : (
-            conversations.map((conversation) => (
-              <button
-                key={conversation.id}
-                type="button"
-                onClick={() => setConversationSelectionnee(conversation)}
-                className={`w-full border-b border-slate-100 px-5 py-4 text-left transition ${
-                  conversationSelectionnee?.id === conversation.id
-                    ? 'bg-[#F0F9FF]'
-                    : 'hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-                    <UserRound size={18} />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-[#0B1E3D]">
-                      {conversation.client?.nom || 'Client'}
-                    </p>
-                    <p className="mt-1 truncate text-[11px] font-medium text-slate-400">
-                      {conversation.client?.telephone || 'Téléphone non renseigné'}
-                    </p>
-
-                    <div className="mt-1 flex items-center gap-1.5">
-                      <span
-                        className={`rounded-md px-1.5 py-0.5 text-[9px] font-black ${
-                          conversation.owner_type === 'visitor'
-                            ? 'bg-orange-50 text-orange-600'
-                            : 'bg-sky-50 text-sky-600'
-                        }`}
-                      >
-                        {conversation.owner_type === 'visitor'
-                          ? 'Visiteur'
-                          : 'Client'}
-                      </span>
-
-                      {conversation.client_email && (
-                        <span className="flex min-w-0 items-center gap-1 truncate text-[10px] text-slate-400">
-                          <Mail size={11} />
-                          {conversation.client_email}
+            <div className="space-y-2">
+              {demandesFiltrees.map((d) => {
+                const actif = selection?.id === d.id
+                return (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => void ouvrir(d)}
+                    className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                      actif
+                        ? 'border-violet-300 bg-violet-50 shadow-md'
+                        : d.statut === 'nouveau' && !d.lu
+                          ? 'border-slate-200 bg-white shadow-sm hover:border-violet-200'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        {d.statut === 'nouveau' && !d.lu && (
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                        )}
+                        <span className="truncate text-sm font-black text-slate-900">
+                          {d.nom}
                         </span>
-                      )}
+                      </div>
+                      <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                        {formatDate(d.created_at)}
+                      </span>
                     </div>
-                    {conversation.commande?.numero && (
-                      <p className="mt-1 truncate text-[11px] font-bold text-[#0284C7]">
-                        Commande {conversation.commande.numero}
-                      </p>
-                    )}
 
-                    {conversation.dernierMessage?.contenu && (
-                      <p className="mt-1 truncate text-xs font-medium text-slate-500">
-                        {conversation.dernierMessage.contenu}
-                      </p>
-                    )}
-
-                    <p className="mt-1 text-[11px] font-medium text-slate-400">
-                      {new Date(
-                        conversation.last_message_at,
-                      ).toLocaleString('fr-FR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                    <p className="mt-1.5 truncate text-[11px] font-semibold text-violet-700">
+                      {d.sujet}
                     </p>
-                  </div>
+                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">
+                      {d.message}
+                    </p>
 
-                  {conversation.messagesNonLus > 0 && (
-                    <span className="mt-1 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white">
-                      {conversation.messagesNonLus > 99
-                        ? '99+'
-                        : conversation.messagesNonLus}
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))
+                    {d.statut === 'repondu' && (
+                      <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">
+                        <CheckCircle2 size={10} />
+                        Répondu
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           )}
         </div>
-      </aside>
 
-      <section className="flex min-w-0 flex-1 flex-col">
-        {!conversationSelectionnee ? (
-          <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-[#E8F5FB] text-[#0284C7]">
-              <MessageCircle size={30} />
+        {/* Colonne droite : détail */}
+        <div>
+          {!selection ? (
+            <div className="flex h-full min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white">
+              <div className="text-center">
+                <MessageSquare
+                  size={40}
+                  className="mx-auto text-slate-300"
+                />
+                <p className="mt-4 text-sm font-bold text-slate-500">
+                  Sélectionnez une demande à gauche
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  pour lire et répondre au client
+                </p>
+              </div>
             </div>
-            <h3 className="text-base font-black text-[#0B1E3D]">
-              Assistance client
-            </h3>
-            <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
-              Sélectionnez une conversation pour consulter les messages et
-              répondre au client.
-            </p>
-          </div>
-        ) : (
-          <>
-            <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-                  <UserRound size={18} />
-                </div>
-                <div>
-                    <p className="text-sm font-black text-[#0B1E3D]">
-                      {conversationSelectionnee.client?.nom || 'Client'}
-                    </p>
-                    <p className="text-[11px] font-medium text-slate-400">
-                      {conversationSelectionnee.client?.telephone ||
-                        'Téléphone non renseigné'}
-                    </p>
-
-                    <div className="mt-1 flex items-center gap-1.5">
-                      <span
-                        className={`rounded-md px-1.5 py-0.5 text-[9px] font-black ${
-                          conversationSelectionnee.owner_type === 'visitor'
-                            ? 'bg-orange-50 text-orange-600'
-                            : 'bg-sky-50 text-sky-600'
-                        }`}
-                      >
-                        {conversationSelectionnee.owner_type === 'visitor'
-                          ? 'Visiteur'
-                          : 'Client'}
-                      </span>
-
-                      {conversationSelectionnee.client_email && (
-                        <span className="flex min-w-0 items-center gap-1 text-[10px] text-slate-400">
-                          <Mail size={11} />
-                          {conversationSelectionnee.client_email}
-                        </span>
-                      )}
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+              {/* En-tête détail */}
+              <div className="border-b border-slate-200 p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+                      <UserRound size={22} />
                     </div>
-                    {conversationSelectionnee.commande?.numero && (
-                      <p className="mt-1 text-[11px] font-bold text-[#0284C7]">
-                        Commande {conversationSelectionnee.commande.numero}
+                    <div>
+                      <p className="text-base font-black text-slate-900">
+                        {selection.nom}
                       </p>
-                    )}
+                      <a
+                        href={`mailto:${selection.email}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:underline"
+                      >
+                        <Mail size={11} />
+                        {selection.email}
+                      </a>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`rounded-full px-3 py-1 text-[10px] font-black uppercase ${
+                      selection.statut === 'repondu'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'
+                    }`}
+                  >
+                    {selection.statut === 'repondu' ? 'Répondu' : 'Non traité'}
+                  </span>
+                </div>
+
+                <div className="mt-4 flex items-center gap-4 text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <Clock size={11} />
+                    {new Date(selection.created_at).toLocaleString('fr-FR')}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Filter size={11} />
+                    Sujet : <strong className="text-violet-700">{selection.sujet}</strong>
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {conversationSelectionnee.needs_human_reply && (
-                  <div className="flex items-center gap-1.5 rounded-xl bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-600">
-                    <span className="h-2 w-2 rounded-full bg-orange-500" />
-                    Réponse requise
+              {/* Message du client */}
+              <div className="border-b border-slate-200 p-5">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Message du client
+                </p>
+                <div className="rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-800 whitespace-pre-wrap">
+                  {selection.message}
+                </div>
+              </div>
+
+              {/* Réponse */}
+              <div className="p-5">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  {selection.reponse ? 'Votre réponse' : 'Votre réponse au client'}
+                </p>
+
+                <textarea
+                  value={reponse}
+                  onChange={(e) => setReponse(e.target.value)}
+                  placeholder="Écrivez votre réponse ici... Le client la recevra par email."
+                  rows={7}
+                  disabled={envoi}
+                  className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-900 outline-none transition-colors focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
+                />
+
+                <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>Minimum 5 caractères</span>
+                  <span>{reponse.length} caractères</span>
+                </div>
+
+                {erreur && (
+                  <div className="mt-3 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs font-semibold text-red-700">
+                    <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                    <span>{erreur}</span>
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={fermer}
-                  className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2 text-[11px] font-bold text-slate-600 transition hover:bg-slate-200"
-                >
-                  <CheckCircle2 size={15} />
-                  Fermer
-                </button>
-              </div>
-            </header>
+                {succesMsg && (
+                  <div className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-semibold text-emerald-700">
+                    <CheckCircle2 size={14} className="mt-0.5 shrink-0" />
+                    <span>{succesMsg}</span>
+                  </div>
+                )}
 
-            <div className="flex-1 space-y-4 overflow-y-auto bg-[#F8FAFC] p-5">
-              {chargementMessages ? (
-                <div className="flex justify-center py-10">
-                  <Loader2
-                    size={24}
-                    className="animate-spin text-[#0284C7]"
-                  />
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelection(null)
+                      setReponse('')
+                      setErreur('')
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-700"
+                  >
+                    <ChevronLeft size={14} />
+                    Retour
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void envoyerReponse()}
+                    disabled={envoi || reponse.trim().length < 5}
+                    className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-black text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {envoi ? (
+                      <>
+                        <Loader2 size={15} className="animate-spin" />
+                        Envoi…
+                      </>
+                    ) : (
+                      <>
+                        <Send size={15} />
+                        Envoyer la réponse
+                      </>
+                    )}
+                  </button>
                 </div>
-              ) : messages.length === 0 ? (
-                <div className="flex h-full items-center justify-center">
-                  <p className="text-sm text-slate-400">
-                    Aucun message.
-                  </p>
-                </div>
-              ) : (
-                messages.map((item) => {
-                  const estClient = item.sender_type === 'client'
-
-                  return (
-                    <div
-                      key={item.id}
-                      className={`flex ${
-                        estClient ? 'justify-start' : 'justify-end'
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-6 ${
-                          estClient
-                            ? 'rounded-bl-md bg-white text-slate-700 shadow-sm'
-                            : 'rounded-br-md bg-[#0284C7] text-white'
-                        }`}
-                      >
-                        <p
-                          className={`mb-1 text-[10px] font-bold ${
-                            estClient
-                              ? 'text-slate-500'
-                              : 'text-white/80'
-                          }`}
-                        >
-                          {estClient
-                            ? `Client · ${conversationSelectionnee.client?.nom || 'Client'}`
-                            : 'Assistance ChinaShop-Bénin'}
-                        </p>
-                        {item.contenu && <p>{item.contenu}</p>}
-
-                        {item.has_attachment && item.attachment_path && (
-                          <PieceJointeAdmin message={item} />
-                        )}
-                        <p
-                          className={`mt-1 text-[9px] ${
-                            estClient
-                              ? 'text-slate-400'
-                              : 'text-white/70'
-                          }`}
-                        >
-                          {new Date(item.created_at).toLocaleString(
-                            'fr-FR',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            },
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-            </div>
-
-            <div className="border-t border-slate-200 bg-white p-4">
-              {erreur && (
-                <p className="mb-2 px-1 text-xs font-medium text-red-500">
-                  {erreur}
-                </p>
-              )}
-
-              <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2 focus-within:border-[#0284C7]">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault()
-                      envoyer()
-                    }
-                  }}
-                  placeholder="Répondre au client..."
-                  disabled={envoi}
-                  className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
-
-                <button
-                  type="button"
-                  onClick={envoyer}
-                  disabled={!message.trim() || envoi}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0284C7] text-white transition hover:bg-[#0369A1] disabled:cursor-not-allowed disabled:opacity-40"
-                  aria-label="Envoyer la réponse"
-                >
-                  {envoi ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Send size={18} />
-                  )}
-                </button>
               </div>
             </div>
-          </>
-        )}
-      </section>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
