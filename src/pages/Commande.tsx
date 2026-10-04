@@ -588,52 +588,53 @@ export default function Commande() {
           Retour au panier
         </button>
 
-        {/* HEADER */}
-        <div className="relative mb-8 overflow-hidden rounded-[14px] bg-[#211C29] px-6 py-7 text-white shadow-[0_8px_24px_rgba(24,21,31,0.06)] sm:px-8 sm:py-8">
-          <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#7654C6]/20 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-1/3 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
+        {/* HEADER PREMIUM */}
+        <div className="relative mb-6 overflow-hidden rounded-[24px] bg-gradient-to-br from-[#1E1B2E] via-[#2A2344] to-[#3B2D5F] px-6 py-8 text-white shadow-[0_20px_60px_rgba(30,27,46,0.25)] sm:px-8 sm:py-10">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#7654C6]/30 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full bg-[#8B6DD1]/25 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_50%)]" />
 
           <div className="relative flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[10px] bg-white/10 ring-1 ring-white/15 backdrop-blur-sm">
-              <ShoppingBag size={25} />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] bg-white/10 ring-1 ring-white/20 backdrop-blur">
+              <ShoppingBag size={24} />
             </div>
-
             <div>
-              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#D8CCF0]">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#FFB47A]">
                 ChinaShop-Bénin
               </p>
-
               <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
                 Finaliser ma commande
               </h1>
-
-              <p className="mt-1.5 text-sm text-[#9A93A5]">
+              <p className="mt-1.5 text-sm text-white/70">
                 Quelques étapes pour confirmer votre commande.
               </p>
             </div>
           </div>
         </div>
-
         <div className="grid gap-6 lg:grid-cols-[270px_1fr] lg:gap-8">
 
           {/* PROGRESSION */}
-          <div className="lg:col-span-2 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:px-7">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
-                  Progression
-                </p>
-                <p className="mt-1 text-sm font-bold text-[#18151F]">
-                  Étape {etape} sur 4
-                </p>
+          <div className="overflow-hidden rounded-[20px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] lg:col-span-2">
+            <div className="flex items-center justify-between border-b border-[#F0F0F2] px-5 py-3.5 sm:px-6">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F1ECFA] text-[#7654C6]">
+                  <Check size={14} strokeWidth={3} />
+                </span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
+                    Progression
+                  </p>
+                  <p className="text-sm font-black text-[#18151F]">
+                    Étape {etape} sur 4
+                  </p>
+                </div>
               </div>
-
-              <span className="rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[10px] font-black text-[#7654C6]">
+              <span className="rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[11px] font-black text-[#7654C6]">
                 {Math.round((etape / 4) * 100)}%
               </span>
             </div>
 
-            <div className="flex items-start">
+            <div className="flex items-start px-3 py-5 sm:px-6">
               {etapes.map((item, index) => {
                 const Icon = item.icon
                 const actif = etape === item.numero
@@ -641,10 +642,7 @@ export default function Commande() {
                 const dernier = index === etapes.length - 1
 
                 return (
-                  <div
-                    key={item.numero}
-                    className="flex min-w-0 flex-1 items-start"
-                  >
+                  <div key={item.numero} className="flex min-w-0 flex-1 items-start">
                     <button
                       type="button"
                       onClick={() => {
@@ -655,26 +653,23 @@ export default function Commande() {
                       className="group flex min-w-0 flex-col items-center text-center"
                     >
                       <div
-                        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-4 border-white text-sm font-black ring-1 transition-all duration-300 ${
+                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-black ring-1 transition-all duration-300 sm:h-11 sm:w-11 ${
                           termine
                             ? 'bg-emerald-500 text-white ring-emerald-500 shadow-md shadow-emerald-100'
                             : actif
-                              ? 'bg-[#18151F] text-white ring-[#18151F] shadow-lg shadow-[0_8px_24px_rgba(24,21,31,0.08)] scale-105'
+                              ? 'scale-105 bg-[#7654C6] text-white shadow-lg shadow-[#7654C6]/25 ring-[#7654C6]'
                               : 'bg-[#F1ECFA] text-[#9A93A5] ring-[#E8E3EF]'
                         }`}
                       >
                         {termine ? (
-                          <Check size={17} strokeWidth={3.5} />
+                          <Check size={16} strokeWidth={3.5} />
                         ) : (
-                          <Icon size={17} />
+                          <Icon size={16} />
                         )}
                       </div>
-
                       <p
-                        className={`mt-2 max-w-[90px] text-[11px] font-black leading-4 transition-colors ${
-                          termine || actif
-                            ? 'text-[#18151F]'
-                            : 'text-[#9A93A5]'
+                        className={`mt-2 max-w-[78px] text-[10px] font-black leading-4 transition-colors sm:max-w-[90px] sm:text-[11px] ${
+                          termine || actif ? 'text-[#18151F]' : 'text-[#9A93A5]'
                         }`}
                       >
                         {item.numero}. {item.titre}
@@ -682,12 +677,10 @@ export default function Commande() {
                     </button>
 
                     {!dernier && (
-                      <div className="mt-[22px] h-1 min-w-3 flex-1 overflow-hidden rounded-full bg-[#F1ECFA]">
+                      <div className="mt-[20px] h-1 min-w-2 flex-1 overflow-hidden rounded-full bg-[#F1ECFA] sm:mt-[22px]">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
-                            etape > item.numero
-                              ? 'w-full bg-emerald-500'
-                              : 'w-0'
+                            etape > item.numero ? 'w-full bg-emerald-500' : 'w-0'
                           }`}
                         />
                       </div>
@@ -697,7 +690,6 @@ export default function Commande() {
               })}
             </div>
           </div>
-
           {/* FORMULAIRE */}
           <section>
 
