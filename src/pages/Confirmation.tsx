@@ -248,7 +248,7 @@ export default function Confirmation() {
             onClick={() => navigate('/catalogue')}
             className="group flex items-center gap-2"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#18151F] text-white shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#7654C6] text-white shadow-sm">
               <ShoppingBag size={19} />
             </span>
 
@@ -271,7 +271,7 @@ export default function Confirmation() {
         </header>
 
         {/* SUCCESS HERO */}
-        <section className="relative overflow-hidden rounded-[14px] bg-[#18151F] px-5 py-8 text-white shadow-[0_20px_60px_rgba(24,21,31,0.12)] sm:rounded-[14px] sm:px-10 sm:py-11">
+        <section className="relative overflow-hidden rounded-[14px] bg-gradient-to-br from-[#7654C6] via-[#8B6DD1] to-[#3B2D5F] px-5 py-8 text-white shadow-[0_20px_60px_rgba(24,21,31,0.12)] sm:rounded-[14px] sm:px-10 sm:py-11">
           <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#7654C6]/30 blur-3xl" />
           <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[#7654C6]/15 blur-3xl" />
 
@@ -282,7 +282,7 @@ export default function Confirmation() {
                   <Check
                     size={31}
                     strokeWidth={3}
-                    className="text-[#18151F]"
+                    className="text-white"
                   />
                 </div>
               </div>

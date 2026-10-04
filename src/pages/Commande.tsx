@@ -18,6 +18,8 @@ import {
   Truck,
   UserCheck,
   ChevronDown,
+  Banknote,
+  Smartphone,
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import {
@@ -589,7 +591,10 @@ export default function Commande() {
         setErreurCommande(
           error instanceof Error
             ? error.message
-            : 'Une erreur inattendue est survenue lors de la création de la commande.',
+            : (error as any)?.message ||
+              (error as any)?.error_description ||
+              (typeof error === "string" ? error : JSON.stringify(error)) ||
+              "Une erreur inattendue est survenue lors de la création de la commande.",
         )
       } finally {
         setChargement(false)
@@ -1320,10 +1325,20 @@ export default function Commande() {
                           )}
                         </div>
 
-                        <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4">
-                          <p className="text-xs font-bold leading-5 text-[#6F687A]">
-                            Les frais de livraison ne sont pas inclus dans votre commande. Ils seront convenus directement avec le livreur selon votre zone de livraison.
-                          </p>
+                        <div className="rounded-[14px] border border-[#7654C6]/20 bg-[#F1ECFA]/60 p-3.5">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#7654C6]/10">
+                              <Truck className="h-4 w-4 text-[#7654C6]" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-[11px] font-black text-[#18151F]">
+                                Frais de livraison
+                              </p>
+                              <p className="mt-1 text-xs font-semibold leading-5 text-[#6F687A]">
+                                Non inclus dans votre commande. Ils seront convenus directement avec le livreur selon votre zone.
+                              </p>
+                            </div>
+                          </div>
                         </div>
 
                         {erreurCommande && (
@@ -1425,13 +1440,12 @@ export default function Commande() {
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
-
                       <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                         modePaiement === 'especes'
-                          ? 'bg-orange-100 text-orange-600'
-                          : 'bg-orange-50 text-orange-500'
+                          ? 'bg-emerald-100 text-emerald-600'
+                          : 'bg-emerald-50 text-emerald-500'
                       }`}>
-                        <Package size={25} />
+                        <Banknote size={22} strokeWidth={2.5} />
                       </div>
 
                       <div className="mt-3">
@@ -1440,10 +1454,11 @@ export default function Commande() {
                         </h3>
 
                         <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
-                          Payez lors du retrait de votre commande.
+                          Réglez au retrait de votre commande.
                         </p>
 
-                        <div className="mt-3 inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100">
+                        <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                           Disponible au retrait
                         </div>
                       </div>
@@ -1469,15 +1484,7 @@ export default function Commande() {
                           ? 'bg-[#E8DFF7] text-[#7654C6]'
                           : 'bg-[#F1ECFA] text-[#7654C6]'
                       }`}>
-                        <span className="flex h-8 w-9 items-center justify-center rounded-[45%] border-2 border-black bg-[#FFCC00] shadow-sm">
-
-                          <span className="font-black text-[7px] leading-none tracking-[-0.09em] text-black">
-
-                            MTN
-
-                          </span>
-
-                        </span>
+                        <Smartphone size={22} strokeWidth={2.5} />
                       </div>
 
                       <div className="mt-3">
@@ -1489,8 +1496,16 @@ export default function Commande() {
                           Paiement en ligne rapide et sécurisé.
                         </p>
 
-                        <div className="mt-3 inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-[#7654C6] ring-1 ring-[#E8E3EF]">
-                          Paiement en ligne
+                        <div className="mt-3 flex flex-wrap items-center gap-1">
+                          <span className="inline-flex items-center rounded-md bg-[#FFCC00] px-1.5 py-0.5 text-[9px] font-black leading-none text-black">
+                            MTN
+                          </span>
+                          <span className="inline-flex items-center rounded-md bg-[#0066B3] px-1.5 py-0.5 text-[9px] font-black leading-none text-white">
+                            Moov
+                          </span>
+                          <span className="inline-flex items-center rounded-md bg-[#00A651] px-1.5 py-0.5 text-[9px] font-black leading-none text-white">
+                            Celtis
+                          </span>
                         </div>
                       </div>
                     </button>
@@ -1825,13 +1840,37 @@ export default function Commande() {
                           </p>
 
                           <p className="mt-1 text-xs leading-5 text-[#6F687A]">
-                            {departement}, {commune}, {quartier}, {rue}
-                          </p>
+                            {rue}, {quartier}, {commune}, {departement}
 
+                          </p>
+                          {modeReception === "livraison" && getDelaiLivraison(commune) && (
+                            <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-[#7654C6]">
+                              <Clock className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              <span>{getDelaiLivraison(commune)}</span>
+                            </div>
+                          )}
                           {repere && (
                             <p className="mt-1 text-[11px] leading-5 text-[#9A93A5]">
                               Repère : {repere}
                             </p>
+                          )}
+                          {livrerAutrePersonne && nomDestinataire && (
+                            <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-[#E8E3EF] bg-white px-3 py-2.5">
+                              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#F1ECFA] text-[#7654C6]">
+                                <UserCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[9px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
+                                  Destinataire
+                                </p>
+                                <p className="mt-0.5 truncate text-xs font-black text-[#18151F]">
+                                  {nomDestinataire}
+                                </p>
+                                <p className="mt-0.5 text-[11px] font-semibold text-[#6F687A]">
+                                  {telephoneDestinataire}
+                                </p>
+                              </div>
+                            </div>
                           )}
                         </>
                       )}
@@ -1883,7 +1922,7 @@ export default function Commande() {
                 <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#18151F]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
                         <ShoppingBag size={17} />
                       </div>
 
