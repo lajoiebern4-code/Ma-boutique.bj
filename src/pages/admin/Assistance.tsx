@@ -29,6 +29,7 @@ import {
   type ConversationIA,
   type MessageIA,
 } from '../../services/assistance-messages'
+import { envoyerReponseAssistanceAdmin } from '../../services/assistance'
 
 type FiltreStatut = 'tous' | 'nouveau' | 'repondu'
 type Onglet = 'demandes' | 'messages'
@@ -53,7 +54,7 @@ function formatHeure(iso: string) {
 export default function AdminAssistance() {
   const [onglet, setOnglet] = useState<Onglet>('demandes')
 
-  // ---- Demandes ----
+  // Demandes
   const [demandes, setDemandes] = useState<AssistanceDemande[]>([])
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState('')
@@ -64,12 +65,16 @@ export default function AdminAssistance() {
   const [envoi, setEnvoi] = useState(false)
   const [succesMsg, setSuccesMsg] = useState('')
 
-  // ---- Conversations IA ----
+  // Conversations IA
   const [conversations, setConversations] = useState<ConversationIA[]>([])
   const [chargementConv, setChargementConv] = useState(false)
   const [convSelectionnee, setConvSelectionnee] = useState<ConversationIA | null>(null)
   const [messagesIA, setMessagesIA] = useState<MessageIA[]>([])
   const [chargementMsg, setChargementMsg] = useState(false)
+  const [reponseIA, setReponseIA] = useState('')
+  const [envoiIA, setEnvoiIA] = useState(false)
+  const [succesIA, setSuccesIA] = useState('')
+  const [erreurIA, setErreurIA] = useState('')
 
   async function charger() {
     setChargement(true)
@@ -100,6 +105,9 @@ export default function AdminAssistance() {
   async function ouvrirConversation(c: ConversationIA) {
     setConvSelectionnee(c)
     setChargementMsg(true)
+    setReponseIA('')
+    setSuccesIA('')
+    setErreurIA('')
     const r = await obtenirMessagesConversationIA(c.id)
     if (r.success) setMessagesIA(r.data)
     setChargementMsg(false)
@@ -108,6 +116,35 @@ export default function AdminAssistance() {
   function fermerConversation() {
     setConvSelectionnee(null)
     setMessagesIA([])
+    setReponseIA('')
+    setSuccesIA('')
+    setErreurIA('')
+  }
+
+  async function envoyerReponseIA() {
+    if (!convSelectionnee) return
+    if (reponseIA.trim().length < 2) {
+      setErreurIA('Votre message doit contenir au moins 2 caractères.')
+      return
+    }
+
+    setEnvoiIA(true)
+    setErreurIA('')
+
+    try {
+      await envoyerReponseAssistanceAdmin(convSelectionnee.id, reponseIA.trim())
+      setSuccesIA('Réponse envoyée au client.')
+      setReponseIA('')
+
+      const r = await obtenirMessagesConversationIA(convSelectionnee.id)
+      if (r.success) setMessagesIA(r.data)
+
+      setTimeout(() => setSuccesIA(''), 3000)
+    } catch (err) {
+      setErreurIA(err instanceof Error ? err.message : 'Erreur envoi')
+    } finally {
+      setEnvoiIA(false)
+    }
   }
 
   function ouvrir(d: AssistanceDemande) {
@@ -141,9 +178,7 @@ export default function AdminAssistance() {
       if (!r.success) throw new Error(r.error)
       void envoyerEmailReponseDemande(selection.id)
       setSuccesMsg('Réponse envoyée au client par email.')
-      setDemandes((prev) =>
-        prev.map((x) => (x.id === selection.id ? { ...x, ...r.data! } : x)),
-      )
+      setDemandes((prev) => prev.map((x) => (x.id === selection.id ? { ...x, ...r.data! } : x)))
       setSelection(r.data)
       setTimeout(() => setSuccesMsg(''), 4000)
     } catch (err) {
@@ -171,7 +206,6 @@ export default function AdminAssistance() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      {/* Header */}
       <div className="border-b border-slate-200 bg-white px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -192,15 +226,11 @@ export default function AdminAssistance() {
             onClick={() => (onglet === 'demandes' ? void charger() : void chargerConversations())}
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
           >
-            <RefreshCw
-              size={15}
-              className={chargement || chargementConv ? 'animate-spin' : ''}
-            />
+            <RefreshCw size={15} className={chargement || chargementConv ? 'animate-spin' : ''} />
             Rafraîchir
           </button>
         </div>
 
-        {/* Onglets */}
         <div className="mx-auto mt-4 flex max-w-5xl gap-1 rounded-2xl bg-slate-100 p-1">
           <button
             type="button"
@@ -234,10 +264,7 @@ export default function AdminAssistance() {
         </div>
       </div>
 
-      {/* Contenu */}
       <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6 lg:p-8">
-
-        {/* ============ ONGLET DEMANDES ============ */}
         {onglet === 'demandes' && (
           <>
             <div className="rounded-2xl border border-slate-200 bg-white p-3">
@@ -306,17 +333,13 @@ export default function AdminAssistance() {
                         {d.statut === 'nouveau' && !d.lu && (
                           <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
                         )}
-                        <span className="truncate text-sm font-black text-slate-900">
-                          {d.nom}
-                        </span>
+                        <span className="truncate text-sm font-black text-slate-900">{d.nom}</span>
                       </div>
                       <span className="shrink-0 text-[11px] font-medium text-slate-400">
                         {formatDate(d.created_at)}
                       </span>
                     </div>
-                    <p className="mt-1.5 truncate text-[11px] font-semibold text-violet-700">
-                      {d.sujet}
-                    </p>
+                    <p className="mt-1.5 truncate text-[11px] font-semibold text-violet-700">{d.sujet}</p>
                     <p className="mt-1 line-clamp-2 text-xs text-slate-500">{d.message}</p>
                     {d.statut === 'repondu' && (
                       <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">
@@ -334,7 +357,6 @@ export default function AdminAssistance() {
           </>
         )}
 
-        {/* ============ ONGLET MESSAGES IA ============ */}
         {onglet === 'messages' && (
           <>
             {chargementConv ? (
@@ -344,9 +366,7 @@ export default function AdminAssistance() {
             ) : conversations.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
                 <Bot size={32} className="mx-auto text-slate-300" />
-                <p className="mt-3 text-sm font-bold text-slate-500">
-                  Aucune conversation avec l'IA
-                </p>
+                <p className="mt-3 text-sm font-bold text-slate-500">Aucune conversation avec l'IA</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -404,7 +424,7 @@ export default function AdminAssistance() {
         )}
       </div>
 
-      {/* ============ MODAL DEMANDE ============ */}
+      {/* MODAL DEMANDE */}
       {selection && (
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
@@ -531,7 +551,7 @@ export default function AdminAssistance() {
         </div>
       )}
 
-      {/* ============ MODAL CONVERSATION IA ============ */}
+      {/* MODAL CONVERSATION IA */}
       {convSelectionnee && (
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
@@ -589,6 +609,8 @@ export default function AdminAssistance() {
                 <div className="space-y-3">
                   {messagesIA.map((m) => {
                     const estClient = m.sender_type === 'client'
+                    const estRobot = m.sender_type === 'robot'
+                    const estAssist = m.sender_type === 'assistant'
                     return (
                       <div
                         key={m.id}
@@ -597,21 +619,38 @@ export default function AdminAssistance() {
                         }`}
                       >
                         {!estClient && (
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
-                            <Bot size={13} />
+                          <div
+                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                              estAssist
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-[#F1ECFA] text-[#7654C6]'
+                            }`}
+                          >
+                            {estAssist ? <User size={13} /> : <Bot size={13} />}
                           </div>
                         )}
                         <div
                           className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6 ${
                             estClient
                               ? 'rounded-br-md bg-[#7654C6] text-white'
-                              : 'rounded-bl-md border border-[#E8E3EF] bg-white text-[#18151F]'
+                              : estAssist
+                                ? 'rounded-bl-md border border-emerald-200 bg-emerald-50 text-emerald-900'
+                                : 'rounded-bl-md border border-[#E8E3EF] bg-white text-[#18151F]'
                           }`}
                         >
+                          {estAssist && (
+                            <p className="mb-1 text-[9px] font-black uppercase tracking-wider text-emerald-700">
+                              Vous (équipe)
+                            </p>
+                          )}
                           <p className="whitespace-pre-wrap">{m.contenu}</p>
                           <p
                             className={`mt-1 text-[10px] ${
-                              estClient ? 'text-white/60' : 'text-[#9A93A5]'
+                              estClient
+                                ? 'text-white/60'
+                                : estAssist
+                                  ? 'text-emerald-700/70'
+                                  : 'text-[#9A93A5]'
                             }`}
                           >
                             {formatHeure(m.created_at)}
@@ -629,14 +668,50 @@ export default function AdminAssistance() {
               )}
             </div>
 
-            <div className="border-t border-slate-200 bg-white px-5 py-4">
-              <button
-                type="button"
-                onClick={fermerConversation}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
-              >
-                Fermer
-              </button>
+            <div className="border-t border-slate-200 bg-white p-4">
+              <textarea
+                value={reponseIA}
+                onChange={(e) => setReponseIA(e.target.value)}
+                placeholder="Répondez au client en tant qu'équipe..."
+                rows={2}
+                disabled={envoiIA}
+                className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-900 outline-none transition-colors focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-60"
+              />
+
+              {erreurIA && (
+                <p className="mt-2 text-[11px] font-semibold text-red-600">{erreurIA}</p>
+              )}
+              {succesIA && (
+                <p className="mt-2 text-[11px] font-semibold text-emerald-600">{succesIA}</p>
+              )}
+
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={fermerConversation}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  Fermer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void envoyerReponseIA()}
+                  disabled={envoiIA || reponseIA.trim().length < 2}
+                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {envoiIA ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin" />
+                      Envoi…
+                    </>
+                  ) : (
+                    <>
+                      <Send size={15} />
+                      Répondre
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
