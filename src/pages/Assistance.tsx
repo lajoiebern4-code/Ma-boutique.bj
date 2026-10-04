@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Headphones,
+  MessageCircle,
   MessageSquare,
   Send,
   Loader2,
@@ -294,33 +295,22 @@ export default function Assistance() {
 
               <div className="space-y-2">
                 <a
-                  href="tel:+22900000000"
-                  className="flex items-center gap-3 rounded-xl border border-[#F0F0F2] bg-[#FAF9FC] px-4 py-3 transition-colors hover:border-[#7654C6]/30 hover:bg-[#F1ECFA]"
+                  href="https://wa.me/22951517876?text=Bonjour%20ChinaShop-B%C3%A9nin%2C%20j%27ai%20une%20question"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-xl border border-[#F0F0F2] bg-[#FAF9FC] px-4 py-3 transition-colors hover:border-[#25D366]/30 hover:bg-[#E7F9EE]"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                    <Phone size={16} />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#25D366]/15 text-[#25D366]">
+                    <MessageCircle size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#9A93A5]">Téléphone</p>
-                    <p className="text-[13px] font-black text-[#18151F]">Lun-Sam · 8h-18h</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#9A93A5]">WhatsApp</p>
+                    <p className="text-[13px] font-black text-[#18151F]">Discuter maintenant</p>
                   </div>
                   <ChevronRight size={16} className="text-[#9A93A5]" />
                 </a>
 
-                <a
-                  href="mailto:lajoiebern4@gmail.com"
-                  className="flex items-center gap-3 rounded-xl border border-[#F0F0F2] bg-[#FAF9FC] px-4 py-3 transition-colors hover:border-[#7654C6]/30 hover:bg-[#F1ECFA]"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                    <Mail size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#9A93A5]">Email</p>
-                    <p className="truncate text-[13px] font-black text-[#18151F]">lajoiebern4@gmail.com</p>
-                  </div>
-                  <ChevronRight size={16} className="text-[#9A93A5] shrink-0" />
-                </a>
-              </div>
+            </div>
             </div>
 
             {/* Mes demandes (si connecté) */}
