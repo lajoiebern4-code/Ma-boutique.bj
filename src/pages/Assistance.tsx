@@ -83,6 +83,7 @@ export default function Assistance() {
   const [erreur, setErreur] = useState('')
   const [succes, setSucces] = useState(false)
   const [clientConnecte, setClientConnecte] = useState(false)
+  const [estAdmin, setEstAdmin] = useState(false)
   const [mesDemandes, setMesDemandes] = useState<AssistanceDemande[]>([])
   const [faqOuverte, setFaqOuverte] = useState<string | null>(null)
   const [categorieActive, setCategorieActive] = useState<string>('Tous')
@@ -101,6 +102,9 @@ export default function Assistance() {
           (data.session.user.user_metadata?.nom as string) || ''
         setNom(nomCompte)
         setEmail(data.session.user.email || '')
+
+        const { data: adminCheck } = await supabase.rpc('cs_est_admin')
+        if (actif) setEstAdmin(adminCheck === true)
 
         const demandes = await listerMesDemandesAssistance()
         if (actif && demandes.success) {
@@ -509,7 +513,7 @@ export default function Assistance() {
         </div>
 
         {/* Lien admin si connecté admin */}
-        {clientConnecte && (
+            {estAdmin && (
           <div className="mt-6 text-center">
             <Link
               to="/admin-cs2026/assistance"
