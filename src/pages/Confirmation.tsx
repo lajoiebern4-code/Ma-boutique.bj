@@ -296,7 +296,7 @@ export default function Confirmation() {
                   Merci pour votre commande !
                 </h1>
 
-                <p className="mt-2 max-w-2xl text-xs leading-5 text-[#9A93A5] sm:text-sm">
+                <p className="mt-2 max-w-2xl text-xs leading-5 text-white/80 sm:text-sm">
                   Votre commande a bien été enregistrée. Gardez précieusement
                   votre numéro et votre code.
                 </p>
@@ -305,7 +305,7 @@ export default function Confirmation() {
 
             {/* ORDER NUMBER */}
             <div className="mt-7 rounded-[14px] border border-white/10 bg-white/[0.06] p-4 sm:p-5">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70">
                 Numéro de commande
               </p>
 
@@ -573,8 +573,8 @@ export default function Confirmation() {
           {/* RÉSUMÉ */}
           <aside className="h-fit space-y-4 lg:sticky lg:top-5">
             <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
-              <div className="bg-[#18151F] px-5 py-5 text-white">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
+              <div className="bg-gradient-to-br from-[#7654C6] to-[#5C3FA8] px-5 py-5 text-white">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70">
                   Récapitulatif
                 </p>
 
@@ -594,59 +594,6 @@ export default function Confirmation() {
                     {formatPrix(Number(commande.total || 0))}
                   </p>
                 </div>
-
-                {/* RECEPTION */}
-                <div className="mt-3 rounded-[14px] bg-[#FAF9FC] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
-                    Réception
-                  </p>
-
-                  <div className="mt-2 flex items-center gap-3">
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-[10px] ${
-                        estRetrait
-                          ? 'bg-orange-100 text-[#7654C6]'
-                          : 'bg-[#F1ECFA] text-[#7654C6]'
-                      }`}
-                    >
-                      {estRetrait ? (
-                        <Package size={17} />
-                      ) : (
-                        <Truck size={17} />
-                      )}
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-black text-[#18151F]">
-                        {estRetrait ? 'Retrait' : 'Livraison'}
-                      </p>
-
-                      <p className="text-[10px] font-semibold text-[#9A93A5]">
-                        {estRetrait
-                          ? 'Retrait en point prévu'
-                          : 'Livraison à domicile'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* PAIEMENT */}
-                <div className="mt-3 rounded-[14px] bg-[#FAF9FC] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
-                    Paiement
-                  </p>
-
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
-                      <CreditCard size={17} />
-                    </div>
-
-                    <p className="text-sm font-black text-[#18151F]">
-                      {paiementMobile ? 'Mobile Money' : 'Espèces'}
-                    </p>
-                  </div>
-                </div>
-
                 {/* SUIVI */}
                 <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 p-4">
                   <div className="flex items-center gap-3">
