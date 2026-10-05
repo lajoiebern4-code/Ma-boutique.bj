@@ -85,7 +85,7 @@ export default function PromotionVideo() {
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#FF3B4E] to-[#D92D20] text-white shadow-sm">
                 <Zap size={15} fill="currentColor" />
               </span>
-              <h3 className="text-[16px] font-black tracking-tight text-[#18151F]">Vente Flash</h3>
+              <h3 className="text-[16px] font-black tracking-tight text-[#1A1A2E]">Vente Flash</h3>
               <span className="hidden items-center gap-1 rounded-full bg-[#FFF1F2] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#D92D20] sm:inline-flex">
                 <Flame size={10} fill="currentColor" />
                 Limité
@@ -93,7 +93,7 @@ export default function PromotionVideo() {
             </div>
             <Link
               to="/promotions"
-              className="inline-flex items-center gap-0.5 text-[12px] font-bold text-[#7654C6] transition-colors hover:text-[#6544B3]"
+              className="inline-flex items-center gap-0.5 text-[12px] font-bold text-[#0F1B3D] transition-colors hover:text-[#C9A24B]"
             >
               Tout voir
               <ChevronRight size={14} />
@@ -141,12 +141,12 @@ export default function PromotionVideo() {
                   Promotion limitée
                 </p>
 
-                <h2 className="mt-2 line-clamp-2 text-[18px] font-black leading-tight tracking-tight text-[#18151F] sm:text-[22px] lg:text-[26px]">
+                <h2 className="mt-2 line-clamp-2 text-[18px] font-black leading-tight tracking-tight text-[#1A1A2E] sm:text-[22px] lg:text-[26px]">
                   {produit.nom}
                 </h2>
 
                 {produit.description?.trim() && (
-                  <p className="mt-2 line-clamp-2 text-[13px] leading-5 text-[#6F687A] sm:text-sm">
+                  <p className="mt-2 line-clamp-2 text-[13px] leading-5 text-[#6B7280] sm:text-sm">
                     {produit.description.trim()}
                   </p>
                 )}
@@ -164,7 +164,7 @@ export default function PromotionVideo() {
 
                 {/* Compteur */}
                 <div className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-[#F0F0F2] bg-[#FFF8F8] px-3 py-2">
-                  <span className="text-[11px] font-bold text-[#6F687A]">Fin dans</span>
+                  <span className="text-[11px] font-bold text-[#6B7280]">Fin dans</span>
                   <div className="flex items-center gap-1">
                     {[
                       { v: tr.j, l: 'J' },
@@ -173,10 +173,10 @@ export default function PromotionVideo() {
                       { v: tr.s, l: 'S' },
                     ].map((u, i) => (
                       <span key={i} className="inline-flex items-baseline gap-0.5">
-                        <span className="inline-flex min-w-[24px] items-center justify-center rounded-md bg-[#18151F] px-1.5 py-1 font-mono text-[12px] font-black tabular-nums text-white">
+                        <span className="inline-flex min-w-[24px] items-center justify-center rounded-md bg-[#1A1A2E] px-1.5 py-1 font-mono text-[12px] font-black tabular-nums text-white">
                           {String(u.v).padStart(2, '0')}
                         </span>
-                        <span className="text-[10px] font-black text-[#6F687A]">{u.l}</span>
+                        <span className="text-[10px] font-black text-[#6B7280]">{u.l}</span>
                       </span>
                     ))}
                   </div>

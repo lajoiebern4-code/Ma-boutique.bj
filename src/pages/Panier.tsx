@@ -77,36 +77,36 @@ export default function Panier() {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-[70vh] bg-[#FAF9FC] text-[#18151F]">
+      <main className="min-h-[70vh] bg-[#FFFFFF] text-[#1A1A2E]">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
           <Link
             to="/catalogue"
-            className="group inline-flex items-center gap-2 text-sm font-bold text-[#6F687A] transition hover:text-[#7654C6]"
+            className="group inline-flex items-center gap-2 text-sm font-bold text-[#6B7280] transition hover:text-[#0F1B3D]"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-white shadow-sm transition group-hover:border-[#7654C6]/30 group-hover:bg-[#F1ECFA]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#FAF9F6] bg-white shadow-sm transition group-hover:border-[#0F1B3D]/30 group-hover:bg-[#FAF9F6]">
               <ArrowLeft size={16} />
             </span>
             Continuer mes achats
           </Link>
 
-          <section className="relative mt-8 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
-            <div className="absolute inset-x-0 top-0 h-1 bg-[#7654C6]" />
+          <section className="relative mt-8 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
+            <div className="absolute inset-x-0 top-0 h-1 bg-[#0F1B3D]" />
 
             <div className="relative px-6 py-14 text-center sm:px-10 sm:py-18">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[14px] bg-[#F1ECFA] shadow-inner">
-                <ShoppingCart size={38} className="text-[#7654C6]" />
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[14px] bg-[#FAF9F6] shadow-inner">
+                <ShoppingCart size={38} className="text-[#0F1B3D]" />
               </div>
 
               <div className="mx-auto mt-8 max-w-lg">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F1B3D]">
                   Votre sélection
                 </p>
 
-                <h1 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+                <h1 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
                   Votre panier est vide
                 </h1>
 
-                <p className="mt-4 text-sm leading-6 text-[#6F687A] sm:text-base">
+                <p className="mt-4 text-sm leading-6 text-[#6B7280] sm:text-base">
                   Parcourez notre catalogue et ajoutez les articles qui vous
                   intéressent. Votre sélection apparaîtra ici avant de passer
                   votre commande.
@@ -114,7 +114,7 @@ export default function Panier() {
 
                 <Link
                   to="/catalogue"
-                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] px-6 text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.16)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0F1B3D] !text-white px-6 text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.16)] transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] active:scale-[0.99]"
                 >
                   <ShoppingBag size={18} />
                   Découvrir le catalogue
@@ -129,13 +129,13 @@ export default function Panier() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAF9FC] text-[#18151F]">
+    <main className="min-h-screen bg-[#FFFFFF] text-[#1A1A2E]">
       <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <Link
           to="/catalogue"
-          className="group inline-flex items-center gap-2 text-sm font-bold text-[#6F687A] transition hover:text-[#7654C6]"
+          className="group inline-flex items-center gap-2 text-sm font-bold text-[#6B7280] transition hover:text-[#0F1B3D]"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-white shadow-sm transition group-hover:border-[#7654C6]/30 group-hover:bg-[#F1ECFA]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#FAF9F6] bg-white shadow-sm transition group-hover:border-[#0F1B3D]/30 group-hover:bg-[#FAF9F6]">
             <ArrowLeft size={16} />
           </span>
           Continuer mes achats
@@ -143,7 +143,7 @@ export default function Panier() {
 
         <header className="mt-7 flex flex-col gap-5 sm:mt-9 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[#7654C6]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#FAF9F6] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[#0F1B3D]">
               <ShoppingCart size={13} />
               Votre sélection
             </div>
@@ -152,14 +152,14 @@ export default function Panier() {
               Mon panier
             </h1>
 
-            <p className="mt-2 text-sm text-[#6F687A]">
+            <p className="mt-2 text-sm text-[#6B7280]">
               {nombreArticles} article{nombreArticles > 1 ? 's' : ''} dans
               votre panier
             </p>
           </div>
 
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2.5 text-xs font-black shadow-sm">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#18151F] text-[10px] text-white">
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-4 py-2.5 text-xs font-black shadow-sm">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A1A2E] text-[10px] text-white">
               {nombreArticles}
             </span>
             Article{nombreArticles > 1 ? 's' : ''}
@@ -179,11 +179,11 @@ export default function Panier() {
               return (
                 <article
                   key={cleLigne}
-                  className="group overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition duration-200 hover:border-[#7654C6]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                  className="group overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition duration-200 hover:border-[#0F1B3D]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
                 >
                   <div className="p-4 sm:p-5">
                     <div className="flex gap-4 sm:gap-5">
-                      <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[14px] bg-[#FAF9FC] sm:h-32 sm:w-32">
+                      <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[14px] bg-[#FFFFFF] sm:h-32 sm:w-32">
                         {item.produit.image_url ? (
                           <img
                             src={item.produit.image_url}
@@ -200,7 +200,7 @@ export default function Panier() {
                         )}
 
                         <div className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg bg-white/95 shadow-sm backdrop-blur">
-                          <Check size={14} className="text-[#7654C6]" />
+                          <Check size={14} className="text-[#0F1B3D]" />
                         </div>
                       </div>
 
@@ -211,17 +211,17 @@ export default function Panier() {
                               Article ChinaShop
                             </p>
 
-                            <h2 className="line-clamp-2 text-sm font-black leading-5 text-[#18151F] sm:text-base">
+                            <h2 className="line-clamp-2 text-sm font-black leading-5 text-[#1A1A2E] sm:text-base">
                               {item.produit.nom}
                             </h2>
 
                             {item.produit.variante_nom && (
-                              <p className="mt-1 text-[11px] font-bold text-[#6F687A]">
+                              <p className="mt-1 text-[11px] font-bold text-[#6B7280]">
                                 Variante : {item.produit.variante_nom}
                               </p>
                             )}
 
-                            <p className="mt-2 text-sm font-black text-[#7654C6]">
+                            <p className="mt-2 text-sm font-black text-[#0F1B3D]">
                               {formatPrix(item.produit.prix)}
                             </p>
                           </div>
@@ -229,7 +229,7 @@ export default function Panier() {
                           <button
                             type="button"
                             onClick={() => supprimer(cleLigne)}
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E8E3EF] text-[#9A93A5] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#FAF9F6] text-[#9A93A5] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                             aria-label={`Supprimer ${item.produit.nom}`}
                           >
                             <Trash2 size={16} />
@@ -237,23 +237,23 @@ export default function Panier() {
                         </div>
 
                         {estSurCommande && (
-                          <div className="mt-5 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA] p-4">
-                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#7654C6]">
+                          <div className="mt-5 rounded-[14px] border border-[#FAF9F6] bg-[#FAF9F6] p-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#0F1B3D]">
                               Transport depuis la Chine
                             </p>
 
                             {transportForceAvion ? (
                               <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-white bg-white px-3.5 py-3 shadow-sm">
                                 <div>
-                                  <p className="text-xs font-black text-[#18151F]">
+                                  <p className="text-xs font-black text-[#1A1A2E]">
                                     Avion
                                   </p>
-                                  <p className="mt-0.5 text-[10px] font-semibold text-[#6F687A]">
+                                  <p className="mt-0.5 text-[10px] font-semibold text-[#6B7280]">
                                     Transport obligatoire pour cet article
                                   </p>
                                 </div>
 
-                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#7654C6] text-white">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0F1B3D] !text-white">
                                   <Check size={14} />
                                 </span>
                               </div>
@@ -269,21 +269,21 @@ export default function Panier() {
                                   }
                                   className={`rounded-xl border px-3 py-3 text-left transition ${
                                     item.produit.type_transport === 'avion'
-                                      ? 'border-[#7654C6] bg-[#F1ECFA] shadow-md ring-1 ring-[#D8CCF0]'
-                                      : 'border-[#E8E3EF] bg-white shadow-sm hover:border-[#7654C6]/40 hover:bg-[#F1ECFA]'
+                                      ? 'border-[#0F1B3D] bg-[#FAF9F6] shadow-md ring-1 ring-[#D8CCF0]'
+                                      : 'border-[#FAF9F6] bg-white shadow-sm hover:border-[#0F1B3D]/40 hover:bg-[#FAF9F6]'
                                   }`}
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <div>
-                                      <p className="text-xs font-black text-[#18151F]">
+                                      <p className="text-xs font-black text-[#1A1A2E]">
                                         Avion
                                       </p>
-                                      <p className="mt-0.5 text-[10px] font-semibold text-[#6F687A]">
+                                      <p className="mt-0.5 text-[10px] font-semibold text-[#6B7280]">
                                         Environ 30 jours
                                       </p>
                                     </div>
                                     {item.produit.type_transport === 'avion' && (
-                                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#7654C6] text-white">
+                                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0F1B3D] !text-white">
                                         <Check size={11} />
                                       </span>
                                     )}
@@ -300,21 +300,21 @@ export default function Panier() {
                                   }
                                   className={`rounded-xl border px-3 py-3 text-left transition ${
                                     item.produit.type_transport === 'bateau'
-                                      ? 'border-[#7654C6] bg-[#F1ECFA] shadow-md ring-1 ring-[#D8CCF0]'
-                                      : 'border-[#E8E3EF] bg-white shadow-sm hover:border-[#7654C6]/40 hover:bg-[#F1ECFA]'
+                                      ? 'border-[#0F1B3D] bg-[#FAF9F6] shadow-md ring-1 ring-[#D8CCF0]'
+                                      : 'border-[#FAF9F6] bg-white shadow-sm hover:border-[#0F1B3D]/40 hover:bg-[#FAF9F6]'
                                   }`}
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <div>
-                                      <p className="text-xs font-black text-[#18151F]">
+                                      <p className="text-xs font-black text-[#1A1A2E]">
                                         Bateau
                                       </p>
-                                      <p className="mt-0.5 text-[10px] font-semibold text-[#6F687A]">
+                                      <p className="mt-0.5 text-[10px] font-semibold text-[#6B7280]">
                                         Jusqu'à 3 mois
                                       </p>
                                     </div>
                                     {item.produit.type_transport === 'bateau' && (
-                                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#7654C6] text-white">
+                                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0F1B3D] !text-white">
                                         <Check size={11} />
                                       </span>
                                     )}
@@ -331,24 +331,24 @@ export default function Panier() {
                               Quantité
                             </p>
 
-                            <div className="flex h-10 items-center overflow-hidden rounded-xl border border-[#E8E3EF] bg-[#FAF9FC]">
+                            <div className="flex h-10 items-center overflow-hidden rounded-xl border border-[#FAF9F6] bg-[#FFFFFF]">
                               <button
                                 type="button"
                                 onClick={() => diminuer(cleLigne)}
-                                className="flex h-10 w-10 items-center justify-center text-[#18151F] transition hover:bg-white hover:text-[#7654C6]"
+                                className="flex h-10 w-10 items-center justify-center text-[#1A1A2E] transition hover:bg-white hover:text-[#0F1B3D]"
                                 aria-label="Diminuer"
                               >
                                 <Minus size={15} />
                               </button>
 
-                              <span className="flex h-10 min-w-10 items-center justify-center border-x border-[#E8E3EF] bg-white px-2 text-sm font-black">
+                              <span className="flex h-10 min-w-10 items-center justify-center border-x border-[#FAF9F6] bg-white px-2 text-sm font-black">
                                 {item.quantite}
                               </span>
 
                               <button
                                 type="button"
                                 onClick={() => augmenter(cleLigne)}
-                                className="flex h-10 w-10 items-center justify-center text-[#18151F] transition hover:bg-white hover:text-[#7654C6]"
+                                className="flex h-10 w-10 items-center justify-center text-[#1A1A2E] transition hover:bg-white hover:text-[#0F1B3D]"
                                 aria-label="Augmenter"
                               >
                                 <Plus size={15} />
@@ -361,7 +361,7 @@ export default function Panier() {
                               Total
                             </p>
 
-                            <p className="text-base font-black text-[#18151F] sm:text-lg">
+                            <p className="text-base font-black text-[#1A1A2E] sm:text-lg">
                               {formatPrix(prixLigne)}
                             </p>
                           </div>
@@ -375,10 +375,10 @@ export default function Panier() {
           </section>
 
           <aside className="lg:sticky lg:top-24">
-            <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
+            <div className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
               <div className="relative overflow-hidden bg-[#211C29] px-5 py-6 sm:px-6">
                 <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/5" />
-                <div className="absolute -bottom-16 right-16 h-32 w-32 rounded-full bg-[#7654C6]/20" />
+                <div className="absolute -bottom-16 right-16 h-32 w-32 rounded-full bg-[#0F1B3D]/20" />
 
                 <div className="relative">
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#D8CCF0]">
@@ -398,18 +398,18 @@ export default function Panier() {
               <div className="p-5 sm:p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-4 text-sm">
-                    <span className="text-[#6F687A]">Sous-total</span>
-                    <span className="font-black text-[#18151F]">
+                    <span className="text-[#6B7280]">Sous-total</span>
+                    <span className="font-black text-[#1A1A2E]">
                       {formatPrix(sousTotal)}
                     </span>
                   </div>
 
                   {transportChineSelectionne > 0 && (
                     <div className="flex items-center justify-between gap-4 text-sm">
-                      <span className="text-[#6F687A]">
+                      <span className="text-[#6B7280]">
                         Transport depuis la Chine
                       </span>
-                      <span className="font-black text-[#18151F]">
+                      <span className="font-black text-[#1A1A2E]">
                         {formatPrix(transportChineSelectionne)}
                       </span>
                     </div>
@@ -440,12 +440,12 @@ export default function Panier() {
                           Total
                         </p>
 
-                        <p className="mt-1 text-xs font-bold text-[#6F687A]">
+                        <p className="mt-1 text-xs font-bold text-[#6B7280]">
                           Hors frais de livraison
                         </p>
                       </div>
 
-                      <span className="text-2xl font-black tracking-tight text-[#7654C6]">
+                      <span className="text-2xl font-black tracking-tight text-[#0F1B3D]">
                         {formatPrix(totalPanierAvecTransport)}
                       </span>
                     </div>
@@ -462,7 +462,7 @@ export default function Panier() {
                   className={`group mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.16)] transition active:scale-[0.98] ${
                     transportManquant
                       ? 'cursor-not-allowed bg-slate-300 shadow-none'
-                      : 'bg-[#7654C6] hover:bg-[#6544B3]'
+                      : 'bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] text-[#0F1B3D] hover:from-[#D97706] hover:to-[#F59E0B]'
                   }`}
                 >
                   {transportManquant ? 'Choisissez le transport' : 'Passer la commande'}
@@ -474,12 +474,12 @@ export default function Panier() {
                   )}
                 </button>
 
-                <div className="mt-5 flex gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-4">
+                <div className="mt-5 flex gap-3 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-4">
                   <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
-                    <Check size={14} className="text-[#7654C6]" />
+                    <Check size={14} className="text-[#0F1B3D]" />
                   </div>
 
-                  <p className="text-[11px] leading-5 text-[#6F687A]">
+                  <p className="text-[11px] leading-5 text-[#6B7280]">
                     Les frais de livraison seront calculés selon le mode de
                     réception choisi lors de la commande.
                   </p>
@@ -487,20 +487,20 @@ export default function Panier() {
               </div>
             </div>
 
-            <div className="mt-4 rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm">
+            <div className="mt-4 rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA]">
-                  <ShoppingBag size={17} className="text-[#7654C6]" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6]">
+                  <ShoppingBag size={17} className="text-[#0F1B3D]" />
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#18151F]">
+                  <p className="text-xs font-black text-[#1A1A2E]">
                     Besoin d'ajouter un article ?
                   </p>
 
                   <Link
                     to="/catalogue"
-                    className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-[#7654C6] transition hover:text-[#6544B3]"
+                    className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-[#0F1B3D] transition hover:text-[#C9A24B]"
                   >
                     Retourner au catalogue
                     <ArrowRight size={12} />

@@ -254,25 +254,25 @@ export default function Commande() {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-screen bg-[#FAF9FC] px-4 py-10">
+      <main className="min-h-screen bg-[#FFFFFF] px-4 py-10">
         <div className="mx-auto max-w-xl rounded-[14px] bg-white p-8 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
           <ShoppingBag
             className="mx-auto text-[#9A93A5]"
             size={50}
           />
 
-          <h1 className="mt-5 text-2xl font-black text-[#18151F]">
+          <h1 className="mt-5 text-2xl font-black text-[#1A1A2E]">
             Votre panier est vide
           </h1>
 
-          <p className="mt-2 text-sm text-[#6F687A]">
+          <p className="mt-2 text-sm text-[#6B7280]">
             Ajoutez des articles avant de continuer votre commande.
           </p>
 
           <button
             type="button"
             onClick={() => navigate('/catalogue')}
-            className="mt-6 rounded-[10px] bg-[#7654C6] px-6 py-3 text-sm font-bold text-white"
+            className="mt-6 rounded-[10px] bg-[#0F1B3D] !text-white px-6 py-3 text-sm font-bold text-white"
           >
             Voir le catalogue
           </button>
@@ -629,13 +629,13 @@ export default function Commande() {
   ]
 
   return (
-    <main className="min-h-screen bg-[#FAF9FC] px-4 py-6 sm:px-6 sm:py-10">
+    <main className="min-h-screen bg-[#FFFFFF] px-4 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl">
 
         <button
           type="button"
           onClick={() => navigate('/panier')}
-          className="group mb-7 inline-flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2 text-xs font-black text-[#6F687A] shadow-sm transition hover:border-[#DCD5E8] hover:text-[#18151F]"
+          className="group mb-7 inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-4 py-2 text-xs font-black text-[#6B7280] shadow-sm transition hover:border-[#DCD5E8] hover:text-[#1A1A2E]"
         >
           <ArrowLeft
             size={15}
@@ -646,8 +646,8 @@ export default function Commande() {
 
         {/* HEADER PREMIUM */}
         <div className="relative mb-6 overflow-hidden rounded-[24px] bg-gradient-to-br from-[#1E1B2E] via-[#2A2344] to-[#3B2D5F] px-6 py-8 text-white shadow-[0_20px_60px_rgba(30,27,46,0.25)] sm:px-8 sm:py-10">
-          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#7654C6]/30 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full bg-[#8B6DD1]/25 blur-3xl" />
+          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#0F1B3D]/30 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full bg-[#E8E4DC]/25 blur-3xl" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_50%)]" />
 
           <div className="relative flex items-center gap-4">
@@ -670,7 +670,7 @@ export default function Commande() {
         <div className="grid gap-6 lg:grid-cols-[270px_1fr] lg:gap-8">
 
           {/* PROGRESSION */}
-          <div className="overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-white shadow-[0_1px_3px_rgba(24,21,31,0.04)] lg:col-span-2">
+          <div className="overflow-hidden rounded-[18px] border border-[#FAF9F6] bg-white shadow-[0_1px_3px_rgba(24,21,31,0.04)] lg:col-span-2">
             <div className="flex items-center gap-4 px-5 py-5 sm:gap-2 sm:px-8">
               {etapes.map((item, index) => {
                 const actif = etape === item.numero
@@ -693,15 +693,15 @@ export default function Commande() {
                           termine
                             ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100'
                             : actif
-                              ? 'bg-[#7654C6] text-white shadow-md shadow-[#7654C6]/25'
-                              : 'bg-[#F1ECFA] text-[#9A93A5]'
+                              ? 'bg-[#0F1B3D] !text-white shadow-md shadow-[#0F1B3D]/25'
+                              : 'bg-[#FAF9F6] text-[#9A93A5]'
                         }`}
                       >
                         {termine ? <Check size={14} strokeWidth={3.5} /> : item.numero}
                       </div>
                       <span
                         className={`hidden text-[12px] font-black leading-tight transition-colors sm:block ${
-                          termine || actif ? 'text-[#18151F]' : 'text-[#9A93A5]'
+                          termine || actif ? 'text-[#1A1A2E]' : 'text-[#9A93A5]'
                         }`}
                       >
                         {item.titre}
@@ -709,7 +709,7 @@ export default function Commande() {
                     </button>
 
                     {!dernier && (
-                      <div className="h-[2px] min-w-2 flex-1 overflow-hidden rounded-full bg-[#F1ECFA]">
+                      <div className="h-[2px] min-w-2 flex-1 overflow-hidden rounded-full bg-[#FAF9F6]">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
                             etape > item.numero ? 'w-full bg-emerald-500' : 'w-0'
@@ -727,7 +727,7 @@ export default function Commande() {
               <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                 Étape {etape}/4
               </span>
-              <span className="text-[12px] font-black text-[#7654C6]">
+              <span className="text-[12px] font-black text-[#0F1B3D]">
                 {etapes.find((e) => e.numero === etape)?.titre}
               </span>
             </div>
@@ -737,20 +737,20 @@ export default function Commande() {
 
             {/* ÉTAPE 1 */}
             {etape === 1 && (
-              <div className="overflow-hidden rounded-[24px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
-                <div className="border-b border-[#F0F0F2] bg-gradient-to-br from-[#FAF9FC] to-white px-6 py-7 sm:px-8">
+              <div className="overflow-hidden rounded-[24px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                <div className="border-b border-[#F0F0F2] bg-gradient-to-br from-[#FFFFFF] to-white px-6 py-7 sm:px-8">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-[#7654C6] to-[#8B6DD1] text-white shadow-lg shadow-[#7654C6]/25">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-[#0F1B3D] to-[#E8E4DC] text-white shadow-lg shadow-[#0F1B3D]/25">
                       <User size={20} />
                     </div>
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#7654C6]">
+                      <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#0F1B3D]">
                         Étape 01
                       </span>
-                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#18151F] sm:text-[26px]">
+                      <h2 className="mt-1.5 text-2xl font-black tracking-tight text-[#1A1A2E] sm:text-[26px]">
                         Vos informations
                       </h2>
-                      <p className="mt-1.5 max-w-xl text-sm leading-6 text-[#6F687A]">
+                      <p className="mt-1.5 max-w-xl text-sm leading-6 text-[#6B7280]">
                         Indiquez vos coordonnées pour que nous puissions vous contacter concernant votre commande.
                       </p>
                     </div>
@@ -760,32 +760,32 @@ export default function Commande() {
                 <div className="px-6 py-7 sm:px-8">
                   <div className="space-y-5">
                     <div>
-                      <label className="mb-2.5 block text-xs font-black text-[#18151F]">
+                      <label className="mb-2.5 block text-xs font-black text-[#1A1A2E]">
                         Nom complet
-                        <span className="ml-1 text-[#7654C6]">*</span>
+                        <span className="ml-1 text-[#0F1B3D]">*</span>
                       </label>
                       <div className="group relative">
                         <User
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#7654C6]"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#0F1B3D]"
                           size={18}
                         />
                         <input
                           value={nom}
                           onChange={(e) => setNom(e.target.value)}
                           placeholder="Ex. Jean Dupont"
-                          className="h-12 w-full rounded-[12px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                          className="h-12 w-full rounded-[12px] border border-[#FAF9F6] bg-[#FFFFFF] pl-12 pr-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#FAF9F6]"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="mb-2.5 block text-xs font-black text-[#18151F]">
+                      <label className="mb-2.5 block text-xs font-black text-[#1A1A2E]">
                         Numéro de téléphone
-                        <span className="ml-1 text-[#7654C6]">*</span>
+                        <span className="ml-1 text-[#0F1B3D]">*</span>
                       </label>
                       <div className="group relative">
                         <Phone
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#7654C6]"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A93A5] transition group-focus-within:text-[#0F1B3D]"
                           size={18}
                         />
                         <input
@@ -799,7 +799,7 @@ export default function Commande() {
                           inputMode="numeric"
                           pattern="01[0-9]{8}"
                           placeholder="01XXXXXXXX"
-                          className="h-12 w-full rounded-[12px] border border-[#E8E3EF] bg-[#FAF9FC] pl-12 pr-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                          className="h-12 w-full rounded-[12px] border border-[#FAF9F6] bg-[#FFFFFF] pl-12 pr-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#FAF9F6]"
                         />
                       </div>
                       {erreurTelephone ? (
@@ -818,7 +818,7 @@ export default function Commande() {
                     </div>
 
                     <div>
-                      <label className="mb-2.5 block text-xs font-black text-[#18151F]">
+                      <label className="mb-2.5 block text-xs font-black text-[#1A1A2E]">
                         E-mail
                         <span className="ml-1 font-medium text-[#9A93A5]">
                           (facultatif)
@@ -829,7 +829,7 @@ export default function Commande() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre@email.com"
                         type="email"
-                        className="h-12 w-full rounded-[12px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                        className="h-12 w-full rounded-[12px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#FAF9F6]"
                       />
                       <p className="mt-2 text-[11px] leading-5 text-[#9A93A5]">
                         Pour recevoir les informations importantes liées à votre commande.
@@ -841,7 +841,7 @@ export default function Commande() {
                     <button
                       type="button"
                       onClick={suivant}
-                      className="group flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#7654C6] to-[#8B6DD1] text-sm font-black text-white shadow-lg shadow-[#7654C6]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99]"
+                      className="group flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#0F1B3D] to-[#E8E4DC] text-sm font-black text-white shadow-lg shadow-[#0F1B3D]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99]"
                     >
                       Continuer
                       <ArrowRight
@@ -860,11 +860,11 @@ export default function Commande() {
             
             {/* ÉTAPE 2 */}
             {etape === 2 && (
-              <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+              <div className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
 
-                <div className="border-b border-[#E8E3EF] px-5 py-5 sm:px-7 sm:py-6">
+                <div className="border-b border-[#FAF9F6] px-5 py-5 sm:px-7 sm:py-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                       {modeReception === 'livraison' ? (
                         <MapPin size={20} />
                       ) : (
@@ -873,15 +873,15 @@ export default function Commande() {
                     </div>
 
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F1B3D]">
                         Étape 02
                       </span>
 
-                      <h2 className="mt-1.5 text-xl font-black tracking-tight text-[#18151F] sm:text-[23px]">
+                      <h2 className="mt-1.5 text-xl font-black tracking-tight text-[#1A1A2E] sm:text-[23px]">
                         Mode de réception
                       </h2>
 
-                      <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                      <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                         Choisissez comment vous souhaitez recevoir votre commande.
                       </p>
                     </div>
@@ -899,15 +899,15 @@ export default function Commande() {
                     }}
                     className={`group relative overflow-hidden rounded-[16px] border-2 p-5 text-left transition-all ${
                       modeReception === 'retrait'
-                        ? 'border-[#7654C6] bg-[#F1ECFA]/50 shadow-lg shadow-[#7654C6]/10'
-                        : 'border-[#E8E3EF] bg-white hover:border-[#C9BEE0] hover:shadow-md'
+                        ? 'border-[#0F1B3D] bg-[#FAF9F6]/50 shadow-lg shadow-[#0F1B3D]/10'
+                        : 'border-[#FAF9F6] bg-white hover:border-[#C9BEE0] hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div
                         className={`flex h-11 w-11 items-center justify-center rounded-[12px] transition-colors ${
                           modeReception === 'retrait'
-                            ? 'bg-[#7654C6] text-white shadow-md shadow-[#7654C6]/25'
+                            ? 'bg-[#0F1B3D] !text-white shadow-md shadow-[#0F1B3D]/25'
                             : 'bg-orange-50 text-orange-600'
                         }`}
                       >
@@ -917,8 +917,8 @@ export default function Commande() {
                       <div
                         className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all ${
                           modeReception === 'retrait'
-                            ? 'border-[#7654C6] bg-[#7654C6]'
-                            : 'border-[#E8E3EF] bg-white'
+                            ? 'border-[#0F1B3D] bg-[#0F1B3D]'
+                            : 'border-[#FAF9F6] bg-white'
                         }`}
                       >
                         {modeReception === 'retrait' && (
@@ -927,11 +927,11 @@ export default function Commande() {
                       </div>
                     </div>
 
-                    <h3 className="mt-4 text-[15px] font-black text-[#18151F]">
+                    <h3 className="mt-4 text-[15px] font-black text-[#1A1A2E]">
                       Retrait
                     </h3>
 
-                    <p className="mt-1 max-w-xs text-[12px] leading-5 text-[#6F687A]">
+                    <p className="mt-1 max-w-xs text-[12px] leading-5 text-[#6B7280]">
                       Récupérez votre commande au point de retrait.
                     </p>
 
@@ -951,16 +951,16 @@ export default function Commande() {
                     }}
                     className={`group relative overflow-hidden rounded-[16px] border-2 p-5 text-left transition-all ${
                       modeReception === 'livraison'
-                        ? 'border-[#7654C6] bg-[#F1ECFA]/50 shadow-lg shadow-[#7654C6]/10'
-                        : 'border-[#E8E3EF] bg-white hover:border-[#C9BEE0] hover:shadow-md'
+                        ? 'border-[#0F1B3D] bg-[#FAF9F6]/50 shadow-lg shadow-[#0F1B3D]/10'
+                        : 'border-[#FAF9F6] bg-white hover:border-[#C9BEE0] hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div
                         className={`flex h-11 w-11 items-center justify-center rounded-[12px] transition-colors ${
                           modeReception === 'livraison'
-                            ? 'bg-[#7654C6] text-white shadow-md shadow-[#7654C6]/25'
-                            : 'bg-[#F1ECFA] text-[#7654C6]'
+                            ? 'bg-[#0F1B3D] !text-white shadow-md shadow-[#0F1B3D]/25'
+                            : 'bg-[#FAF9F6] text-[#0F1B3D]'
                         }`}
                       >
                         <MapPin size={22} />
@@ -969,8 +969,8 @@ export default function Commande() {
                       <div
                         className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all ${
                           modeReception === 'livraison'
-                            ? 'border-[#7654C6] bg-[#7654C6]'
-                            : 'border-[#E8E3EF] bg-white'
+                            ? 'border-[#0F1B3D] bg-[#0F1B3D]'
+                            : 'border-[#FAF9F6] bg-white'
                         }`}
                       >
                         {modeReception === 'livraison' && (
@@ -979,16 +979,16 @@ export default function Commande() {
                       </div>
                     </div>
 
-                    <h3 className="mt-4 text-[15px] font-black text-[#18151F]">
+                    <h3 className="mt-4 text-[15px] font-black text-[#1A1A2E]">
                       Livraison
                     </h3>
 
-                    <p className="mt-1 max-w-xs text-[12px] leading-5 text-[#6F687A]">
+                    <p className="mt-1 max-w-xs text-[12px] leading-5 text-[#6B7280]">
                       Recevez votre commande à l'adresse indiquée.
                     </p>
 
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="rounded-full bg-[#F1ECFA] px-2.5 py-1 text-[10px] font-black text-[#7654C6]">
+                      <span className="rounded-full bg-[#FAF9F6] px-2.5 py-1 text-[10px] font-black text-[#0F1B3D]">
                         Frais à convenir
                       </span>
                     </div>
@@ -996,21 +996,21 @@ export default function Commande() {
                 </div>
 
                   {modeReception === 'livraison' && (
-                    <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/60 p-3.5 sm:p-4">
+                    <div className="mt-3 rounded-[14px] border border-[#FAF9F6] bg-[#FAF9F6]/60 p-3.5 sm:p-4">
                       <div className="mb-3">
-                        <p className="text-sm font-black text-[#18151F]">
+                        <p className="text-sm font-black text-[#1A1A2E]">
                           Informations de livraison
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                        <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                           Indiquez précisément où vous souhaitez recevoir votre commande.
                         </p>
                       </div>
 
                       <div className="space-y-3">
                         <div>
-                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                             Département
-                            <span className="ml-1 text-[#7654C6]">*</span>
+                            <span className="ml-1 text-[#0F1B3D]">*</span>
                           </label>
                           <div className="relative">
                           <select
@@ -1019,7 +1019,7 @@ export default function Commande() {
                               setDepartement(e.target.value)
                               setCommune("")
                             }}
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition appearance-none pr-10 hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                            className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition appearance-none pr-10 hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6]"
                           >
                             <option value="">Sélectionner un département</option>
                             <option value="Alibori">Alibori</option>
@@ -1035,21 +1035,21 @@ export default function Commande() {
                             <option value="Plateau">Plateau</option>
                             <option value="Zou">Zou</option>
                           </select>
-                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7654C6]" strokeWidth={2.5} />
+                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#0F1B3D]" strokeWidth={2.5} />
                           </div>
                         </div>
 
                         <div>
-                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                             Commune
-                            <span className="ml-1 text-[#7654C6]">*</span>
+                            <span className="ml-1 text-[#0F1B3D]">*</span>
                           </label>
                           <div className="relative">
                           <select
                             value={commune}
                             onChange={(e) => setCommune(e.target.value)}
                             disabled={!departement}
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition appearance-none pr-10 hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA] disabled:cursor-not-allowed disabled:bg-[#F1ECFA] disabled:text-[#9A93A5]"
+                            className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition appearance-none pr-10 hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
                           >
                             <option value="">
                               {departement ? "Sélectionner une commune" : "Choisissez d’abord un département"}
@@ -1174,20 +1174,20 @@ export default function Commande() {
                               </>
                             )}
                           </select>
-                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7654C6]" strokeWidth={2.5} />
+                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#0F1B3D]" strokeWidth={2.5} />
                           </div>
                         </div>
                         {getDelaiLivraison(commune) && (
-                          <div className="flex items-center gap-2 rounded-xl border border-[#E8E3EF] bg-white px-3.5 py-2.5">
-                            <Clock className="h-4 w-4 shrink-0 text-[#7654C6]" strokeWidth={2.5} />
-                            <p className="text-xs font-bold text-[#18151F]">{getDelaiLivraison(commune)}</p>
+                          <div className="flex items-center gap-2 rounded-xl border border-[#FAF9F6] bg-white px-3.5 py-2.5">
+                            <Clock className="h-4 w-4 shrink-0 text-[#0F1B3D]" strokeWidth={2.5} />
+                            <p className="text-xs font-bold text-[#1A1A2E]">{getDelaiLivraison(commune)}</p>
                           </div>
                         )}
 
                         <div>
-                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                             Quartier
-                            <span className="ml-1 text-[#7654C6]">*</span>
+                            <span className="ml-1 text-[#0F1B3D]">*</span>
                           </label>
                           <div className="relative">
                             <input
@@ -1198,10 +1198,10 @@ export default function Commande() {
                               onBlur={() => setTimeout(() => setQuartierFocus(false), 200)}
                               placeholder="Ex. Zongo, Agla, Cadjèhoun..."
                               autoComplete="off"
-                              className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                              className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6]"
                             />
                             {quartierFocus && getQuartiersPourCommune(commune).length > 0 && (
-                              <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-[#E8E3EF] bg-white py-1 shadow-[0_8px_24px_rgba(24,21,31,0.12)]">
+                              <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-[#FAF9F6] bg-white py-1 shadow-[0_8px_24px_rgba(24,21,31,0.12)]">
                                 {filtrerQuartiers(getQuartiersPourCommune(commune), quartier).length === 0 ? (
                                   <div className="px-4 py-2.5 text-xs font-semibold text-[#9A93A5]">Aucune suggestion — vous pouvez taper librement</div>
                                 ) : (
@@ -1214,9 +1214,9 @@ export default function Commande() {
                                         setQuartier(q)
                                         setQuartierFocus(false)
                                       }}
-                                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-[#18151F] transition hover:bg-[#F1ECFA] active:bg-[#F1ECFA]"
+                                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-[#1A1A2E] transition hover:bg-[#FAF9F6] active:bg-[#FAF9F6]"
                                     >
-                                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[#7654C6]" strokeWidth={2.5} />
+                                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[#0F1B3D]" strokeWidth={2.5} />
                                       <span>{q}</span>
                                     </button>
                                   ))
@@ -1227,21 +1227,21 @@ export default function Commande() {
                         </div>
 
                         <div>
-                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                             Rue / adresse précise
-                            <span className="ml-1 text-[#7654C6]">*</span>
+                            <span className="ml-1 text-[#0F1B3D]">*</span>
                           </label>
                           <input
                             type="text"
                             value={rue}
                             onChange={(e) => setRue(e.target.value)}
                             placeholder="Nom de rue, maison, numéro..."
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                            className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6]"
                           />
                         </div>
 
                         <div>
-                          <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                          <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                             Repère
                             <span className="ml-1 text-[11px] font-medium text-[#9A93A5]">(facultatif)</span>
                           </label>
@@ -1250,12 +1250,12 @@ export default function Commande() {
                             value={repere}
                             onChange={(e) => setRepere(e.target.value)}
                             placeholder="Ex. près de..., en face de..."
-                            className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                            className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6]"
                           />
                         </div>
 
-                        <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5">
-                          <p className="mb-3 text-[11px] font-black text-[#18151F]">
+                        <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-3.5">
+                          <p className="mb-3 text-[11px] font-black text-[#1A1A2E]">
                             Qui reçoit la commande ?
                           </p>
                           <div className="grid grid-cols-2 gap-2">
@@ -1264,12 +1264,12 @@ export default function Commande() {
                               onClick={() => setLivrerAutrePersonne(false)}
                               className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition ${
                                 !livrerAutrePersonne
-                                  ? "border-[#7654C6] bg-[#F1ECFA]"
-                                  : "border-[#E8E3EF] bg-white hover:border-[#DCD5E8]"
+                                  ? "border-[#0F1B3D] bg-[#FAF9F6]"
+                                  : "border-[#FAF9F6] bg-white hover:border-[#DCD5E8]"
                               }`}
                             >
-                              <User className={`h-5 w-5 ${!livrerAutrePersonne ? "text-[#7654C6]" : "text-[#9A93A5]"}`} strokeWidth={2.5} />
-                              <span className={`text-xs font-black ${!livrerAutrePersonne ? "text-[#7654C6]" : "text-[#6F687A]"}`}>
+                              <User className={`h-5 w-5 ${!livrerAutrePersonne ? "text-[#0F1B3D]" : "text-[#9A93A5]"}`} strokeWidth={2.5} />
+                              <span className={`text-xs font-black ${!livrerAutrePersonne ? "text-[#0F1B3D]" : "text-[#6B7280]"}`}>
                                 Moi-même
                               </span>
                             </button>
@@ -1278,12 +1278,12 @@ export default function Commande() {
                               onClick={() => setLivrerAutrePersonne(true)}
                               className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition ${
                                 livrerAutrePersonne
-                                  ? "border-[#7654C6] bg-[#F1ECFA]"
-                                  : "border-[#E8E3EF] bg-white hover:border-[#DCD5E8]"
+                                  ? "border-[#0F1B3D] bg-[#FAF9F6]"
+                                  : "border-[#FAF9F6] bg-white hover:border-[#DCD5E8]"
                               }`}
                             >
-                              <UserCheck className={`h-5 w-5 ${livrerAutrePersonne ? "text-[#7654C6]" : "text-[#9A93A5]"}`} strokeWidth={2.5} />
-                              <span className={`text-xs font-black ${livrerAutrePersonne ? "text-[#7654C6]" : "text-[#6F687A]"}`}>
+                              <UserCheck className={`h-5 w-5 ${livrerAutrePersonne ? "text-[#0F1B3D]" : "text-[#9A93A5]"}`} strokeWidth={2.5} />
+                              <span className={`text-xs font-black ${livrerAutrePersonne ? "text-[#0F1B3D]" : "text-[#6B7280]"}`}>
                                 Une autre personne
                               </span>
                             </button>
@@ -1292,22 +1292,22 @@ export default function Commande() {
                           {livrerAutrePersonne && (
                             <div className="mt-3 space-y-3">
                               <div>
-                                <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                                <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                                   Nom complet du destinataire
-                                  <span className="ml-1 text-[#7654C6]">*</span>
+                                  <span className="ml-1 text-[#0F1B3D]">*</span>
                                 </label>
                                 <input
                                   type="text"
                                   value={nomDestinataire}
                                   onChange={(e) => setNomDestinataire(e.target.value)}
                                   placeholder="Ex. Jean Dossou"
-                                  className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                                  className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6]"
                                 />
                               </div>
                               <div>
-                                <label className="mb-1.5 block text-[11px] font-black text-[#18151F]">
+                                <label className="mb-1.5 block text-[11px] font-black text-[#1A1A2E]">
                                   Téléphone du destinataire
-                                  <span className="ml-1 text-[#7654C6]">*</span>
+                                  <span className="ml-1 text-[#0F1B3D]">*</span>
                                 </label>
                                 <input
                                   type="text"
@@ -1318,23 +1318,23 @@ export default function Commande() {
                                     setTelephoneDestinataire(chiffres)
                                   }}
                                   placeholder="Ex. 0197000000"
-                                  className="h-11 w-full rounded-xl border border-[#E8E3EF] bg-white px-4 text-sm font-semibold text-[#18151F] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#7654C6] focus:ring-4 focus:ring-[#F1ECFA]"
+                                  className="h-11 w-full rounded-xl border border-[#FAF9F6] bg-white px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9A93A5] hover:border-[#DCD5E8] focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#FAF9F6]"
                                 />
                               </div>
                             </div>
                           )}
                         </div>
 
-                        <div className="rounded-[14px] border border-[#7654C6]/20 bg-[#F1ECFA]/60 p-3.5">
+                        <div className="rounded-[14px] border border-[#0F1B3D]/20 bg-[#FAF9F6]/60 p-3.5">
                           <div className="flex items-start gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#7654C6]/10">
-                              <Truck className="h-4 w-4 text-[#7654C6]" strokeWidth={2.5} />
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0F1B3D]/10">
+                              <Truck className="h-4 w-4 text-[#0F1B3D]" strokeWidth={2.5} />
                             </div>
                             <div className="flex-1">
-                              <p className="text-[11px] font-black text-[#18151F]">
+                              <p className="text-[11px] font-black text-[#1A1A2E]">
                                 Frais de livraison
                               </p>
-                              <p className="mt-1 text-xs font-semibold leading-5 text-[#6F687A]">
+                              <p className="mt-1 text-xs font-semibold leading-5 text-[#6B7280]">
                                 Non inclus dans votre commande. Ils seront convenus directement avec le livreur selon votre zone.
                               </p>
                             </div>
@@ -1351,11 +1351,11 @@ export default function Commande() {
                     </div>
 
                     )}
-                  <div className="mt-5 flex gap-2.5 border-t border-[#E8E3EF] pt-4">
+                  <div className="mt-5 flex gap-2.5 border-t border-[#FAF9F6] pt-4">
                     <button
                       type="button"
                       onClick={precedent}
-                      className="h-11 rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#6F687A] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC]"
+                      className="h-11 rounded-xl border border-[#FAF9F6] bg-white px-5 text-xs font-black text-[#6B7280] transition hover:border-[#DCD5E8] hover:bg-[#FFFFFF]"
                     >
                       Retour
                     </button>
@@ -1363,7 +1363,7 @@ export default function Commande() {
                     <button
                       type="button"
                       onClick={suivant}
-                      className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+                      className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#0F1B3D] text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] active:scale-[0.99]"
                     >
                       Continuer
                       <ArrowRight
@@ -1379,24 +1379,24 @@ export default function Commande() {
 
             {/* ÉTAPE 3 */}
             {etape === 3 && (
-              <div className="overflow-hidden rounded-[14px] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] ring-1 ring-[#E8E3EF]">
+              <div className="overflow-hidden rounded-[14px] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] ring-1 ring-[#FAF9F6]">
 
-                <div className="border-b border-[#E8E3EF] bg-gradient-to-br from-[#FAF9FC] via-white to-[#F1ECFA]/50 px-5 py-5 sm:px-7 sm:py-6">
+                <div className="border-b border-[#FAF9F6] bg-gradient-to-br from-[#FFFFFF] via-white to-[#FAF9F6]/50 px-5 py-5 sm:px-7 sm:py-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#18151F] text-white shadow-[0_4px_14px_rgba(24,21,31,0.06)]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#1A1A2E] text-white shadow-[0_4px_14px_rgba(24,21,31,0.06)]">
                       <CreditCard size={22} />
                     </div>
 
                     <div>
-                      <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#7654C6]">
+                      <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
                         Étape 03 · Paiement
                       </span>
 
-                      <h2 className="mt-2 text-xl font-black tracking-tight text-[#18151F] sm:text-2xl">
+                      <h2 className="mt-2 text-xl font-black tracking-tight text-[#1A1A2E] sm:text-2xl">
                         Comment souhaitez-vous payer ?
                       </h2>
 
-                      <p className="mt-1 max-w-xl text-xs leading-5 text-[#6F687A]">
+                      <p className="mt-1 max-w-xl text-xs leading-5 text-[#6B7280]">
                         Choisissez le moyen de paiement qui correspond à votre mode de réception.
                       </p>
                     </div>
@@ -1431,12 +1431,12 @@ export default function Commande() {
                       onClick={() => setModePaiement('especes')}
                       className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left sm:p-4 transition-all duration-200 ${
                         modePaiement === 'especes'
-                          ? 'border-[#7654C6] bg-[#F1ECFA] shadow-[0_8px_24px_rgba(118,84,198,0.08)]'
-                          : 'border-[#E8E3EF] bg-white hover:border-[#7654C6]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]'
+                          ? 'border-[#0F1B3D] bg-[#FAF9F6] shadow-[0_8px_24px_rgba(118,84,198,0.08)]'
+                          : 'border-[#FAF9F6] bg-white hover:border-[#0F1B3D]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]'
                       } disabled:cursor-not-allowed disabled:opacity-40`}
                     >
                       {modePaiement === 'especes' && (
-                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
+                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#0F1B3D] !text-white">
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
@@ -1449,11 +1449,11 @@ export default function Commande() {
                       </div>
 
                       <div className="mt-3">
-                        <h3 className="text-base font-black text-[#18151F]">
+                        <h3 className="text-base font-black text-[#1A1A2E]">
                           Paiement en espèces
                         </h3>
 
-                        <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
+                        <p className="mt-1 text-[11px] leading-4 text-[#6B7280]">
                           Réglez au retrait de votre commande.
                         </p>
 
@@ -1469,30 +1469,30 @@ export default function Commande() {
                       onClick={() => setModePaiement('mobile_money')}
                       className={`group relative overflow-hidden rounded-[14px] border p-3.5 text-left sm:p-4 transition-all duration-200 ${
                         modePaiement === 'mobile_money'
-                          ? 'border-[#7654C6] bg-[#F1ECFA] shadow-[0_8px_24px_rgba(118,84,198,0.08)]'
-                          : 'border-[#E8E3EF] bg-white hover:border-[#7654C6]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]'
+                          ? 'border-[#0F1B3D] bg-[#FAF9F6] shadow-[0_8px_24px_rgba(118,84,198,0.08)]'
+                          : 'border-[#FAF9F6] bg-white hover:border-[#0F1B3D]/20 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]'
                       }`}
                     >
                       {modePaiement === 'mobile_money' && (
-                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#7654C6] text-white">
+                        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#0F1B3D] !text-white">
                           <Check size={15} strokeWidth={3} />
                         </div>
                       )}
 
                       <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                         modePaiement === 'mobile_money'
-                          ? 'bg-[#E8DFF7] text-[#7654C6]'
-                          : 'bg-[#F1ECFA] text-[#7654C6]'
+                          ? 'bg-[#E8DFF7] text-[#0F1B3D]'
+                          : 'bg-[#FAF9F6] text-[#0F1B3D]'
                       }`}>
                         <Smartphone size={22} strokeWidth={2.5} />
                       </div>
 
                       <div className="mt-3">
-                        <h3 className="text-base font-black text-[#18151F]">
+                        <h3 className="text-base font-black text-[#1A1A2E]">
                           Mobile Money
                         </h3>
 
-                        <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
+                        <p className="mt-1 text-[11px] leading-4 text-[#6B7280]">
                           Paiement en ligne rapide et sécurisé.
                         </p>
 
@@ -1513,19 +1513,19 @@ export default function Commande() {
                   </div>
 
                   {modePaiement === 'mobile_money' && (
-                    <div className="mt-4 rounded-[14px] border border-[#E8E3EF] bg-gradient-to-br from-[#F1ECFA] to-white p-4 sm:p-5">
+                    <div className="mt-4 rounded-[14px] border border-[#FAF9F6] bg-gradient-to-br from-[#FAF9F6] to-white p-4 sm:p-5">
 
                       <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#7654C6] shadow-sm ring-1 ring-[#E8E3EF]">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F1B3D] shadow-sm ring-1 ring-[#FAF9F6]">
                           <Phone size={18} />
                         </div>
 
                         <div>
-                          <p className="text-xs font-black text-[#18151F]">
+                          <p className="text-xs font-black text-[#1A1A2E]">
                             Effectuez votre paiement Mobile Money
                           </p>
 
-                          <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                          <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                             Vous pouvez payer depuis n’importe quel numéro Mobile Money. Utilisez l’un des numéros marchands affichés ci-dessous.
                           </p>
                         </div>
@@ -1536,7 +1536,7 @@ export default function Commande() {
                           {moyensPaiement.map((moyen) => (
                             <div
                               key={moyen.id}
-                              className="rounded-xl border border-[#E8E3EF] bg-white px-3 py-2.5"
+                              className="rounded-xl border border-[#FAF9F6] bg-white px-3 py-2.5"
                             >
                               <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2">
@@ -1549,12 +1549,12 @@ export default function Commande() {
                                     </span>
 
                                   </span>
-                                  <span className="text-xs font-black text-[#18151F]">
+                                  <span className="text-xs font-black text-[#1A1A2E]">
                                     {moyen.nom || moyen.code}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs font-black tracking-wide text-[#18151F]">
+                                  <span className="text-xs font-black tracking-wide text-[#1A1A2E]">
                                     {moyen.numero}
                                   </span>
 
@@ -1569,7 +1569,7 @@ export default function Commande() {
                                         )
                                       }, 1800)
                                     }}
-                                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[#E8E3EF] bg-white px-2.5 text-[10px] font-black text-[#7654C6] shadow-sm transition hover:border-[#D8CCF0] hover:bg-[#F1ECFA] active:scale-[0.98]"
+                                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[#FAF9F6] bg-white px-2.5 text-[10px] font-black text-[#0F1B3D] shadow-sm transition hover:border-[#D8CCF0] hover:bg-[#FAF9F6] active:scale-[0.98]"
                                   >
                                     {numeroCopie === moyen.numero ? (
                                       <>
@@ -1587,7 +1587,7 @@ export default function Commande() {
                               </div>
 
                               {moyen.instructions && (
-                                <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                                <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                                   {moyen.instructions}
                                 </p>
                               )}
@@ -1596,13 +1596,13 @@ export default function Commande() {
                         </div>
                       )}
 
-                      <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-white p-4">
+                      <div className="mt-3 rounded-[14px] border border-[#FAF9F6] bg-white p-4">
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#9A93A5]">
                               Montant à payer
                             </p>
-                            <p className="mt-1 text-lg font-black text-[#18151F]">
+                            <p className="mt-1 text-lg font-black text-[#1A1A2E]">
                               {formatPrix(
                                 totalSurCommande > 0
                                   ? calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5)
@@ -1611,18 +1611,18 @@ export default function Commande() {
                             </p>
                           </div>
 
-                          <div className="rounded-xl bg-[#F1ECFA] px-3 py-2 text-[11px] font-black text-[#7654C6]">
+                          <div className="rounded-xl bg-[#FAF9F6] px-3 py-2 text-[11px] font-black text-[#0F1B3D]">
                             {totalSurCommande > 0 ? 'Acompte 50 %' : 'Paiement total'}
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-xl border border-[#E8E3EF] bg-white p-3.5">
-                        <label className="block text-xs font-black text-[#18151F]">
+                      <div className="mt-3 rounded-xl border border-[#FAF9F6] bg-white p-3.5">
+                        <label className="block text-xs font-black text-[#1A1A2E]">
                           Référence de transaction
                         </label>
 
-                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                        <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                           Saisissez les 12 chiffres de la référence indiquée sur votre reçu Mobile Money.
                         </p>
 
@@ -1634,16 +1634,16 @@ export default function Commande() {
                           }
                           placeholder="Ex. 123456789012"
                           maxLength={100}
-                          className="mt-3 h-11 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-sm font-semibold text-[#18151F] outline-none transition focus:border-[#7654C6] focus:bg-white"
+                          className="mt-3 h-11 w-full rounded-xl border border-[#FAF9F6] bg-[#FFFFFF] px-4 text-sm font-semibold text-[#1A1A2E] outline-none transition focus:border-[#0F1B3D] focus:bg-white"
                         />
                       </div>
 
-                      <div className="mt-3 rounded-xl border border-[#E8E3EF] bg-white p-3.5">
-                        <label className="block text-xs font-black text-[#18151F]">
+                      <div className="mt-3 rounded-xl border border-[#FAF9F6] bg-white p-3.5">
+                        <label className="block text-xs font-black text-[#1A1A2E]">
                           Preuve de paiement
                         </label>
 
-                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                        <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                           Après votre transfert, joignez une capture ou photo du reçu.
                           Formats acceptés : JPG, PNG ou WebP, 5 Mo maximum.
                         </p>
@@ -1656,7 +1656,7 @@ export default function Commande() {
                             setPreuvePaiement(fichier)
                             setErreurCommande('')
                           }}
-                          className="mt-3 block w-full text-xs font-semibold text-[#6F687A] file:mr-3 file:rounded-xl file:border-0 file:bg-[#F1ECFA] file:px-4 file:py-2.5 file:font-black file:text-[#7654C6] hover:file:bg-[#E8DFF7]"
+                          className="mt-3 block w-full text-xs font-semibold text-[#6B7280] file:mr-3 file:rounded-xl file:border-0 file:bg-[#FAF9F6] file:px-4 file:py-2.5 file:font-black file:text-[#0F1B3D] hover:file:bg-[#E8DFF7]"
                         />
 
                         {preuvePaiement && (
@@ -1685,12 +1685,12 @@ export default function Commande() {
                     </div>
                   )}
 
-                  <div className="mt-5 flex gap-2.5 border-t border-[#E8E3EF] pt-4">
+                  <div className="mt-5 flex gap-2.5 border-t border-[#FAF9F6] pt-4">
 
                     <button
                       type="button"
                       onClick={precedent}
-                      className="h-11 rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#6F687A] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC]"
+                      className="h-11 rounded-xl border border-[#FAF9F6] bg-white px-5 text-xs font-black text-[#6B7280] transition hover:border-[#DCD5E8] hover:bg-[#FFFFFF]"
                     >
                       Retour
                     </button>
@@ -1698,7 +1698,7 @@ export default function Commande() {
                     <button
                       type="button"
                       onClick={suivant}
-                      className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+                      className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#0F1B3D] text-xs font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.12)] transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] active:scale-[0.99]"
                     >
                       Vérifier ma commande
 
@@ -1722,25 +1722,25 @@ export default function Commande() {
             {etape === 4 && (
               <div className="space-y-4">
                 {/* EN-TÊTE FINAL */}
-                <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                <div className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                   <div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#18151F] text-white shadow-sm">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1A1A2E] text-white shadow-sm">
                         <Check size={18} strokeWidth={3} />
                       </div>
 
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full bg-[#F1ECFA] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-[#7654C6]">
+                          <span className="rounded-full bg-[#FAF9F6] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-[#0F1B3D]">
                             Étape finale
                           </span>
                         </div>
 
-                        <h2 className="mt-1 text-xl font-black tracking-tight text-[#18151F] sm:text-2xl">
+                        <h2 className="mt-1 text-xl font-black tracking-tight text-[#1A1A2E] sm:text-2xl">
                           Vérifiez votre commande
                         </h2>
 
-                        <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                        <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                           Vérifiez attentivement vos informations avant de confirmer.
                         </p>
                       </div>
@@ -1755,9 +1755,9 @@ export default function Commande() {
                 {/* INFORMATIONS PRINCIPALES */}
                 <div className="grid gap-4 lg:grid-cols-2">
                   {/* CLIENT */}
-                  <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                  <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm sm:p-5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                         <User size={17} />
                       </div>
 
@@ -1765,36 +1765,36 @@ export default function Commande() {
                         <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                           Client
                         </p>
-                        <p className="mt-0.5 text-sm font-black text-[#18151F]">
+                        <p className="mt-0.5 text-sm font-black text-[#1A1A2E]">
                           Vos coordonnées
                         </p>
                       </div>
                     </div>
 
                     <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
-                      <div className="rounded-xl bg-[#FAF9FC] px-3 py-2.5">
+                      <div className="rounded-xl bg-[#FFFFFF] px-3 py-2.5">
                         <p className="text-[9px] font-black uppercase tracking-wider text-[#9A93A5]">
                           Nom
                         </p>
-                        <p className="mt-1 truncate text-xs font-black text-[#18151F]">
+                        <p className="mt-1 truncate text-xs font-black text-[#1A1A2E]">
                           {nom}
                         </p>
                       </div>
 
-                      <div className="rounded-xl bg-[#FAF9FC] px-3 py-2.5">
+                      <div className="rounded-xl bg-[#FFFFFF] px-3 py-2.5">
                         <p className="text-[9px] font-black uppercase tracking-wider text-[#9A93A5]">
                           Téléphone
                         </p>
-                        <p className="mt-1 truncate text-xs font-black text-[#18151F]">
+                        <p className="mt-1 truncate text-xs font-black text-[#1A1A2E]">
                           {telephone}
                         </p>
                       </div>
 
-                      <div className="rounded-xl bg-[#FAF9FC] px-3 py-2.5">
+                      <div className="rounded-xl bg-[#FFFFFF] px-3 py-2.5">
                         <p className="text-[9px] font-black uppercase tracking-wider text-[#9A93A5]">
                           Email
                         </p>
-                        <p className="mt-1 truncate text-xs font-black text-[#18151F]">
+                        <p className="mt-1 truncate text-xs font-black text-[#1A1A2E]">
                           {email}
                         </p>
                       </div>
@@ -1802,7 +1802,7 @@ export default function Commande() {
                   </div>
 
                   {/* RÉCEPTION */}
-                  <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                  <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm sm:p-5">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                         <MapPin size={17} />
@@ -1812,7 +1812,7 @@ export default function Commande() {
                         <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                           Réception
                         </p>
-                        <p className="mt-0.5 text-sm font-black text-[#18151F]">
+                        <p className="mt-0.5 text-sm font-black text-[#1A1A2E]">
                           {modeReception === 'retrait' ? 'Retrait' : 'Livraison'}
                         </p>
                       </div>
@@ -1822,29 +1822,29 @@ export default function Commande() {
                           Gratuit
                         </span>
                       ) : (
-                        <span className="ml-auto shrink-0 rounded-full bg-[#F1ECFA] px-2.5 py-1 text-[10px] font-black text-[#7654C6]">
+                        <span className="ml-auto shrink-0 rounded-full bg-[#FAF9F6] px-2.5 py-1 text-[10px] font-black text-[#0F1B3D]">
                           À domicile
                         </span>
                       )}
                     </div>
 
-                    <div className="mt-4 rounded-xl bg-[#FAF9FC] px-3.5 py-3">
+                    <div className="mt-4 rounded-xl bg-[#FFFFFF] px-3.5 py-3">
                       {modeReception === 'retrait' ? (
-                        <p className="text-xs font-semibold leading-5 text-[#6F687A]">
+                        <p className="text-xs font-semibold leading-5 text-[#6B7280]">
                           Vous récupérerez votre commande vous-même.
                         </p>
                       ) : (
                         <>
-                          <p className="text-xs font-black text-[#18151F]">
+                          <p className="text-xs font-black text-[#1A1A2E]">
                             {commune || 'Zone sélectionnée'}
                           </p>
 
-                          <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                          <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                             {rue}, {quartier}, {commune}, {departement}
 
                           </p>
                           {modeReception === "livraison" && getDelaiLivraison(commune) && (
-                            <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-[#7654C6]">
+                            <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-[#0F1B3D]">
                               <Clock className="h-3.5 w-3.5" strokeWidth={2.5} />
                               <span>{getDelaiLivraison(commune)}</span>
                             </div>
@@ -1855,18 +1855,18 @@ export default function Commande() {
                             </p>
                           )}
                           {livrerAutrePersonne && nomDestinataire && (
-                            <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-[#E8E3EF] bg-white px-3 py-2.5">
-                              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#F1ECFA] text-[#7654C6]">
+                            <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-[#FAF9F6] bg-white px-3 py-2.5">
+                              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF9F6] text-[#0F1B3D]">
                                 <UserCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
                               </div>
                               <div className="min-w-0">
                                 <p className="text-[9px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
                                   Destinataire
                                 </p>
-                                <p className="mt-0.5 truncate text-xs font-black text-[#18151F]">
+                                <p className="mt-0.5 truncate text-xs font-black text-[#1A1A2E]">
                                   {nomDestinataire}
                                 </p>
-                                <p className="mt-0.5 text-[11px] font-semibold text-[#6F687A]">
+                                <p className="mt-0.5 text-[11px] font-semibold text-[#6B7280]">
                                   {telephoneDestinataire}
                                 </p>
                               </div>
@@ -1879,7 +1879,7 @@ export default function Commande() {
                 </div>
 
                 {/* PAIEMENT */}
-                <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm sm:p-5">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
                       <CreditCard size={17} />
@@ -1889,7 +1889,7 @@ export default function Commande() {
                       <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                         Paiement
                       </p>
-                      <p className="mt-0.5 text-sm font-black text-[#18151F]">
+                      <p className="mt-0.5 text-sm font-black text-[#1A1A2E]">
                         {modePaiement === 'mobile_money'
                           ? 'Mobile Money'
                           : 'Espèces'}
@@ -1909,7 +1909,7 @@ export default function Commande() {
                         </span>
                       )}
 
-                      <span className="rounded-full bg-[#FAF9FC] px-2.5 py-1.5 text-[10px] font-black text-[#6F687A]">
+                      <span className="rounded-full bg-[#FFFFFF] px-2.5 py-1.5 text-[10px] font-black text-[#6B7280]">
                         {modePaiement === 'mobile_money'
                           ? 'Paiement en ligne'
                           : 'Paiement au retrait'}
@@ -1919,10 +1919,10 @@ export default function Commande() {
                 </div>
 
                 {/* RÉSUMÉ COMMANDE */}
-                <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
+                <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm sm:p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                         <ShoppingBag size={17} />
                       </div>
 
@@ -1930,13 +1930,13 @@ export default function Commande() {
                         <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                           Commande
                         </p>
-                        <p className="mt-0.5 text-sm font-black text-[#18151F]">
+                        <p className="mt-0.5 text-sm font-black text-[#1A1A2E]">
                           Résumé de votre commande
                         </p>
                       </div>
                     </div>
 
-                    <span className="hidden rounded-full bg-[#F1ECFA] px-3 py-1.5 text-[10px] font-black text-[#6F687A] sm:block">
+                    <span className="hidden rounded-full bg-[#FAF9F6] px-3 py-1.5 text-[10px] font-black text-[#6B7280] sm:block">
                       Vérification finale
                     </span>
                   </div>
@@ -1987,17 +1987,17 @@ export default function Commande() {
 
                   {/* ACOMPTE */}
                   {panierMixte && (
-                    <div className="mt-3 flex items-center justify-between gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 px-4 py-3">
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-[14px] border border-[#FAF9F6] bg-[#FAF9F6]/70 px-4 py-3">
                       <div>
-                        <p className="text-xs font-black text-[#18151F]">
+                        <p className="text-xs font-black text-[#1A1A2E]">
                           Acompte requis
                         </p>
-                        <p className="mt-0.5 text-[11px] text-[#6F687A]">
+                        <p className="mt-0.5 text-[11px] text-[#6B7280]">
                           50 % des articles sur commande.
                         </p>
                       </div>
 
-                      <span className="shrink-0 text-sm font-black text-[#18151F]">
+                      <span className="shrink-0 text-sm font-black text-[#1A1A2E]">
                         {formatPrix(calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5))}
                       </span>
                     </div>
@@ -2022,12 +2022,12 @@ export default function Commande() {
                 </div>
 
                 {/* TOTAL */}
-                <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                <div className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                   <div className="p-5 sm:p-6">
                     <div className="space-y-2.5 text-xs">
                       <div className="flex items-center justify-between gap-4">
                         <span className="text-[#9A93A5]">Sous-total</span>
-                        <span className="font-bold text-[#18151F]">
+                        <span className="font-bold text-[#1A1A2E]">
                           {formatPrix(sousTotal)}
                         </span>
                       </div>
@@ -2042,13 +2042,13 @@ export default function Commande() {
                       )}
                     </div>
 
-                    <div className="mt-4 border-t border-[#E8E3EF] pt-4">
+                    <div className="mt-4 border-t border-[#FAF9F6] pt-4">
                       <div className="flex items-end justify-between gap-4">
                         <div>
                           <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                             Total
                           </p>
-                          <p className="mt-1 text-sm font-black text-[#18151F]">
+                          <p className="mt-1 text-sm font-black text-[#1A1A2E]">
                             Montant de la commande
                           </p>
                         </div>
@@ -2060,17 +2060,17 @@ export default function Commande() {
                     </div>
 
                     {articlesSurCommande.length > 0 && (
-                      <div className="mt-4 flex items-center justify-between gap-4 rounded-[14px] bg-[#FAF9FC] px-4 py-3">
+                      <div className="mt-4 flex items-center justify-between gap-4 rounded-[14px] bg-[#FFFFFF] px-4 py-3">
                         <div>
                           <p className="text-[9px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
                             Acompte à prévoir
                           </p>
-                          <p className="mt-0.5 text-[11px] text-[#6F687A]">
+                          <p className="mt-0.5 text-[11px] text-[#6B7280]">
                             50 % des articles sur commande
                           </p>
                         </div>
 
-                        <span className="text-lg font-black text-[#18151F]">
+                        <span className="text-lg font-black text-[#1A1A2E]">
                           {formatPrix(calculServeur?.acompteRequis ?? Math.ceil(totalSurCommande * 0.5))}
                         </span>
                       </div>
@@ -2080,17 +2080,17 @@ export default function Commande() {
 
                 {/* RÈGLE LIVRAISON */}
                 {modeReception === 'livraison' && (
-                  <div className="flex items-start gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 px-4 py-3.5">
+                  <div className="flex items-start gap-3 rounded-[14px] border border-[#FAF9F6] bg-[#FAF9F6]/70 px-4 py-3.5">
                     <MapPin
-                      className="mt-0.5 shrink-0 text-[#7654C6]"
+                      className="mt-0.5 shrink-0 text-[#0F1B3D]"
                       size={17}
                     />
 
                     <div>
-                      <p className="text-xs font-black text-[#18151F]">
+                      <p className="text-xs font-black text-[#1A1A2E]">
                         Livraison à domicile
                       </p>
-                      <p className="mt-1 text-[11px] leading-5 text-[#6F687A]">
+                      <p className="mt-1 text-[11px] leading-5 text-[#6B7280]">
                         Le paiement Mobile Money est obligatoire pour la livraison.
                         La livraison sera organisée selon la disponibilité de votre commande.
                       </p>
@@ -2112,8 +2112,8 @@ export default function Commande() {
                 )}
 
                 {/* ACTIONS */}
-                <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm sm:p-5">
-                  <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-[#6F687A]">
+                <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm sm:p-5">
+                  <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-[#6B7280]">
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                       <Check size={11} strokeWidth={3} />
                     </span>
@@ -2125,7 +2125,7 @@ export default function Commande() {
                       type="button"
                       onClick={precedent}
                       disabled={chargement}
-                      className="h-12 rounded-xl border border-[#E8E3EF] bg-white px-5 text-xs font-black text-[#6F687A] transition hover:border-[#DCD5E8] hover:bg-[#FAF9FC] disabled:opacity-50"
+                      className="h-12 rounded-xl border border-[#FAF9F6] bg-white px-5 text-xs font-black text-[#6B7280] transition hover:border-[#DCD5E8] hover:bg-[#FFFFFF] disabled:opacity-50"
                     >
                       Modifier
                     </button>
@@ -2163,10 +2163,10 @@ export default function Commande() {
                   key={item.numero}
                   className={`h-2 rounded-full transition-all ${
                     etape === item.numero
-                      ? 'w-8 bg-[#7654C6]'
+                      ? 'w-8 bg-[#0F1B3D]'
                       : etape > item.numero
-                        ? 'w-5 bg-[#7654C6]'
-                        : 'w-5 bg-[#E8E3EF]'
+                        ? 'w-5 bg-[#0F1B3D]'
+                        : 'w-5 bg-[#FAF9F6]'
                   }`}
                 />
               ))}

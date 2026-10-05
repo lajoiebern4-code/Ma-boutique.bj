@@ -224,24 +224,24 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
         {/* Body */}
         {chargement ? (
           <div className="flex flex-1 items-center justify-center py-20">
-            <Loader2 size={24} className="animate-spin text-[#7654C6]" />
+            <Loader2 size={24} className="animate-spin text-[#0F1B3D]" />
           </div>
         ) : besoinIdentification ? (
           /* Écran d'identification */
           <div className="flex-1 overflow-y-auto p-6">
             <div className="mb-6 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1ECFA] text-[#7654C6]">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FAF9F6] text-[#0F1B3D]">
                 <Sparkles size={24} />
               </div>
-              <h3 className="text-lg font-black text-[#18151F]">Démarrer une discussion</h3>
-              <p className="mt-1.5 text-[13px] leading-5 text-[#6F687A]">
+              <h3 className="text-lg font-black text-[#1A1A2E]">Démarrer une discussion</h3>
+              <p className="mt-1.5 text-[13px] leading-5 text-[#6B7280]">
                 Renseignez vos coordonnées pour discuter avec notre assistant.
               </p>
             </div>
 
             <form onSubmit={identifier} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-[12px] font-bold text-[#18151F]">
+                <label className="mb-1.5 block text-[12px] font-bold text-[#1A1A2E]">
                   Nom complet
                 </label>
                 <input
@@ -250,11 +250,11 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                   onChange={(e) => setNom(e.target.value)}
                   placeholder="Votre nom"
                   disabled={identifEnCours}
-                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                  className="h-12 w-full rounded-xl border border-[#FAF9F6] bg-[#FFFFFF] px-4 text-[13px] font-semibold text-[#1A1A2E] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#FAF9F6]"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-[12px] font-bold text-[#18151F]">
+                <label className="mb-1.5 block text-[12px] font-bold text-[#1A1A2E]">
                   Adresse email
                 </label>
                 <input
@@ -263,10 +263,10 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="vous@exemple.com"
                   disabled={identifEnCours}
-                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                  className="h-12 w-full rounded-xl border border-[#FAF9F6] bg-[#FFFFFF] px-4 text-[13px] font-semibold text-[#1A1A2E] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#FAF9F6]"
                 />
               <div>
-                <label className="mb-1.5 block text-[12px] font-bold text-[#18151F]">
+                <label className="mb-1.5 block text-[12px] font-bold text-[#1A1A2E]">
                   Numéro de téléphone
                 </label>
                 <input
@@ -277,7 +277,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                   inputMode="numeric"
                   maxLength={10}
                   disabled={identifEnCours}
-                  className="h-12 w-full rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-4 text-[13px] font-semibold text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#F1ECFA]"
+                  className="h-12 w-full rounded-xl border border-[#FAF9F6] bg-[#FFFFFF] px-4 text-[13px] font-semibold text-[#1A1A2E] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#FAF9F6]"
                 />
                 <p className="mt-1 text-[10px] font-medium text-[#9A93A5]">
                   Format : 01XXXXXXXX (10 chiffres)
@@ -295,7 +295,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
               <button
                 type="submit"
                 disabled={identifEnCours}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#7654C6] text-[13px] font-black text-white shadow-lg shadow-[#7654C6]/25 transition-all hover:bg-[#6544B3] disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0F1B3D] text-[13px] font-black text-white shadow-lg shadow-[#0F1B3D]/25 transition-all hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:opacity-60"
               >
                 {identifEnCours ? (
                   <>
@@ -314,14 +314,14 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
         ) : (
           <>
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto bg-[#FAF9FC] px-4 py-4">
+            <div className="flex-1 overflow-y-auto bg-[#FFFFFF] px-4 py-4">
               {messages.length === 0 && (
                 <div className="py-8 text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#F1ECFA] text-[#7654C6]">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#FAF9F6] text-[#0F1B3D]">
                     <Bot size={22} />
                   </div>
-                  <p className="text-sm font-bold text-[#18151F]">Bonjour 👋</p>
-                  <p className="mt-1 text-xs text-[#6F687A]">
+                  <p className="text-sm font-bold text-[#1A1A2E]">Bonjour 👋</p>
+                  <p className="mt-1 text-xs text-[#6B7280]">
                     Posez votre question, je réponds immédiatement.
                   </p>
                   <div className="mx-auto mt-5 flex max-w-sm flex-wrap justify-center gap-2">
@@ -330,7 +330,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                         key={s}
                         type="button"
                         onClick={() => setTexte(s)}
-                        className="rounded-full border border-[#E8E3EF] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6F687A] transition-colors hover:border-[#7654C6]/30 hover:bg-[#F1ECFA] hover:text-[#7654C6]"
+                        className="rounded-full border border-[#FAF9F6] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6B7280] transition-colors hover:border-[#0F1B3D]/30 hover:bg-[#FAF9F6] hover:text-[#0F1B3D]"
                       >
                         {s}
                       </button>
@@ -348,8 +348,8 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                     <div
                       className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6 ${
                         m.role === 'client'
-                          ? 'rounded-br-md bg-[#7654C6] text-white'
-                          : 'rounded-bl-md border border-[#E8E3EF] bg-white text-[#18151F]'
+                          ? 'rounded-br-md bg-[#0F1B3D] !text-white'
+                          : 'rounded-bl-md border border-[#FAF9F6] bg-white text-[#1A1A2E]'
                       }`}
                     >
                       {m.contenu}
@@ -359,7 +359,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
 
                 {robotReflechit && (
                   <div className="flex justify-start">
-                    <div className="rounded-2xl rounded-bl-md border border-[#E8E3EF] bg-white px-4 py-3">
+                    <div className="rounded-2xl rounded-bl-md border border-[#FAF9F6] bg-white px-4 py-3">
                       <div className="flex gap-1">
                         <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5]" />
                         <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9A93A5] [animation-delay:120ms]" />
@@ -394,13 +394,13 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
                   placeholder="Écrivez votre question..."
                   rows={1}
                   disabled={envoi}
-                  className="min-h-[44px] w-full resize-none rounded-xl border border-[#E8E3EF] bg-[#FAF9FC] px-3.5 py-3 text-[13px] font-medium text-[#18151F] outline-none transition-colors placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white disabled:opacity-60"
+                  className="min-h-[44px] w-full resize-none rounded-xl border border-[#FAF9F6] bg-[#FFFFFF] px-3.5 py-3 text-[13px] font-medium text-[#1A1A2E] outline-none transition-colors placeholder:text-[#9A93A5] focus:border-[#0F1B3D] focus:bg-white disabled:opacity-60"
                   style={{ maxHeight: 120 }}
                 />
                 <button
                   type="submit"
                   disabled={envoi || !texte.trim()}
-                  className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-md transition-all hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-xl bg-[#0F1B3D] !text-white shadow-md transition-all hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {envoi ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                 </button>

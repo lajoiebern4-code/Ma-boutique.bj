@@ -148,7 +148,7 @@ function Timeline({ etapes }: { etapes: Etape[] }) {
               {idx < etapes.length - 1 && (
                 <div
                   className={`absolute left-[18px] top-10 bottom-0 w-0.5 ${
-                    estTermine ? 'bg-emerald-400' : 'bg-[#E8E3EF]'
+                    estTermine ? 'bg-emerald-400' : 'bg-[#FAF9F6]'
                   }`}
                 />
               )}
@@ -156,15 +156,15 @@ function Timeline({ etapes }: { etapes: Etape[] }) {
               {/* POINT */}
               <div className="relative z-10 shrink-0">
                 {estEnCours && (
-                  <span className="absolute inset-0 animate-ping rounded-full bg-[#7654C6]/30" />
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[#0F1B3D]/30" />
                 )}
                 <div
                   className={`relative flex h-9 w-9 items-center justify-center rounded-full ring-4 ring-white transition ${
                     estTermine
                       ? 'bg-emerald-500 text-white shadow-[0_2px_8px_rgba(16,185,129,0.35)]'
                       : estEnCours
-                        ? 'bg-[#7654C6] text-white shadow-[0_2px_10px_rgba(118,84,198,0.4)]'
-                        : 'bg-[#F1ECFA] text-[#9A93A5] ring-[#FAF9FC]'
+                        ? 'bg-[#0F1B3D] !text-white shadow-[0_2px_10px_rgba(118,84,198,0.4)]'
+                        : 'bg-[#FAF9F6] text-[#9A93A5] ring-[#FFFFFF]'
                   }`}
                 >
                   {estTermine ? (
@@ -182,16 +182,16 @@ function Timeline({ etapes }: { etapes: Etape[] }) {
                 <div
                   className={`rounded-[12px] border px-4 py-3 transition ${
                     estEnCours
-                      ? 'border-[#7654C6]/30 bg-[#F1ECFA]/60 shadow-[0_2px_12px_rgba(118,84,198,0.08)]'
+                      ? 'border-[#0F1B3D]/30 bg-[#FAF9F6]/60 shadow-[0_2px_12px_rgba(118,84,198,0.08)]'
                       : estTermine
                         ? 'border-emerald-100 bg-emerald-50/50'
-                        : 'border-[#E8E3EF] bg-white'
+                        : 'border-[#FAF9F6] bg-white'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <h4
                       className={`text-sm font-black ${
-                        estAttente ? 'text-[#9A93A5]' : 'text-[#18151F]'
+                        estAttente ? 'text-[#9A93A5]' : 'text-[#1A1A2E]'
                       }`}
                     >
                       {etape.titre}
@@ -199,7 +199,7 @@ function Timeline({ etapes }: { etapes: Etape[] }) {
 
                     <div className="flex shrink-0 items-center gap-2">
                       {estEnCours && (
-                        <span className="rounded-full bg-[#7654C6] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
+                        <span className="rounded-full bg-[#0F1B3D] !text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
                           Actuel
                         </span>
                       )}
@@ -219,7 +219,7 @@ function Timeline({ etapes }: { etapes: Etape[] }) {
                   {etape.description && (
                     <p
                       className={`mt-1.5 text-xs leading-5 ${
-                        estAttente ? 'text-[#9A93A5]' : 'text-[#6F687A]'
+                        estAttente ? 'text-[#9A93A5]' : 'text-[#6B7280]'
                       }`}
                     >
                       {etape.description}
@@ -237,7 +237,7 @@ function Timeline({ etapes }: { etapes: Etape[] }) {
 // ============ COMPOSANT: CARTE INFO ============
 function InfoCard({ titre, valeur, icone: Icon, couleur = 'bleu' }: any) {
   const colors: Record<string, string> = {
-    bleu: 'bg-[#F1ECFA] border-[#E8E3EF] text-[#7654C6]',
+    bleu: 'bg-[#FAF9F6] border-[#FAF9F6] text-[#0F1B3D]',
     orange: 'bg-orange-50 border-orange-100 text-orange-700',
     vert: 'bg-green-50 border-green-100 text-green-700',
     rouge: 'bg-red-50 border-red-100 text-red-700',
@@ -602,7 +602,7 @@ function PaiementSolde({
       setShowForm(true)
       void initier()
     }}
-          className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-[#7654C6] px-4 py-2.5 text-xs font-black text-white shadow-[0_6px_16px_rgba(24,21,31,0.06)] transition hover:bg-[#6544B3] active:scale-[0.99]"
+          className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-[#0F1B3D] !text-white px-4 py-2.5 text-xs font-black text-white shadow-[0_6px_16px_rgba(24,21,31,0.06)] transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] active:scale-[0.99]"
         >
           Soumettre à nouveau
           <CreditCard size={17} />
@@ -615,7 +615,7 @@ function PaiementSolde({
 
 
         {modeSuivi ? (
-          <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+          <div className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
 
             {!paiementId ? (
               <div className="p-4 sm:p-5">
@@ -641,11 +641,11 @@ function PaiementSolde({
                   </span>
                 </div>
 
-                <div className="mt-4 rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3.5">
+                <div className="mt-4 rounded-[10px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-3.5">
                     <p className="text-[8px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                       Numéro ChinaShop
                     </p>
-                    <p className="mt-1 text-lg font-black tracking-tight text-[#18151F]">
+                    <p className="mt-1 text-lg font-black tracking-tight text-[#1A1A2E]">
                       {moyens.find((m: any) => m.code === provider)?.numero || 'Numéro indisponible'}
                     </p>
                   </div>
@@ -653,7 +653,7 @@ function PaiementSolde({
                   <button
                   onClick={initier}
                   disabled={loading}
-                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#7654C6] py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#0F1B3D] !text-white py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loading
                     ? 'Chargement...'
@@ -672,7 +672,7 @@ function PaiementSolde({
                   <p className="mt-2 text-sm font-black text-emerald-700">
                     Paiement validé
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-[#6F687A]">
+                  <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                     Votre paiement a été confirmé par notre équipe.
                   </p>
                 </div>
@@ -684,10 +684,10 @@ function PaiementSolde({
                       <Clock3 size={26} strokeWidth={2.5} className="text-amber-600" />
                     </div>
                   </div>
-                  <p className="mt-4 text-base font-black text-[#18151F]">
+                  <p className="mt-4 text-base font-black text-[#1A1A2E]">
                     Paiement en cours de validation
                   </p>
-                  <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-[#6F687A]">
+                  <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-[#6B7280]">
                     Votre paiement a bien été reçu. Notre équipe vérifie votre référence et votre preuve.
                   </p>
                   <div className="mx-auto mt-4 flex max-w-xs items-start gap-2.5 rounded-[12px] border border-amber-200 bg-amber-50/70 px-3.5 py-2.5 text-left">
@@ -728,21 +728,21 @@ function PaiementSolde({
 
                 <div className="mt-4">
 
-                  <div className="rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3.5">
+                  <div className="rounded-[10px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-3.5">
                     <p className="text-[8px] font-black uppercase tracking-[0.15em] text-[#9A93A5]">
                       Numéro ChinaShop
                     </p>
-                    <p className="mt-1 text-base font-black tracking-tight text-[#18151F]">
+                    <p className="mt-1 text-base font-black tracking-tight text-[#1A1A2E]">
                       {moyens.find((m: any) => m.code === provider)?.numero || 'Numéro indisponible'}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <label className="text-xs font-black text-[#18151F]">
+                  <label className="text-xs font-black text-[#1A1A2E]">
                     Référence de transaction
                   </label>
-                  <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
+                  <p className="mt-1 text-[11px] leading-4 text-[#6B7280]">
                     La référence reçue après votre transfert Mobile Money.
                   </p>
 
@@ -753,14 +753,14 @@ function PaiementSolde({
                       onChange={e => setReferenceTransaction(e.target.value)}
                       placeholder="Référence de transaction"
                       disabled={loading || referenceEnregistree}
-                      className="min-w-0 flex-1 rounded-[13px] border border-[#E8E3EF] bg-white px-3.5 py-3 text-sm font-bold text-[#18151F] outline-none transition focus:border-[#7654C6] focus:ring-4 focus:ring-[#7654C6]/10 disabled:cursor-not-allowed disabled:bg-[#FAF9FC] disabled:text-[#9A93A5]"
+                      className="min-w-0 flex-1 rounded-[13px] border border-[#FAF9F6] bg-white px-3.5 py-3 text-sm font-bold text-[#1A1A2E] outline-none transition focus:border-[#0F1B3D] focus:ring-4 focus:ring-[#0F1B3D]/10 disabled:cursor-not-allowed disabled:bg-[#FFFFFF] disabled:text-[#9A93A5]"
                     />
 
                     {!referenceEnregistree && (
                       <button
                         onClick={gererEnregistrementReferenceTransaction}
-                        disabled={loading || !referenceTransaction.trim()}
-                        className="shrink-0 rounded-[13px] bg-[#7654C6] px-4 py-3 text-xs font-black text-white transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="shrink-0 rounded-[13px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-4 py-3 text-xs font-black text-[#0F1B3D] transition hover:from-[#D97706] hover:to-[#F59E0B] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="shrink-0 rounded-[13px] bg-[#0F1B3D] !text-white px-4 py-3 text-xs font-black text-white transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {loading ? '...' : 'Valider'}
                       </button>
@@ -775,27 +775,27 @@ function PaiementSolde({
                 </div>
 
                 <div className="mt-4">
-                  <label className="text-xs font-black text-[#18151F]">
+                  <label className="text-xs font-black text-[#1A1A2E]">
                     Preuve de paiement
                   </label>
-                  <p className="mt-1 text-[11px] leading-4 text-[#6F687A]">
+                  <p className="mt-1 text-[11px] leading-4 text-[#6B7280]">
                     Ajoutez une capture lisible de votre paiement.
                   </p>
 
-                  <div className="mt-2 rounded-[15px] border border-dashed border-[#DCD5E8] bg-[#FAF9FC] px-3 py-3">
+                  <div className="mt-2 rounded-[15px] border border-dashed border-[#DCD5E8] bg-[#FFFFFF] px-3 py-3">
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
                       disabled={!referenceEnregistree || preuveEnvoyee}
                       onChange={e => setFichier(e.target.files?.[0] || null)}
-                      className="block w-full text-xs font-medium text-[#6F687A] file:mr-3 file:rounded-lg file:border-0 file:bg-[#7654C6] file:px-3 file:py-2 file:text-xs file:font-black file:text-white disabled:opacity-50"
+                      className="block w-full text-xs font-medium text-[#6B7280] file:mr-3 file:rounded-lg file:border-0 file:bg-[#0F1B3D] file:px-3 file:py-2 file:text-xs file:font-black file:text-white disabled:opacity-50"
                     />
                   </div>
 
                   {loadingPreuve ? (
-                    <div className="mt-3 flex items-center justify-center gap-3 rounded-[14px] bg-[#FAF9FC] px-4 py-3">
+                    <div className="mt-3 flex items-center justify-center gap-3 rounded-[14px] bg-[#FFFFFF] px-4 py-3">
                       <l-helix size="28" speed="2.5" color="black"></l-helix>
-                      <p className="text-xs font-bold text-[#18151F]">
+                      <p className="text-xs font-bold text-[#1A1A2E]">
                         Envoi de la preuve...
                       </p>
                     </div>
@@ -803,7 +803,7 @@ function PaiementSolde({
                     <button
                       onClick={envoyerPreuve}
                       disabled={!referenceEnregistree}
-                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-[13px] bg-[#7654C6] py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-[13px] bg-[#0F1B3D] !text-white py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Envoyer la preuve
                       <Upload size={15} />
@@ -820,7 +820,7 @@ function PaiementSolde({
               <button
                 onClick={initier}
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#7654C6] py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#0F1B3D] !text-white py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? 'Chargement...' : 'Obtenir la référence'}
                 <CreditCard size={16} />
@@ -842,14 +842,14 @@ function PaiementSolde({
                   type="file"
                   accept="image/*"
                   onChange={e => setFichier(e.target.files?.[0] || null)}
-                  className="block w-full text-sm file:mr-3 file:rounded-lg file:bg-[#7654C6] file:px-3 file:py-2 file:text-xs file:font-black file:text-white"
+                  className="block w-full text-sm file:mr-3 file:rounded-lg file:bg-[#0F1B3D] file:px-3 file:py-2 file:text-xs file:font-black file:text-white"
                 />
 
                 {fichier && (
                   <button
                     onClick={envoyerPreuve}
                     disabled={loadingPreuve}
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#7654C6] py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#0F1B3D] !text-white py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loadingPreuve ? 'Envoi...' : 'Envoyer la preuve'}
                     <Upload size={15} />
@@ -1266,11 +1266,11 @@ function SuiviV2Page() {
 
   if (!commande && !chargement) {
     return (
-      <div className="min-h-screen bg-[#FAF9FC]">
-        <section className="relative overflow-hidden bg-[#FAF9FC] px-5 pb-12 pt-12 text-[#18151F] sm:px-8 sm:pb-16">
+      <div className="min-h-screen bg-[#FFFFFF]">
+        <section className="relative overflow-hidden bg-[#FFFFFF] px-5 pb-12 pt-12 text-[#1A1A2E] sm:px-8 sm:pb-16">
           <div className="mx-auto max-w-6xl">
             <div className="max-w-3xl">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#6F687A]">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#6B7280]">
                 Suivi de commande
               </p>
 
@@ -1278,7 +1278,7 @@ function SuiviV2Page() {
                 Retrouvez votre commande.
               </h1>
 
-              <p className="mt-5 max-w-2xl text-base leading-7 text-[#6F687A] sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base leading-7 text-[#6B7280] sm:text-lg">
                 Entrez votre code de suivi pour connaître l’avancement réel de votre commande,
                 qu’elle soit disponible au Bénin, sur commande ou mixte.
               </p>
@@ -1288,23 +1288,23 @@ function SuiviV2Page() {
 
         <section className="relative px-4 pb-16 sm:px-6">
           <div className="mx-auto -mt-7 max-w-3xl">
-            <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-8">
+            <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-[#7654C6]">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0F1B3D]">
                     Suivi sécurisé
                   </p>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight text-[#18151F] sm:text-3xl">
+                  <h2 className="mt-2 text-2xl font-black tracking-tight text-[#1A1A2E] sm:text-3xl">
                     Où en est votre commande ?
                   </h2>
                 </div>
 
-                <div className="hidden rounded-[10px] bg-[#FAF9FC] px-3 py-2 text-xs font-black text-[#6F687A] sm:block">
+                <div className="hidden rounded-[10px] bg-[#FFFFFF] px-3 py-2 text-xs font-black text-[#6B7280] sm:block">
                   CR / CS
                 </div>
               </div>
 
-              <p className="mt-3 text-sm leading-6 text-[#6F687A]">
+              <p className="mt-3 text-sm leading-6 text-[#6B7280]">
                 Utilisez le code reçu après votre commande pour accéder à son suivi.
               </p>
 
@@ -1314,13 +1314,13 @@ function SuiviV2Page() {
                   value={code}
                   onChange={e => setCode(e.target.value.toUpperCase())}
                   placeholder="CR-XXXXXX / CS-XXXXXX"
-                  className="min-w-0 flex-1 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-4 text-sm font-black uppercase tracking-wide text-[#18151F] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#7654C6] focus:bg-white focus:ring-4 focus:ring-[#7654C6]/10"
+                  className="min-w-0 flex-1 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-4 text-sm font-black uppercase tracking-wide text-[#1A1A2E] outline-none transition-all placeholder:text-[#9A93A5] focus:border-[#0F1B3D] focus:bg-white focus:ring-4 focus:ring-[#0F1B3D]/10"
                 />
 
                 <button
                   onClick={() => rechercher()}
                   disabled={chargement}
-                  className="rounded-[14px] bg-[#7654C6] px-7 py-4 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all  hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-[14px] bg-[#0F1B3D] !text-white px-7 py-4 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all  hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {chargement ? '...' : 'Suivre ma commande'}
                 </button>
@@ -1330,7 +1330,7 @@ function SuiviV2Page() {
                 <p className="mt-3 text-sm font-bold text-red-600">{erreur}</p>
               )}
 
-              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#E8E3EF] pt-5 text-xs font-bold text-[#6F687A]">
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#FAF9F6] pt-5 text-xs font-bold text-[#6B7280]">
                 <span>✓ Suivi sécurisé</span>
                 <span>✓ Informations actualisées</span>
                 <span>✓ Parcours transparent</span>
@@ -1351,8 +1351,8 @@ function SuiviV2Page() {
   }
   if (chargement) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAF9FC]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#7654C6] border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-[#FFFFFF]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0F1B3D] border-t-transparent" />
       </div>
     )
   }
@@ -1457,8 +1457,8 @@ function SuiviV2Page() {
       commande.articles.length > 0 &&
       !commande.articles.some((article) => article.origine === 'sur_commande')
       return (
-        <div className="min-h-screen bg-[#FAF9FC] text-[#18151F]">
-          <header className="relative overflow-hidden bg-gradient-to-br from-[#7654C6] via-[#8B6DD1] to-[#3B2D5F] text-white shadow-[0_20px_60px_rgba(118,84,198,0.25)]">
+        <div className="min-h-screen bg-[#FFFFFF] text-[#1A1A2E]">
+          <header className="relative overflow-hidden bg-gradient-to-br from-[#0F1B3D] via-[#E8E4DC] to-[#3B2D5F] text-white shadow-[0_20px_60px_rgba(118,84,198,0.25)]">
             <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
 
@@ -1504,7 +1504,7 @@ function SuiviV2Page() {
                       : statut === 'pret'
                         ? 'bg-emerald-400 text-emerald-950 shadow-sm'
                         : statut === 'retire' || estLivree
-                          ? 'bg-white text-[#7654C6] shadow-sm'
+                          ? 'bg-white text-[#0F1B3D] shadow-sm'
                           : 'bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm'
                   }`}>
                     <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -1551,10 +1551,10 @@ function SuiviV2Page() {
           <main className="mx-auto max-w-5xl px-4 pb-16 sm:px-8">
 
 
-              <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-6 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-8">
+              <section className="rounded-[14px] border border-[#FAF9F6] bg-white p-6 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-8">
                 <div className="flex items-start gap-4">
                   <div className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-[14px] border border-white/10 shadow-sm ${
-                    estSoldeRequis ? 'bg-[#FFF0ED] text-[#7654C6]' : 'bg-[#F1ECFA] text-[#7654C6]'
+                    estSoldeRequis ? 'bg-[#FFF0ED] text-[#0F1B3D]' : 'bg-[#FAF9F6] text-[#0F1B3D]'
                   }`}>
                     <Package size={21} />
                   </div>
@@ -1607,7 +1607,7 @@ function SuiviV2Page() {
 
                               return (
                                 <div className="relative">
-                                  <div className="absolute bottom-5 left-[17px] top-5 w-px bg-[#E8E3EF]" />
+                                  <div className="absolute bottom-5 left-[17px] top-5 w-px bg-[#FAF9F6]" />
 
                                   <div className="space-y-4">
                                     {etapesVisibles.map((etape) => {
@@ -1629,10 +1629,10 @@ function SuiviV2Page() {
                                           <div
                                             className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-4 border-white shadow-sm ${
                                               estActuelle
-                                                ? 'bg-[#7654C6] text-white ring-4 ring-[#7654C6]/10 animate-pulse'
+                                                ? 'bg-[#0F1B3D] !text-white ring-4 ring-[#0F1B3D]/10 animate-pulse'
                                                 : estTerminee
                                                   ? 'bg-emerald-500 text-white ring-4 ring-emerald-500/10'
-                                                  : 'bg-white text-[#9A93A5] ring-1 ring-[#E8E3EF]'
+                                                  : 'bg-white text-[#9A93A5] ring-1 ring-[#FAF9F6]'
                                             }`}
                                           >
                                             {estTerminee && !estActuelle ? (
@@ -1647,10 +1647,10 @@ function SuiviV2Page() {
                                           <div
                                             className={`min-w-0 flex-1 rounded-[20px] border p-4 transition-all ${
                                               estActuelle
-                                                ? 'border-[#7654C6]/15 bg-[#F1ECFA] shadow-sm'
+                                                ? 'border-[#0F1B3D]/15 bg-[#FAF9F6] shadow-sm'
                                                 : estTerminee
                                                   ? 'border-emerald-100 bg-emerald-50/40'
-                                                  : 'border-[#E8E3EF] bg-white'
+                                                  : 'border-[#FAF9F6] bg-white'
                                             }`}
                                           >
                                             <div className="flex items-start justify-between gap-3">
@@ -1658,7 +1658,7 @@ function SuiviV2Page() {
                                                 <div
                                                   className={`text-[9px] font-black uppercase tracking-[0.16em] ${
                                                     estActuelle
-                                                      ? 'text-[#7654C6]'
+                                                      ? 'text-[#0F1B3D]'
                                                       : estTerminee
                                                         ? 'text-emerald-600'
                                                         : 'text-[#9A93A5]'
@@ -1670,7 +1670,7 @@ function SuiviV2Page() {
                                                 <div
                                                   className={`mt-1.5 text-[15px] font-black tracking-tight ${
                                                     estActuelle
-                                                      ? 'text-[#18151F]'
+                                                      ? 'text-[#1A1A2E]'
                                                       : estTerminee
                                                         ? 'text-emerald-700'
                                                         : 'text-[#9A93A5]'
@@ -1681,7 +1681,7 @@ function SuiviV2Page() {
                                               </div>
 
                                               {estActuelle && (
-                                                <span className="shrink-0 rounded-full bg-[#7654C6]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                                                <span className="shrink-0 rounded-full bg-[#0F1B3D]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                                                   En cours
                                                 </span>
                                               )}
@@ -1690,7 +1690,7 @@ function SuiviV2Page() {
                                             <p
                                               className={`mt-2 text-xs leading-5 ${
                                                 estActuelle
-                                                  ? 'text-[#6F687A]'
+                                                  ? 'text-[#6B7280]'
                                                   : estTerminee
                                                     ? 'text-emerald-700/70'
                                                     : 'text-[#9A93A5]'
@@ -1702,16 +1702,16 @@ function SuiviV2Page() {
                                             {etape.numero === '3' &&
                                               statut === 'pret' &&
                                               commande.code_retrait && (
-                                                <div className="mt-4 rounded-[14px] border border-[#7654C6]/15 bg-white p-4 shadow-sm">
+                                                <div className="mt-4 rounded-[14px] border border-[#0F1B3D]/15 bg-white p-4 shadow-sm">
                                                   <div className="text-[8px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                                                     Code de retrait
                                                   </div>
 
-                                                  <div className="mt-1.5 text-lg font-black tracking-[0.14em] text-[#7654C6]">
+                                                  <div className="mt-1.5 text-lg font-black tracking-[0.14em] text-[#0F1B3D]">
                                                     {commande.code_retrait}
                                                   </div>
 
-                                                  <div className="mt-1 text-[9px] leading-4 text-[#6F687A]">
+                                                  <div className="mt-1 text-[9px] leading-4 text-[#6B7280]">
                                                     Présentez ce code lors du retrait.
                                                   </div>
                                                 </div>
@@ -1728,13 +1728,13 @@ function SuiviV2Page() {
                         ) : !estCommandeStock ? (
                         <div className="mt-7">
                           <div className="mb-6">
-                            <h2 className="text-[26px] font-black leading-tight tracking-[-0.025em] text-[#18151F] sm:text-3xl">
+                            <h2 className="text-[26px] font-black leading-tight tracking-[-0.025em] text-[#1A1A2E] sm:text-3xl">
                               {estSoldeRequis
                                 ? 'Votre commande est arrivée à Cotonou'
                                 : commande.etapes.find(e => e.statut === 'en_cours')?.titre || 'Votre commande poursuit son parcours'}
                             </h2>
 
-                            <p className="mt-2.5 max-w-2xl text-[13px] leading-6 text-[#6F687A] sm:text-sm">
+                            <p className="mt-2.5 max-w-2xl text-[13px] leading-6 text-[#6B7280] sm:text-sm">
                               {estSoldeRequis
                                 ? 'Une dernière action est nécessaire avant la remise de votre commande.'
                                 : 'Suivez ici chaque étape réelle du parcours de votre commande sur commande.'}
@@ -1742,7 +1742,7 @@ function SuiviV2Page() {
                           </div>
 
                             <div className="relative">
-                              <div className="absolute bottom-5 left-[17px] top-5 w-px bg-[#E8E3EF]" />
+                              <div className="absolute bottom-5 left-[17px] top-5 w-px bg-[#FAF9F6]" />
 
                               <div className="space-y-4">
                                 {(() => {
@@ -1772,7 +1772,7 @@ function SuiviV2Page() {
                                         <div
                                           className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-4 border-white shadow-sm ${
                                             estActuelle
-                                              ? 'bg-[#7654C6] text-white ring-4 ring-[#7654C6]/10 animate-pulse'
+                                              ? 'bg-[#0F1B3D] !text-white ring-4 ring-[#0F1B3D]/10 animate-pulse'
                                               : 'bg-emerald-500 text-white ring-4 ring-emerald-500/10'
                                           }`}
                                         >
@@ -1786,7 +1786,7 @@ function SuiviV2Page() {
                                         <div
                                           className={`min-w-0 flex-1 rounded-[20px] border p-4 ${
                                             estActuelle
-                                              ? 'border-[#7654C6]/15 bg-[#F1ECFA] shadow-sm'
+                                              ? 'border-[#0F1B3D]/15 bg-[#FAF9F6] shadow-sm'
                                               : 'border-emerald-100 bg-emerald-50/40'
                                           }`}
                                         >
@@ -1795,7 +1795,7 @@ function SuiviV2Page() {
                                               <span
                                                 className={`text-[8px] font-black uppercase tracking-[0.16em] ${
                                                   estActuelle
-                                                    ? 'text-[#7654C6]'
+                                                    ? 'text-[#0F1B3D]'
                                                     : 'text-emerald-600'
                                                 }`}
                                               >
@@ -1803,7 +1803,7 @@ function SuiviV2Page() {
                                               </span>
 
                                               {estActuelle && (
-                                                <span className="rounded-full bg-[#7654C6]/10 px-2 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                                                <span className="rounded-full bg-[#0F1B3D]/10 px-2 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                                                   En cours
                                                 </span>
                                               )}
@@ -1819,7 +1819,7 @@ function SuiviV2Page() {
                                           <h3
                                             className={`mt-2 text-[15px] font-black leading-snug tracking-[-0.01em] ${
                                               estActuelle
-                                                ? 'text-[#18151F]'
+                                                ? 'text-[#1A1A2E]'
                                                 : 'text-emerald-700'
                                             }`}
                                           >
@@ -1830,7 +1830,7 @@ function SuiviV2Page() {
                                             <p
                                               className={`mt-1 text-xs leading-5 ${
                                                 estActuelle
-                                                  ? 'text-[#6F687A]'
+                                                  ? 'text-[#6B7280]'
                                                   : 'text-emerald-700/70'
                                               }`}
                                             >
@@ -1898,8 +1898,8 @@ function SuiviV2Page() {
                               <div
                                 className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-black ${
                                   etape.actif
-                                    ? 'bg-[#7654C6] text-white shadow-sm'
-                                    : 'border border-[#E8E3EF] bg-white text-[#9A93A5]'
+                                    ? 'bg-[#0F1B3D] !text-white shadow-sm'
+                                    : 'border border-[#FAF9F6] bg-white text-[#9A93A5]'
                                 }`}
                               >
                                 {etape.numero}
@@ -1908,7 +1908,7 @@ function SuiviV2Page() {
                               <div className="min-w-0 pb-4">
                                 <div
                                   className={`text-sm font-black ${
-                                    etape.actif ? 'text-[#18151F]' : 'text-[#9A93A5]'
+                                    etape.actif ? 'text-[#1A1A2E]' : 'text-[#9A93A5]'
                                   }`}
                                 >
                                   {etape.titre}
@@ -1916,7 +1916,7 @@ function SuiviV2Page() {
 
                                 <div
                                   className={`mt-1 text-xs leading-5 ${
-                                    etape.actif ? 'text-[#6F687A]' : 'text-[#9A93A5]'
+                                    etape.actif ? 'text-[#6B7280]' : 'text-[#9A93A5]'
                                   }`}
                                 >
                                   {etape.description}
@@ -1930,13 +1930,13 @@ function SuiviV2Page() {
                 </div>
               </section>
 
-            <section className="mt-5 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white text-[#18151F] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
-              <div className="relative overflow-hidden bg-[#FAF9FC] p-5 sm:p-8">
-                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#7654C6]/[0.05] blur-3xl" />
+            <section className="mt-5 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white text-[#1A1A2E] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+              <div className="relative overflow-hidden bg-[#FFFFFF] p-5 sm:p-8">
+                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#0F1B3D]/[0.05] blur-3xl" />
 
                 <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <div className="inline-flex items-center rounded-full border border-[#7654C6]/15 bg-[#7654C6]/[0.05] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
+                    <div className="inline-flex items-center rounded-full border border-[#0F1B3D]/15 bg-[#0F1B3D]/[0.05] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[#0F1B3D]">
                       Votre achat
                     </div>
 
@@ -1945,32 +1945,32 @@ function SuiviV2Page() {
                     </h2>
                   </div>
 
-                  <div className="shrink-0 rounded-[10px] border border-[#E8E3EF] bg-white px-4 py-3.5 text-left shadow-sm sm:min-w-[190px] sm:text-right">
+                  <div className="shrink-0 rounded-[10px] border border-[#FAF9F6] bg-white px-4 py-3.5 text-left shadow-sm sm:min-w-[190px] sm:text-right">
                     <div className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                       Total
                     </div>
-                    <div className="mt-1 text-2xl font-black tracking-tight text-[#18151F] sm:text-3xl">
+                    <div className="mt-1 text-2xl font-black tracking-tight text-[#1A1A2E] sm:text-3xl">
                       {formatPrix(commande.total)}
                     </div>
                   </div>
                 </div>
 
                 {commande.articles.length > 0 && (
-                  <div className="relative mt-7 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
+                  <div className="relative mt-7 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-sm">
                     {commande.articles.map((article, index) => (
                       <div
                         key={article.id}
                         className={`flex items-center justify-between gap-4 px-4 py-4 transition-colors sm:px-5 ${
-                          index > 0 ? 'border-t border-[#E8E3EF]' : ''
+                          index > 0 ? 'border-t border-[#FAF9F6]' : ''
                         } hover:bg-white/70`}
                       >
                         <div className="flex min-w-0 items-center gap-3.5">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-xs font-black text-[#7654C6] shadow-sm">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-xs font-black text-[#0F1B3D] shadow-sm">
                             {article.quantite}
                           </div>
 
                           <div className="min-w-0">
-                            <div className="truncate text-[13px] font-black leading-5 text-[#18151F] sm:text-sm">
+                            <div className="truncate text-[13px] font-black leading-5 text-[#1A1A2E] sm:text-sm">
                               {article.nom}
                             </div>
                             <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#9A93A5]">
@@ -1979,7 +1979,7 @@ function SuiviV2Page() {
                           </div>
                         </div>
 
-                        <div className="shrink-0 rounded-[10px] bg-[#FAF9FC] px-3.5 py-2.5 text-sm font-black tracking-tight text-[#18151F] ring-1 ring-[#E8E3EF]">
+                        <div className="shrink-0 rounded-[10px] bg-[#FFFFFF] px-3.5 py-2.5 text-sm font-black tracking-tight text-[#1A1A2E] ring-1 ring-[#FAF9F6]">
                           {formatPrix(article.total_ligne)}
                         </div>
                       </div>
@@ -2037,11 +2037,11 @@ function SuiviV2Page() {
                                 text: 'text-emerald-800/70',
                               }
                             : {
-                                border: 'border-[#E8E3EF]',
-                                background: 'bg-[#FAF9FC]',
-                                icon: 'text-[#18151F] ring-1 ring-[#E8E3EF]',
-                                title: 'text-[#18151F]',
-                                text: 'text-[#6F687A]',
+                                border: 'border-[#FAF9F6]',
+                                background: 'bg-[#FFFFFF]',
+                                icon: 'text-[#1A1A2E] ring-1 ring-[#FAF9F6]',
+                                title: 'text-[#1A1A2E]',
+                                text: 'text-[#6B7280]',
                               }
 
                       return (
@@ -2114,7 +2114,7 @@ function SuiviV2Page() {
                         String(commande?.paiement?.statut || '').toLowerCase() === 'paye' && Number(commande.acompte_paye) > 0
                           ? 'border-emerald-100 bg-emerald-50/50'
                           : ['echec', 'refuse', 'rejected', 'failed'].includes(String(commande?.paiement?.statut || '').toLowerCase())
-                            ? 'border-[#7654C6]/15 bg-[#F1ECFA]'
+                            ? 'border-[#0F1B3D]/15 bg-[#FAF9F6]'
                             : 'border-amber-100 bg-amber-50/40'
                       }`}>
                         <div className="flex items-center justify-between gap-3">
@@ -2126,7 +2126,7 @@ function SuiviV2Page() {
                             String(commande?.paiement?.statut || '').toLowerCase() === 'paye' && Number(commande.acompte_paye) > 0
                               ? 'text-emerald-600'
                               : ['echec', 'refuse', 'rejected', 'failed'].includes(String(commande?.paiement?.statut || '').toLowerCase())
-                                ? 'text-[#7654C6]'
+                                ? 'text-[#0F1B3D]'
                                 : 'text-amber-600'
                           }`}>
                             {String(commande?.paiement?.statut || '').toLowerCase() === 'paye' && Number(commande.acompte_paye) > 0 ? (
@@ -2137,7 +2137,7 @@ function SuiviV2Page() {
                           </div>
                         </div>
 
-                        <div className="mt-2 text-lg font-black text-[#18151F]">
+                        <div className="mt-2 text-lg font-black text-[#1A1A2E]">
                           {formatPrix(commande.acompte_paye)}
                         </div>
 
@@ -2147,7 +2147,7 @@ function SuiviV2Page() {
                           </div>
                         ) : ['echec', 'refuse', 'rejected', 'failed'].includes(String(commande?.paiement?.statut || '').toLowerCase()) ? (
                           <div className="mt-2">
-                            <div className="text-[10px] font-medium text-[#7654C6]">
+                            <div className="text-[10px] font-medium text-[#0F1B3D]">
                               Paiement refusé
                             </div>
                             <div className="mt-2">
@@ -2174,10 +2174,10 @@ function SuiviV2Page() {
                       <div
                         className={`rounded-[14px] border p-4 ${
                           estSoldeRequis
-                            ? 'border-[#7654C6]/15 bg-[#F1ECFA]'
+                            ? 'border-[#0F1B3D]/15 bg-[#FAF9F6]'
                             : statut === 'solde_confirme'
                               ? 'border-emerald-100 bg-emerald-50/50'
-                              : 'border-[#E8E3EF] bg-[#FAF9FC]'
+                              : 'border-[#FAF9F6] bg-[#FFFFFF]'
                         }`}
                       >
                         {soldeDejaConfirme ? (
@@ -2206,7 +2206,7 @@ function SuiviV2Page() {
                               </span>
 
                               {estSoldeRequis && (
-                                <span className="rounded-full bg-[#7654C6]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                                <span className="rounded-full bg-[#0F1B3D]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                                   À payer
                                 </span>
                               )}
@@ -2215,8 +2215,8 @@ function SuiviV2Page() {
                             <div
                               className={`mt-2 text-lg font-black ${
                                 estSoldeRequis
-                                  ? 'text-[#7654C6]'
-                                  : 'text-[#18151F]'
+                                  ? 'text-[#0F1B3D]'
+                                  : 'text-[#1A1A2E]'
                               }`}
                             >
                               {formatPrix(commande.solde_restant)}
@@ -2236,13 +2236,13 @@ function SuiviV2Page() {
 
             {commande.transport && (
 
-              <section className="mt-5 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white text-[#18151F] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+              <section className="mt-5 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white text-[#1A1A2E] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                 <div className="relative overflow-hidden p-5 sm:p-8">
-                  <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#7654C6]/[0.06] blur-3xl" />
+                  <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#0F1B3D]/[0.06] blur-3xl" />
 
                   <div className="relative flex flex-wrap items-start justify-between gap-5">
                     <div className="flex items-start gap-3.5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] shadow-sm">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] shadow-sm">
                         <Truck size={19} />
                       </div>
 
@@ -2257,29 +2257,29 @@ function SuiviV2Page() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2 rounded-full border border-[#7654C6]/15 bg-[#FFF5F3] px-3.5 py-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#7654C6]" />
+                      <div className="flex items-center gap-2 rounded-full border border-[#0F1B3D]/15 bg-[#FFF5F3] px-3.5 py-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#0F1B3D]" />
                         <span className={`text-[9px] font-black uppercase tracking-[0.16em] ${
-                          transportEstArrive ? 'text-emerald-700' : 'text-[#7654C6]'
+                          transportEstArrive ? 'text-emerald-700' : 'text-[#0F1B3D]'
                         }`}>
                           {transportEstArrive ? 'Arrivé à Cotonou' : 'En transit'}
                         </span>
                       </div>
 
-                      <div className="rounded-full border border-[#E8E3EF] bg-[#FAF9FC] px-3.5 py-2 text-[9px] font-black uppercase tracking-[0.16em] text-[#18151F]/65">
+                      <div className="rounded-full border border-[#FAF9F6] bg-[#FFFFFF] px-3.5 py-2 text-[9px] font-black uppercase tracking-[0.16em] text-[#1A1A2E]/65">
                         {commande.transport.type === 'avion' ? '✈ Avion' : '⚓ Bateau'}
                       </div>
                     </div>
                   </div>
 
-                  <div className="relative mt-8 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5 shadow-sm sm:p-7">
+                  <div className="relative mt-8 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-5 shadow-sm sm:p-7">
                     <div className="grid grid-cols-[auto_1fr_auto] items-start gap-4 sm:gap-7">
                       <div className="min-w-0">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-[#F1ECFA] text-[10px] font-black tracking-wide text-[#7654C6] shadow-sm">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-[10px] border border-[#FAF9F6] bg-[#FAF9F6] text-[10px] font-black tracking-wide text-[#0F1B3D] shadow-sm">
                           CN
                         </div>
 
-                        <div className="mt-3 text-sm font-black text-[#18151F]">
+                        <div className="mt-3 text-sm font-black text-[#1A1A2E]">
                           {commande.transport.origine}
                         </div>
 
@@ -2291,17 +2291,17 @@ function SuiviV2Page() {
                       </div>
 
                       <div className="relative mt-6 px-1">
-                        <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[#E8E3EF]" />
+                        <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[#FAF9F6]" />
 
                         <div
-                          className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#7654C6] transition-[width] duration-1000 linear"
+                          className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#0F1B3D] transition-[width] duration-1000 linear"
                           style={{
                             width: `${Math.min(100, Math.max(0, progressionTransport * 100))}%`,
                           }}
                         />
 
                         <div
-                          className="absolute top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-white bg-[#7654C6] text-sm shadow-sm"
+                          className="absolute top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-white bg-[#0F1B3D] text-sm shadow-sm"
                           style={{
                             left: `${Math.min(100, Math.max(0, progressionTransport * 100))}%`,
                           }}
@@ -2311,11 +2311,11 @@ function SuiviV2Page() {
                       </div>
 
                       <div className="min-w-0 text-right">
-                        <div className="ml-auto flex h-12 w-12 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-[#F1ECFA] text-[10px] font-black tracking-wide text-[#7654C6] shadow-sm">
+                        <div className="ml-auto flex h-12 w-12 items-center justify-center rounded-[10px] border border-[#FAF9F6] bg-[#FAF9F6] text-[10px] font-black tracking-wide text-[#0F1B3D] shadow-sm">
                           BJ
                         </div>
 
-                        <div className="mt-3 text-sm font-black text-[#18151F]">
+                        <div className="mt-3 text-sm font-black text-[#1A1A2E]">
                           {commande.transport.destination}
                         </div>
 
@@ -2327,12 +2327,12 @@ function SuiviV2Page() {
                       </div>
                     </div>
 
-                    <div className="mt-8 flex items-center justify-between border-t border-[#E8E3EF] pt-4">
+                    <div className="mt-8 flex items-center justify-between border-t border-[#FAF9F6] pt-4">
                       <span className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                         Départ Chine
                       </span>
 
-                      <div className="mx-4 h-px flex-1 bg-[#E8E3EF]" />
+                      <div className="mx-4 h-px flex-1 bg-[#FAF9F6]" />
 
                       <span className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                         Arrivée Cotonou
@@ -2341,15 +2341,15 @@ function SuiviV2Page() {
                   </div>
 
                   <div className="relative mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm transition-shadow">
+                    <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm transition-shadow">
                       <div className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#7654C6]" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#0F1B3D]" />
                         <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                           État
                         </div>
                       </div>
 
-                      <div className="mt-2 text-sm font-black text-[#18151F]">
+                      <div className="mt-2 text-sm font-black text-[#1A1A2E]">
                         {transportEstArrive
                           ? 'Votre commande est arrivée'
                           : commande.transport.departReel
@@ -2358,12 +2358,12 @@ function SuiviV2Page() {
                       </div>
                     </div>
 
-                    <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-4 shadow-sm transition-shadow">
+                    <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-4 shadow-sm transition-shadow">
                       <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                         Transport
                       </div>
 
-                      <div className="mt-2 truncate font-mono text-xs font-bold text-[#18151F]/70">
+                      <div className="mt-2 truncate font-mono text-xs font-bold text-[#1A1A2E]/70">
                         {commande.transport.numero}
                       </div>
                     </div>
@@ -2373,21 +2373,21 @@ function SuiviV2Page() {
             )}
 
             {(estSoldeRequis || statut === 'solde_confirme') && (
-              <section className="mt-5 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white text-[#18151F] shadow-sm">
-                <div className="border-b border-[#E8E3EF] bg-[#FFFBFA] px-6 py-6 sm:px-8">
+              <section className="mt-5 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white text-[#1A1A2E] shadow-sm">
+                <div className="border-b border-[#FAF9F6] bg-[#FFFBFA] px-6 py-6 sm:px-8">
                   <div className="flex items-start justify-between gap-5">
                     <div className="flex items-start gap-3.5">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#7654C6] text-white shadow-sm">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#0F1B3D] !text-white shadow-sm">
                         <CreditCard size={19} />
                       </div>
                       <div>
-                        <div className="text-[9px] font-black uppercase tracking-[0.24em] text-[#7654C6]">
+                        <div className="text-[9px] font-black uppercase tracking-[0.24em] text-[#0F1B3D]">
                           Action requise
                         </div>
                         <h2 className="mt-1.5 text-xl font-black tracking-tight sm:text-2xl">
                           Régler le solde
                         </h2>
-                        <p className="mt-1.5 text-xs font-medium leading-5 text-[#6F687A]">
+                        <p className="mt-1.5 text-xs font-medium leading-5 text-[#6B7280]">
                           Finalisez votre paiement pour poursuivre votre commande.
                         </p>
                       </div>
@@ -2398,7 +2398,7 @@ function SuiviV2Page() {
                         Confirmé
                       </div>
                     ) : (
-                      <div className="shrink-0 rounded-full bg-[#7654C6]/10 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.14em] text-[#7654C6]">
+                      <div className="shrink-0 rounded-full bg-[#0F1B3D]/10 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.14em] text-[#0F1B3D]">
                         À régler
                       </div>
                     )}
@@ -2427,28 +2427,28 @@ function SuiviV2Page() {
                     </div>
                   ) : (
                     <>
-                      <div className="rounded-[14px] border border-[#E8E3EF] bg-[#FAFAF9] p-5 sm:p-6">
+                      <div className="rounded-[14px] border border-[#FAF9F6] bg-[#FAFAF9] p-5 sm:p-6">
                         <div className="flex items-end justify-between gap-4">
                           <div>
                             <div className="text-[9px] font-black uppercase tracking-[0.22em] text-[#9A93A5]">
                               Solde restant
                             </div>
-                            <div className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#18151F] sm:text-4xl">
+                            <div className="mt-2 text-3xl font-black tracking-[-0.03em] text-[#1A1A2E] sm:text-4xl">
                               {formatPrix(commande.solde_restant)}
                             </div>
                           </div>
-                          <div className="hidden h-11 w-11 items-center justify-center rounded-[10px] bg-white text-[#7654C6] shadow-sm ring-1 ring-[#E8E3EF]/80 sm:flex">
+                          <div className="hidden h-11 w-11 items-center justify-center rounded-[10px] bg-white text-[#0F1B3D] shadow-sm ring-1 ring-[#FAF9F6]/80 sm:flex">
                             <CreditCard size={19} />
                           </div>
                         </div>
 
-                        <div className="mt-5 h-px bg-[#E8E3EF]" />
+                        <div className="mt-5 h-px bg-[#FAF9F6]" />
 
                         <div className="mt-4 flex items-center justify-between gap-3">
-                          <span className="text-xs font-medium text-[#6F687A]">
+                          <span className="text-xs font-medium text-[#6B7280]">
                             Montant d’achat restant
                           </span>
-                          <span className="text-xs font-black text-[#18151F]">
+                          <span className="text-xs font-black text-[#1A1A2E]">
                             À régler maintenant
                           </span>
                         </div>
@@ -2468,13 +2468,13 @@ function SuiviV2Page() {
               </section>
             )}
 
-            <section className="mt-5 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white text-[#18151F] shadow-sm">
+            <section className="mt-5 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white text-[#1A1A2E] shadow-sm">
               <div className="relative overflow-hidden p-5 sm:p-8">
-                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#7654C6]/[0.05] blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#0F1B3D]/[0.05] blur-3xl" />
 
                 <div className="relative flex flex-wrap items-start justify-between gap-5">
                   <div className="flex items-start gap-3.5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] shadow-sm">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] shadow-sm">
                       {commande.mode_reception === 'livraison'
                         ? <Truck size={19} />
                         : <MapPin size={19} />}
@@ -2502,12 +2502,12 @@ function SuiviV2Page() {
                 </div>
 
                 {commande.mode_reception === 'livraison' ? (
-                  <div className="relative mt-7 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-7">
-                    <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#7654C6]/[0.05] blur-3xl" />
+                  <div className="relative mt-7 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-sm sm:p-7">
+                    <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#0F1B3D]/[0.05] blur-3xl" />
 
                     <div className="relative flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <div className="mt-3 text-lg font-black tracking-[-0.02em] text-[#18151F] sm:text-xl">
+                        <div className="mt-3 text-lg font-black tracking-[-0.02em] text-[#1A1A2E] sm:text-xl">
                           {livraisonEstArrivee
                             ? 'Livraison terminée'
                             : commande.departReel
@@ -2521,20 +2521,20 @@ function SuiviV2Page() {
 
                           {estCommandeStock ? (
                             <div className="space-y-5">
-                              <div className="rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5 sm:p-6">
+                              <div className="rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-5 sm:p-6">
                                 <div className="flex items-start justify-between gap-4">
                                 <div className="min-w-0">
                                   <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                                     Statut
                                   </div>
-                                  <p className="mt-1.5 text-sm font-black text-[#18151F]">
+                                  <p className="mt-1.5 text-sm font-black text-[#1A1A2E]">
                                     {livraisonEstArrivee
                                       ? 'Commande livrée'
                                       : commande.departReel
                                         ? 'En route vers votre adresse'
                                         : 'Préparation en cours'}
                                   </p>
-                                  <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
+                                  <p className="mt-1.5 text-xs leading-5 text-[#6B7280]">
                                     {livraisonEstArrivee
                                       ? 'Votre commande a été livrée avec succès. Merci pour votre confiance.'
                                       : commande.departReel
@@ -2547,9 +2547,9 @@ function SuiviV2Page() {
 
                                 {commande.departReel && (
                                   <>
-                                    <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-[#E8E3EF]">
+                                    <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-[#FAF9F6]">
                                       <div
-                                        className="h-full rounded-full bg-[#7654C6] transition-all duration-700"
+                                        className="h-full rounded-full bg-[#0F1B3D] transition-all duration-700"
                                         style={{
                                           width: `${Math.round(progressionLivraison * 100)}%`,
                                         }}
@@ -2563,21 +2563,21 @@ function SuiviV2Page() {
                                 )}
 
                                 {String(commande.livraisonStatut || '').toLowerCase() === 'arrivee' && (
-                                  <div className="mt-5 rounded-[14px] border border-[#7654C6]/20 bg-[#F1ECFA] p-4">
+                                  <div className="mt-5 rounded-[14px] border border-[#0F1B3D]/20 bg-[#FAF9F6] p-4">
                                     <div className="flex items-center gap-2">
-                                      <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-[#7654C6]" />
-                                      <span className="text-xs font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                                      <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-[#0F1B3D]" />
+                                      <span className="text-xs font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                                         Livreur arrivé
                                       </span>
                                     </div>
-                                    <p className="mt-2 text-xs leading-5 text-[#6F687A]">
+                                    <p className="mt-2 text-xs leading-5 text-[#6B7280]">
                                       Votre livreur est arrivé à destination. Confirmez la réception lorsque vous avez reçu votre commande.
                                     </p>
                                     <button
                                       type="button"
                                       onClick={confirmerReception}
                                       disabled={confirmationReceptionEnCours}
-                                      className="mt-4 flex min-h-11 w-full items-center justify-center rounded-[10px] bg-[#7654C6] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-60"
+                                      className="mt-4 flex min-h-11 w-full items-center justify-center rounded-[10px] bg-[#0F1B3D] !text-white px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                       {confirmationReceptionEnCours
                                         ? 'Confirmation en cours...'
@@ -2587,19 +2587,19 @@ function SuiviV2Page() {
                                 )}
 
                                 {commande.livreur && (
-                                  <div className="mt-5 border-t border-[#E8E3EF] pt-5">
+                                  <div className="mt-5 border-t border-[#FAF9F6] pt-5">
                                     <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                                       Votre livreur
                                     </div>
 
                                     <div className="mt-2 flex items-center gap-3">
                                       <div className="min-w-0 flex-1">
-                                        <div className="truncate text-sm font-black text-[#18151F]">
+                                        <div className="truncate text-sm font-black text-[#1A1A2E]">
                                           {commande.livreur.nom}
                                         </div>
 
                                         {commande.livreur.telephone && (
-                                          <div className="mt-1 text-xs font-semibold text-[#6F687A]">
+                                          <div className="mt-1 text-xs font-semibold text-[#6B7280]">
                                             {commande.livreur.telephone}
                                           </div>
                                         )}
@@ -2611,7 +2611,7 @@ function SuiviV2Page() {
                                       <div className="mt-4 grid grid-cols-2 gap-2.5">
                                         <a
                                           href={`tel:${commande.livreur.telephone}`}
-                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#18151F] shadow-sm transition hover:border-[#7654C6] hover:bg-[#FAF9FC]"
+                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#1A1A2E] shadow-sm transition hover:border-[#0F1B3D] hover:bg-[#FFFFFF]"
                                         >
                                           <Phone size={14} />
                                           Appeler
@@ -2621,7 +2621,7 @@ function SuiviV2Page() {
                                           href={`https://wa.me/${commande.livreur.telephone.replace(/\D/g, '')}`}
                                           target="_blank"
                                           rel="noreferrer"
-                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#18151F] shadow-sm transition hover:border-[#7654C6] hover:bg-[#FAF9FC]"
+                                          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-3 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#1A1A2E] shadow-sm transition hover:border-[#0F1B3D] hover:bg-[#FFFFFF]"
                                         >
                                           <MessageCircle size={14} />
                                           WhatsApp
@@ -2632,9 +2632,9 @@ function SuiviV2Page() {
                                 )}
                               </div>
                             </div>                          ) : (
-                            <div className="rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5 sm:p-6">
+                            <div className="rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-5 sm:p-6">
                               <div className="flex items-center justify-between gap-3">
-                                <div className="text-xs font-black text-[#18151F]">
+                                <div className="text-xs font-black text-[#1A1A2E]">
                                   {commande.statut === 'solde_requis'
                                     ? 'Solde requis'
                                     : commande.statut === 'solde_confirme'
@@ -2652,7 +2652,7 @@ function SuiviV2Page() {
                                                 : 'Acheminement'}
                                 </div>
 
-                                <div className="text-xs font-black text-[#7654C6]">
+                                <div className="text-xs font-black text-[#0F1B3D]">
                                   {livraisonEstArrivee
                                     ? 'Arrivée'
                                     : ['en_route', 'arrivee', 'livree'].includes(
@@ -2668,9 +2668,9 @@ function SuiviV2Page() {
                               ) && (
                                 <>
 
-                                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#E8E3EF]">
+                                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#FAF9F6]">
                                     <div
-                                      className="h-full rounded-full bg-[#7654C6] transition-all duration-700"
+                                      className="h-full rounded-full bg-[#0F1B3D] transition-all duration-700"
                                       style={{
                                         width: `${Math.round(progressionLivraison * 100)}%`,
                                       }}
@@ -2689,10 +2689,10 @@ function SuiviV2Page() {
                         </div>
                   </div>
                 ) : (
-                  <div className="relative mt-7 overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-6">
+                  <div className="relative mt-7 overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3.5">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white text-[#18151F] shadow-sm ring-1 ring-[#E8E3EF]/80">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white text-[#1A1A2E] shadow-sm ring-1 ring-[#FAF9F6]/80">
                           <MapPin size={17} />
                         </div>
 
@@ -2701,7 +2701,7 @@ function SuiviV2Page() {
                             Retrait sur place
                           </div>
 
-                            <div className="mt-2 text-base font-black text-[#18151F]">
+                            <div className="mt-2 text-base font-black text-[#1A1A2E]">
                               {statut === 'retire'
                                 ? '✓ Commande retirée'
                                 : statut === 'pret'
@@ -2710,17 +2710,17 @@ function SuiviV2Page() {
                             </div>
 
                             {statut === 'pret' && commande.code_retrait && (
-                              <div className="mt-5 rounded-[10px] border border-[#7654C6]/15 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                              <div className="mt-5 rounded-[10px] border border-[#0F1B3D]/15 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                                 <div className="flex items-center justify-between gap-3">
                                   <div>
                                     <div className="text-[8px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                                       Code de retrait
                                     </div>
-                                    <div className="mt-1 text-xs font-medium text-[#6F687A]">
+                                    <div className="mt-1 text-xs font-medium text-[#6B7280]">
                                       Présentez ce code lors du retrait de votre commande.
                                     </div>
                                   </div>
-                                  <div className="rounded-[10px] bg-[#7654C6]/10 px-3 py-2 text-base font-black tracking-[0.1em] text-[#7654C6]">
+                                  <div className="rounded-[10px] bg-[#0F1B3D]/10 px-3 py-2 text-base font-black tracking-[0.1em] text-[#0F1B3D]">
                                     {commande.code_retrait}
                                   </div>
                                 </div>
@@ -2740,7 +2740,7 @@ function SuiviV2Page() {
                         </div>
                       </div>
 
-                      <div className="rounded-full bg-[#7654C6]/10 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.13em] text-[#7654C6]">
+                      <div className="rounded-full bg-[#0F1B3D]/10 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.13em] text-[#0F1B3D]">
                         Terminé
                       </div>
                     </div>
@@ -2750,7 +2750,7 @@ function SuiviV2Page() {
                 {commande.mode_reception === 'livraison' &&
                   String(commande.livraisonStatut || '').toLowerCase() === 'livree' &&
                   avisCharge && (
-                    <div className="mt-5 rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-6">
+                    <div className="mt-5 rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-6">
                       {avisDejaDepose ? (
                         <div>
                           <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
@@ -2763,14 +2763,14 @@ function SuiviV2Page() {
                                 size={20}
                                 className={
                                   etoile <= noteAvis
-                                    ? 'fill-[#7654C6] text-[#7654C6]'
+                                    ? 'fill-[#0F1B3D] text-[#0F1B3D]'
                                     : 'text-[#9A93A5]'
                                 }
                               />
                             ))}
                           </div>
                           {commentaireAvis && (
-                            <p className="mt-3 text-xs leading-5 text-[#6F687A]">
+                            <p className="mt-3 text-xs leading-5 text-[#6B7280]">
                               {commentaireAvis}
                             </p>
                           )}
@@ -2783,7 +2783,7 @@ function SuiviV2Page() {
                           <div className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                             Votre avis
                           </div>
-                          <div className="mt-2 text-base font-black text-[#18151F]">
+                          <div className="mt-2 text-base font-black text-[#1A1A2E]">
                             Comment s’est passée votre livraison ?
                           </div>
 
@@ -2794,13 +2794,13 @@ function SuiviV2Page() {
                                 type="button"
                                 onClick={() => setNoteAvis(etoile)}
                                 aria-label={`Donner ${etoile} étoile${etoile > 1 ? 's' : ''}`}
-                                className="flex h-11 w-11 items-center justify-center rounded-[10px] transition hover:bg-[#FAF9FC]"
+                                className="flex h-11 w-11 items-center justify-center rounded-[10px] transition hover:bg-[#FFFFFF]"
                               >
                                 <Star
                                   size={24}
                                   className={
                                     etoile <= noteAvis
-                                      ? 'fill-[#7654C6] text-[#7654C6]'
+                                      ? 'fill-[#0F1B3D] text-[#0F1B3D]'
                                       : 'text-[#9A93A5]'
                                   }
                                 />
@@ -2814,14 +2814,14 @@ function SuiviV2Page() {
                             maxLength={1000}
                             rows={4}
                             placeholder="Votre commentaire (facultatif)"
-                            className="mt-3 w-full resize-none rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 text-sm font-medium text-[#18151F] outline-none transition focus:border-[#7654C6] focus:bg-white"
+                            className="mt-3 w-full resize-none rounded-[10px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-3 text-sm font-medium text-[#1A1A2E] outline-none transition focus:border-[#0F1B3D] focus:bg-white"
                           />
 
                           <button
                             type="button"
                             onClick={envoyerAvisClient}
                             disabled={avisEnvoiEnCours || noteAvis < 1}
-                            className="mt-3 flex min-h-11 w-full items-center justify-center rounded-[10px] bg-[#7654C6] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="mt-3 flex min-h-11 w-full items-center justify-center rounded-[10px] bg-[#0F1B3D] !text-white px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {avisEnvoiEnCours
                               ? 'Envoi en cours...'

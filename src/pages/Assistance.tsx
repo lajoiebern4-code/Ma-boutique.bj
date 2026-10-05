@@ -39,13 +39,13 @@ export default function Assistance() {
   }, [])
 
   return (
-    <main className="min-h-[calc(100vh-180px)] bg-[#FAF9FC] p-3 sm:p-5 lg:p-6">
-      <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-[28px] border border-[#E8E3EF] bg-white shadow-[0_30px_90px_rgba(118,84,198,0.12)] lg:grid-cols-[1.05fr_1fr]">
+    <main className="min-h-[calc(100vh-180px)] bg-[#FFFFFF] p-3 sm:p-5 lg:p-6">
+      <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-[28px] border border-[#FAF9F6] bg-white shadow-[0_30px_90px_rgba(118,84,198,0.12)] lg:grid-cols-[1.05fr_1fr]">
 
         {/* Panneau gauche — Marque */}
         <aside className="relative hidden overflow-hidden bg-gradient-to-br from-[#1E1B2E] via-[#2A2344] to-[#3B2D5F] p-10 lg:flex lg:flex-col lg:justify-between">
-          <div className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-[#7654C6]/30 blur-3xl" />
-          <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-[#8B6DD1]/25 blur-3xl" />
+          <div className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-[#0F1B3D]/30 blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-[#E8E4DC]/25 blur-3xl" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_50%)]" />
 
           <div className="relative">
@@ -116,19 +116,19 @@ export default function Assistance() {
         <section className="flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
 
           <div className="mb-8">
-            <p className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
+            <p className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#0F1B3D]">
               Centre d'assistance
             </p>
-            <h1 className="text-[26px] font-black leading-tight tracking-tight text-[#18151F] sm:text-[30px]">
+            <h1 className="text-[26px] font-black leading-tight tracking-tight text-[#1A1A2E] sm:text-[30px]">
               {clientConnecte && prenom ? (
                 <>
-                  Bonjour <span className="text-[#7654C6]">{prenom}</span> 👋
+                  Bonjour <span className="text-[#0F1B3D]">{prenom}</span> 👋
                 </>
               ) : (
                 <>Comment pouvons-nous vous aider ?</>
               )}
             </h1>
-            <p className="mt-2.5 text-sm leading-6 text-[#6F687A]">
+            <p className="mt-2.5 text-sm leading-6 text-[#6B7280]">
               Choisissez le mode de contact qui vous convient.
             </p>
           </div>
@@ -136,30 +136,30 @@ export default function Assistance() {
           <div className="space-y-4">
 
             {/* Bloc Messagerie */}
-            <div className="rounded-2xl border border-[#E8E3EF] bg-white p-5 shadow-sm transition-all hover:border-[#7654C6]/30 hover:shadow-md">
+            <div className="rounded-2xl border border-[#FAF9F6] bg-white p-5 shadow-sm transition-all hover:border-[#0F1B3D]/30 hover:shadow-md">
               <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#7654C6] to-[#8B6DD1] text-white shadow-md shadow-[#7654C6]/20">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F1B3D] to-[#E8E4DC] text-white shadow-md shadow-[#0F1B3D]/20">
                   <MessageCircle size={20} />
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-black text-[#18151F]">Messagerie</h3>
+                  <h3 className="text-[15px] font-black text-[#1A1A2E]">Messagerie</h3>
                   <p className="text-[11px] font-semibold text-[#9A93A5]">
                     Réponse instantanée · 24h/24
                   </p>
                 </div>
               </div>
 
-              <ul className="mb-4 space-y-1.5 text-[13px] text-[#6F687A]">
+              <ul className="mb-4 space-y-1.5 text-[13px] text-[#6B7280]">
                 <li className="flex items-start gap-2">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#7654C6]" />
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#0F1B3D]" />
                   <span>Discutez avec notre assistant IA</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#7654C6]" />
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#0F1B3D]" />
                   <span>Réponse en quelques secondes</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#7654C6]" />
+                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#0F1B3D]" />
                   <span>Transfert possible vers un humain</span>
                 </li>
               </ul>
@@ -167,7 +167,7 @@ export default function Assistance() {
               <button
                 type="button"
                 onClick={() => setChatOuvert(true)}
-                className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#18151F] text-[13px] font-black text-white shadow-lg shadow-[#18151F]/15 transition-all hover:bg-[#2A2344] active:scale-[0.99]"
+                className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A2E] text-[13px] font-black text-white shadow-lg shadow-[#1A1A2E]/15 transition-all hover:bg-[#2A2344] active:scale-[0.99]"
               >
                 <MessageCircle size={16} />
                 Envoyer un message
@@ -180,21 +180,21 @@ export default function Assistance() {
               href="https://wa.me/22951517876?text=Bonjour%20ChinaShop-B%C3%A9nin%2C%20j%27ai%20une%20question"
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-2xl border border-[#E8E3EF] bg-white p-5 shadow-sm transition-all hover:border-[#25D366]/40 hover:shadow-md"
+              className="block rounded-2xl border border-[#FAF9F6] bg-white p-5 shadow-sm transition-all hover:border-[#25D366]/40 hover:shadow-md"
             >
               <div className="mb-3 flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-md shadow-[#25D366]/25">
                   <MessageCircle size={20} />
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-black text-[#18151F]">WhatsApp</h3>
+                  <h3 className="text-[15px] font-black text-[#1A1A2E]">WhatsApp</h3>
                   <p className="text-[11px] font-semibold text-[#9A93A5]">
                     Lun-Sam · 8h-18h
                   </p>
                 </div>
               </div>
 
-              <ul className="mb-4 space-y-1.5 text-[13px] text-[#6F687A]">
+              <ul className="mb-4 space-y-1.5 text-[13px] text-[#6B7280]">
                 <li className="flex items-start gap-2">
                   <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#25D366]" />
                   <span>Discutez avec un conseiller humain</span>
@@ -215,7 +215,7 @@ export default function Assistance() {
 
           {/* Info bas */}
           <div className="mt-8 flex items-center justify-center gap-2 text-[11px] font-semibold text-[#9A93A5]">
-            <ShieldCheck size={13} className="text-[#7654C6]" />
+            <ShieldCheck size={13} className="text-[#0F1B3D]" />
             <span>Vos échanges sont confidentiels</span>
           </div>
         </section>

@@ -601,7 +601,7 @@ export default function AdminAssistance() {
               </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto bg-[#FAF9FC] p-4">
+            <div className="flex-1 overflow-y-auto bg-[#FFFFFF] p-4">
               {chargementMsg ? (
                 <div className="flex items-center justify-center py-16">
                   <Loader2 size={22} className="animate-spin text-violet-600" />
@@ -629,7 +629,7 @@ export default function AdminAssistance() {
                             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                               estAssist
                                 ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-[#F1ECFA] text-[#7654C6]'
+                                : 'bg-[#FAF9F6] text-[#0F1B3D]'
                             }`}
                           >
                             {estAssist ? <User size={13} /> : <Bot size={13} />}
@@ -638,10 +638,10 @@ export default function AdminAssistance() {
                         <div
                           className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6 ${
                             estClient
-                              ? 'rounded-br-md bg-[#7654C6] text-white'
+                              ? 'rounded-br-md bg-[#0F1B3D] !text-white'
                               : estAssist
                                 ? 'rounded-bl-md border border-emerald-200 bg-emerald-50 text-emerald-900'
-                                : 'rounded-bl-md border border-[#E8E3EF] bg-white text-[#18151F]'
+                                : 'rounded-bl-md border border-[#FAF9F6] bg-white text-[#1A1A2E]'
                           }`}
                         >
                           {estAssist && (
@@ -663,7 +663,7 @@ export default function AdminAssistance() {
                           </p>
                         </div>
                         {estClient && (
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8E3EF] text-[#6F687A]">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF9F6] text-[#6B7280]">
                             <User size={13} />
                           </div>
                         )}

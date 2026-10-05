@@ -82,10 +82,10 @@ function CartePromotion({
   }
 
   return (
-    <article className="group overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition duration-300">
+    <article className="group overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition duration-300">
       <Link
         to={`/produit/${produit.id}`}
-        className="relative block aspect-square overflow-hidden bg-[#F1ECFA]"
+        className="relative block aspect-square overflow-hidden bg-[#FAF9F6]"
       >
         {produit.image_url ? (
           <img
@@ -101,32 +101,32 @@ function CartePromotion({
         )}
 
         <div className="absolute left-3 top-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#7654C6] px-3 py-1.5 text-[10px] font-black text-white shadow-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1B3D] !text-white px-3 py-1.5 text-[10px] font-black text-white shadow-sm">
             <Percent size={12} />
             -{produit.promo}%
           </span>
         </div>
 
         {produit.nouveau && (
-          <span className="absolute right-3 top-3 rounded-full bg-[#7654C6] px-3 py-1.5 text-[10px] font-black text-white shadow-sm">
+          <span className="absolute right-3 top-3 rounded-full bg-[#0F1B3D] !text-white px-3 py-1.5 text-[10px] font-black text-white shadow-sm">
             Nouveau
           </span>
         )}
       </Link>
 
       <div className="p-4 sm:p-5">
-        <p className="text-[10px] font-black uppercase tracking-wider text-[#7654C6]">
+        <p className="text-[10px] font-black uppercase tracking-wider text-[#0F1B3D]">
           {produit.categorie || 'Produit'}
         </p>
 
         <Link to={`/produit/${produit.id}`}>
-          <h2 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#18151F] transition group-hover:text-[#7654C6]">
+          <h2 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#1A1A2E] transition group-hover:text-[#0F1B3D]">
             {produit.nom}
           </h2>
         </Link>
 
         <div className="mt-4">
-          <p className="text-lg font-black tracking-tight text-[#7654C6]">
+          <p className="text-lg font-black tracking-tight text-[#0F1B3D]">
             {formatPrix(produit.prix)}
           </p>
 
@@ -152,7 +152,7 @@ function CartePromotion({
             type="button"
             disabled={indisponible}
             onClick={ajouterAuPanier}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] border border-[#E8E3EF] px-2 text-xs font-black text-[#18151F] transition hover:border-[#7654C6] hover:bg-[#F1ECFA] hover:text-[#7654C6] disabled:cursor-not-allowed disabled:border-[#E8E3EF] disabled:text-[#9A93A5]"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] border border-[#FAF9F6] px-2 text-xs font-black text-[#1A1A2E] transition hover:border-[#0F1B3D] hover:bg-[#FAF9F6] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:border-[#FAF9F6] disabled:text-[#9A93A5]"
           >
             <ShoppingBag size={15} />
             Ajouter
@@ -162,7 +162,7 @@ function CartePromotion({
             type="button"
             disabled={indisponible}
             onClick={commander}
-            className="min-h-11 rounded-[10px] bg-[#7654C6] px-2 text-xs font-black text-white transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:bg-[#E8E3EF] disabled:text-[#9A93A5]"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-4 text-xs font-bold text-[#0F1B3D] shadow-[0_4px_14px_rgba(201,162,75,0.25)] transition-all duration-150 hover:from-[#D97706] hover:to-[#F59E0B] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
           >
             Commander
           </button>
@@ -260,46 +260,46 @@ export default function Promotions() {
 
   return (
     <div className="min-h-screen bg-white">
-      <section className="relative overflow-hidden bg-[#FAF9FC]">
-        <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#7654C6]/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#7654C6]/10 blur-3xl" />
+      <section className="relative overflow-hidden bg-[#FFFFFF]">
+        <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#0F1B3D]/10 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#0F1B3D]/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8 lg:py-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2 text-xs font-bold text-[#7654C6] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
-              <span className="h-2 w-2 rounded-full bg-[#7654C6]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-4 py-2 text-xs font-bold text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+              <span className="h-2 w-2 rounded-full bg-[#0F1B3D]" />
               <Percent size={14} />
               Offres du moment
             </div>
 
-            <h1 className="mt-6 text-4xl font-black leading-[1.04] tracking-tight text-[#18151F] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-6 text-4xl font-black leading-[1.04] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
               Profitez des bonnes affaires.
-              <span className="mt-2 block text-[#7654C6]">
+              <span className="mt-2 block text-[#0F1B3D]">
                 Les promotions ChinaShop.
               </span>
             </h1>
 
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#6F687A] sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-7 text-[#6B7280] sm:text-lg">
               Découvrez les produits actuellement proposés à prix réduit.
               Les offres affichées correspondent aux promotions disponibles
               dans notre catalogue.
             </p>
 
-            <div className="mt-8 flex max-w-xl items-center rounded-[10px] border border-[#E8E3EF] bg-white p-2 shadow-sm">
+            <div className="mt-8 flex max-w-xl items-center rounded-[10px] border border-[#FAF9F6] bg-white p-2 shadow-sm">
               <Search className="ml-3 shrink-0 text-[#9A93A5]" size={20} />
 
               <input
                 value={recherche}
                 onChange={(event) => setRecherche(event.target.value)}
                 placeholder="Rechercher une promotion..."
-                className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#18151F] outline-none placeholder:text-[#9A93A5]"
+                className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#1A1A2E] outline-none placeholder:text-[#9A93A5]"
               />
 
               {recherche && (
                 <button
                   type="button"
                   onClick={() => setRecherche('')}
-                  className="mr-1 rounded-[10px] p-2 text-[#9A93A5] transition hover:bg-[#F1ECFA] hover:text-[#18151F]"
+                  className="mr-1 rounded-[10px] p-2 text-[#9A93A5] transition hover:bg-[#FAF9F6] hover:text-[#1A1A2E]"
                   aria-label="Effacer la recherche"
                 >
                   <X size={16} />
@@ -310,7 +310,7 @@ export default function Promotions() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 to="/catalogue"
-                className="inline-flex items-center gap-2 rounded-[10px] bg-[#7654C6] px-6 py-3.5 text-sm font-black text-white shadow-sm transition hover:bg-[#6544B3]"
+                className="inline-flex items-center gap-2 rounded-[10px] bg-[#0F1B3D] !text-white px-6 py-3.5 text-sm font-black text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D]"
               >
                 Découvrir le catalogue
                 <ArrowRight size={16} />
@@ -318,7 +318,7 @@ export default function Promotions() {
 
               <Link
                 to="/nouveautes"
-                className="inline-flex items-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-6 py-3.5 text-sm font-bold text-[#18151F] shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition hover:border-[#7654C6] hover:text-[#7654C6]"
+                className="inline-flex items-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-6 py-3.5 text-sm font-bold text-[#1A1A2E] shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition hover:border-[#0F1B3D] hover:text-[#0F1B3D]"
               >
                 Voir les nouveautés
                 <Sparkles size={16} />
@@ -332,20 +332,20 @@ export default function Promotions() {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
                 Sélection promotionnelle
               </p>
 
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
                 Nos promotions
               </h2>
 
-              <p className="mt-3 max-w-xl text-sm leading-6 text-[#6F687A]">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-[#6B7280]">
                 Les offres actuellement disponibles sur ChinaShop-Bénin.
               </p>
             </div>
 
-            <label className="flex min-h-11 items-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-3 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:min-w-60">
+            <label className="flex min-h-11 items-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-3 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:min-w-60">
               <ArrowDownUp size={16} className="text-[#9A93A5]" />
 
               <select
@@ -353,7 +353,7 @@ export default function Promotions() {
                 onChange={(event) =>
                   setTri(event.target.value as Tri)
                 }
-                className="w-full bg-transparent text-sm font-semibold text-[#18151F] outline-none"
+                className="w-full bg-transparent text-sm font-semibold text-[#1A1A2E] outline-none"
               >
                 <option value="pertinence">Pertinence</option>
                 <option value="remise">Réduction la plus forte</option>
@@ -364,7 +364,7 @@ export default function Promotions() {
           </div>
 
           <div className="mt-7">
-            <p className="text-sm font-bold text-[#18151F]">
+            <p className="text-sm font-bold text-[#1A1A2E]">
               {chargement
                 ? 'Chargement des offres...'
                 : `${promotions.length} offre${
@@ -384,16 +384,16 @@ export default function Promotions() {
               {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
                 <div
                   key={item}
-                  className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]"
+                  className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)]"
                 >
-                  <div className="aspect-square animate-pulse bg-[#E8E3EF]" />
+                  <div className="aspect-square animate-pulse bg-[#FAF9F6]" />
 
                   <div className="space-y-3 p-4 sm:p-5">
-                    <div className="h-3 w-20 animate-pulse rounded bg-[#E8E3EF]" />
-                    <div className="h-5 w-4/5 animate-pulse rounded bg-[#E8E3EF]" />
-                    <div className="h-5 w-2/5 animate-pulse rounded bg-[#E8E3EF]" />
-                    <div className="h-4 w-24 animate-pulse rounded bg-[#E8E3EF]" />
-                    <div className="h-11 animate-pulse rounded-[10px] bg-[#E8E3EF]" />
+                    <div className="h-3 w-20 animate-pulse rounded bg-[#FAF9F6]" />
+                    <div className="h-5 w-4/5 animate-pulse rounded bg-[#FAF9F6]" />
+                    <div className="h-5 w-2/5 animate-pulse rounded bg-[#FAF9F6]" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-[#FAF9F6]" />
+                    <div className="h-11 animate-pulse rounded-[10px] bg-[#FAF9F6]" />
                   </div>
                 </div>
               ))}
@@ -409,16 +409,16 @@ export default function Promotions() {
               ))}
             </div>
           ) : (
-            <div className="mt-10 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] px-6 py-16 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
+            <div className="mt-10 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] px-6 py-16 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D]">
                 <Percent size={28} />
               </div>
 
-              <h2 className="mt-5 text-2xl font-black text-[#18151F]">
+              <h2 className="mt-5 text-2xl font-black text-[#1A1A2E]">
                 Aucune promotion disponible
               </h2>
 
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#6F687A]">
+              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#6B7280]">
                 {recherche
                   ? 'Aucun produit en promotion ne correspond à votre recherche.'
                   : 'Nos offres évoluent régulièrement. Consultez le catalogue pour découvrir les produits actuellement disponibles.'}
@@ -429,7 +429,7 @@ export default function Promotions() {
                   <button
                     type="button"
                     onClick={reinitialiser}
-                    className="min-h-11 rounded-[10px] border border-[#E8E3EF] bg-white px-5 text-sm font-bold text-[#18151F] transition hover:bg-[#F1ECFA]"
+                    className="min-h-11 rounded-[10px] border border-[#FAF9F6] bg-white px-5 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#FAF9F6]"
                   >
                     Effacer la recherche
                   </button>
@@ -437,7 +437,7 @@ export default function Promotions() {
 
                 <Link
                   to="/catalogue"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-[#7654C6] px-5 text-sm font-black text-white transition hover:bg-[#6544B3]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0F1B3D] !text-white px-5 text-sm font-black text-white transition hover:bg-[#C9A24B] hover:text-[#0F1B3D]"
                 >
                   Explorer le catalogue
                   <ArrowRight size={16} />

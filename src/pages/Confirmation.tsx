@@ -238,7 +238,7 @@ export default function Confirmation() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAF9FC] px-3 py-4 sm:px-5 sm:py-7">
+    <main className="min-h-screen bg-[#FFFFFF] px-3 py-4 sm:px-5 sm:py-7">
       <div className="mx-auto max-w-5xl">
 
         {/* HEADER */}
@@ -248,7 +248,7 @@ export default function Confirmation() {
             onClick={() => navigate('/catalogue')}
             className="group flex items-center gap-2"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#7654C6] text-white shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#0F1B3D] !text-white shadow-sm">
               <ShoppingBag size={19} />
             </span>
 
@@ -256,24 +256,24 @@ export default function Confirmation() {
               <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
                 ChinaShop
               </span>
-              <span className="block text-sm font-black text-[#18151F]">
+              <span className="block text-sm font-black text-[#1A1A2E]">
                 Bénin
               </span>
             </span>
           </button>
 
-          <div className="flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-3 py-2 shadow-sm">
+          <div className="flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-3 py-2 shadow-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#6F687A]">
+            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#6B7280]">
               Commande sécurisée
             </span>
           </div>
         </header>
 
         {/* SUCCESS HERO */}
-        <section className="relative overflow-hidden rounded-[14px] bg-gradient-to-br from-[#7654C6] via-[#8B6DD1] to-[#3B2D5F] px-5 py-8 text-white shadow-[0_20px_60px_rgba(24,21,31,0.12)] sm:rounded-[14px] sm:px-10 sm:py-11">
-          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#7654C6]/30 blur-3xl" />
-          <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[#7654C6]/15 blur-3xl" />
+        <section className="relative overflow-hidden rounded-[14px] bg-gradient-to-br from-[#0F1B3D] via-[#E8E4DC] to-[#3B2D5F] px-5 py-8 text-white shadow-[0_20px_60px_rgba(24,21,31,0.12)] sm:rounded-[14px] sm:px-10 sm:py-11">
+          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#0F1B3D]/30 blur-3xl" />
+          <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[#0F1B3D]/15 blur-3xl" />
 
           <div className="relative">
             <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left">
@@ -329,20 +329,20 @@ export default function Confirmation() {
           <div className="space-y-4">
 
             {/* CODE PRINCIPAL */}
-            <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
-              <div className="border-b border-[#E8E3EF] px-5 py-4 sm:px-6">
+            <section className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-sm">
+              <div className="border-b border-[#FAF9F6] px-5 py-4 sm:px-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#7654C6]">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#0F1B3D]">
                       Votre identifiant
                     </p>
 
-                    <h2 className="mt-1 text-lg font-black text-[#18151F]">
+                    <h2 className="mt-1 text-lg font-black text-[#1A1A2E]">
                       {estRetrait ? 'Code de retrait' : 'Code de suivi'}
                     </h2>
                   </div>
 
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D]">
                     {estRetrait ? (
                       <Package size={20} />
                     ) : (
@@ -353,12 +353,12 @@ export default function Confirmation() {
               </div>
 
               <div className="p-5 sm:p-7">
-                <div className="rounded-[14px] bg-[#FAF9FC] px-4 py-6 text-center ring-1 ring-[#E8E3EF] sm:px-6">
+                <div className="rounded-[14px] bg-[#FFFFFF] px-4 py-6 text-center ring-1 ring-[#FAF9F6] sm:px-6">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
                     Code à conserver
                   </p>
 
-                  <p className="mt-3 break-all text-3xl font-black tracking-[0.12em] text-[#7654C6] sm:text-4xl">
+                  <p className="mt-3 break-all text-3xl font-black tracking-[0.12em] text-[#0F1B3D] sm:text-4xl">
                     {code || '—'}
                   </p>
 
@@ -366,7 +366,7 @@ export default function Confirmation() {
                     <button
                       type="button"
                       onClick={copierCode}
-                      className="mx-auto mt-5 flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-white px-5 text-xs font-black text-[#18151F] shadow-sm ring-1 ring-[#E8E3EF] transition hover:bg-[#F1ECFA] active:scale-[0.98]"
+                      className="mx-auto mt-5 flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-white px-5 text-xs font-black text-[#1A1A2E] shadow-sm ring-1 ring-[#FAF9F6] transition hover:bg-[#FAF9F6] active:scale-[0.98]"
                     >
                       {copie ? (
                         <>
@@ -386,15 +386,15 @@ export default function Confirmation() {
                   )}
                 </div>
 
-                <div className="mt-4 flex items-start gap-3 rounded-[10px] bg-[#F1ECFA] p-4">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[#7654C6]/10">
+                <div className="mt-4 flex items-start gap-3 rounded-[10px] bg-[#FAF9F6] p-4">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[#0F1B3D]/10">
                     <ClipboardCheck
                       size={16}
-                      className="text-[#7654C6]"
+                      className="text-[#0F1B3D]"
                     />
                   </div>
 
-                  <p className="text-xs font-semibold leading-5 text-[#6F687A]">
+                  <p className="text-xs font-semibold leading-5 text-[#6B7280]">
                     {estRetrait
                       ? 'Présentez ce code lors du retrait de votre commande.'
                       : 'Conservez ce code pour suivre l’avancement de votre livraison.'}
@@ -404,52 +404,52 @@ export default function Confirmation() {
             </section>
 
             {/* RÉSUMÉ DE LA COMMANDE */}
-            <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-6">
+            <section className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#7654C6]/10 text-[#7654C6]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#0F1B3D]/10 text-[#0F1B3D]">
                   <CheckCircle2 size={19} />
                 </div>
                 <div>
                   <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                     Détails de la commande
                   </p>
-                  <h2 className="text-lg font-black text-[#18151F]">
+                  <h2 className="text-lg font-black text-[#1A1A2E]">
                     Votre commande est prête à être suivie
                   </h2>
                 </div>
               </div>
 
-              <p className="mt-4 text-sm font-medium leading-6 text-[#6F687A]">
+              <p className="mt-4 text-sm font-medium leading-6 text-[#6B7280]">
                 Retrouvez ici les informations essentielles de votre commande.
                 Utilisez votre code pour suivre son évolution.
               </p>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-[10px] bg-[#FAF9FC] p-4">
+                <div className="rounded-[10px] bg-[#FFFFFF] p-4">
                   <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                     Montant total
                   </p>
-                  <p className="mt-1 text-lg font-black text-[#18151F]">
+                  <p className="mt-1 text-lg font-black text-[#1A1A2E]">
                     {formatPrix(Number(commande.total || 0))}
                   </p>
                 </div>
 
-                <div className="rounded-[10px] bg-[#FAF9FC] p-4">
+                <div className="rounded-[10px] bg-[#FFFFFF] p-4">
                   <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                     Réception
                   </p>
-                  <p className="mt-1 text-sm font-black text-[#18151F]">
+                  <p className="mt-1 text-sm font-black text-[#1A1A2E]">
                     {commande.modeReception === 'livraison'
                       ? 'Livraison à domicile'
                       : 'Retrait'}
                   </p>
                 </div>
 
-                <div className="rounded-[10px] bg-[#FAF9FC] p-4">
+                <div className="rounded-[10px] bg-[#FFFFFF] p-4">
                   <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
                     Paiement
                   </p>
-                  <p className="mt-1 text-sm font-black text-[#18151F]">
+                  <p className="mt-1 text-sm font-black text-[#1A1A2E]">
                     {commande.modePaiement === 'mobile_money'
                       ? 'Mobile Money'
                       : commande.modePaiement || 'À confirmer'}
@@ -459,9 +459,9 @@ export default function Confirmation() {
             </section>
 
             {/* PROCHAINES ÉTAPES */}
-            <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-6">
+            <section className="rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#7654C6]/10 text-[#7654C6]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#0F1B3D]/10 text-[#0F1B3D]">
                   <CheckCircle2 size={19} />
                 </div>
 
@@ -469,39 +469,39 @@ export default function Confirmation() {
                   <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#9A93A5]">
                     Maintenant
                   </p>
-                  <h2 className="text-lg font-black text-[#18151F]">
+                  <h2 className="text-lg font-black text-[#1A1A2E]">
                     Que se passe-t-il ensuite ?
                   </h2>
                 </div>
               </div>
 
               <div className="mt-5 space-y-3">
-                <div className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#7654C6] text-[10px] font-black text-white">
+                <div className="flex items-center gap-3 rounded-[10px] bg-[#FFFFFF] p-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F1B3D] text-[10px] font-black text-white">
                     1
                   </span>
 
-                  <p className="text-xs font-semibold text-[#6F687A]">
+                  <p className="text-xs font-semibold text-[#6B7280]">
                     Votre commande est enregistrée dans notre système.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#7654C6] text-[10px] font-black text-white">
+                <div className="flex items-center gap-3 rounded-[10px] bg-[#FFFFFF] p-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F1B3D] text-[10px] font-black text-white">
                     2
                   </span>
 
-                  <p className="text-xs font-semibold text-[#6F687A]">
+                  <p className="text-xs font-semibold text-[#6B7280]">
                     Nous préparons vos articles selon leur disponibilité.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-[10px] bg-[#FAF9FC] p-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#18151F] text-[10px] font-black text-white">
+                <div className="flex items-center gap-3 rounded-[10px] bg-[#FFFFFF] p-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1A1A2E] text-[10px] font-black text-white">
                     3
                   </span>
 
-                  <p className="text-xs font-semibold text-[#6F687A]">
+                  <p className="text-xs font-semibold text-[#6B7280]">
                     Vous pourrez suivre l’évolution de votre commande.
                   </p>
                 </div>
@@ -509,7 +509,7 @@ export default function Confirmation() {
             </section>
 
             {/* ACTIONS */}
-            <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm sm:p-6">
+            <section className="rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-sm sm:p-6">
               <button
                 type="button"
                 onClick={() =>
@@ -519,7 +519,7 @@ export default function Confirmation() {
                       : '/assistance'
                   )
                 }
-                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-5 text-sm font-black text-[#18151F] transition hover:bg-[#F1ECFA] active:scale-[0.99]"
+                className="flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-5 text-sm font-black text-[#1A1A2E] transition hover:bg-[#FAF9F6] active:scale-[0.99]"
               >
                 <MessageCircle size={18} />
                 Contacter l'assistance
@@ -543,8 +543,8 @@ export default function Confirmation() {
                 }}
                 className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-black transition active:scale-[0.99] ${
                   paiementMobile && !acompteRegle
-                    ? 'cursor-not-allowed bg-[#E8E3EF] text-[#9A93A5] shadow-none'
-                    : 'bg-[#7654C6] text-white  hover:bg-[#6544B3]'
+                    ? 'cursor-not-allowed bg-[#FAF9F6] text-[#9A93A5] shadow-none'
+                    : 'bg-[#0F1B3D] !text-white  hover:bg-[#C9A24B] hover:text-[#0F1B3D]'
                 }`}
               >
                 <Truck size={18} />
@@ -557,7 +557,7 @@ export default function Confirmation() {
               <button
                 type="button"
                 onClick={() => navigate('/catalogue')}
-                className="mt-3 flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-5 text-sm font-black text-[#18151F] transition hover:bg-[#FAF9FC] active:scale-[0.99]"
+                className="mt-3 flex min-h-13 w-full items-center justify-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-5 text-sm font-black text-[#1A1A2E] transition hover:bg-[#FFFFFF] active:scale-[0.99]"
               >
                 <ShoppingBag size={18} />
                 Continuer mes achats
@@ -572,8 +572,8 @@ export default function Confirmation() {
 
           {/* RÉSUMÉ */}
           <aside className="h-fit space-y-4 lg:sticky lg:top-5">
-            <section className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
-              <div className="bg-gradient-to-br from-[#7654C6] to-[#5C3FA8] px-5 py-5 text-white">
+            <section className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-sm">
+              <div className="bg-gradient-to-br from-[#0F1B3D] to-[#C9A24B] px-5 py-5 text-white">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70">
                   Récapitulatif
                 </p>
@@ -585,27 +585,27 @@ export default function Confirmation() {
 
               <div className="p-4">
                 {/* TOTAL */}
-                <div className="rounded-[14px] bg-[#F1ECFA] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#7654C6]">
+                <div className="rounded-[14px] bg-[#FAF9F6] p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
                     Total
                   </p>
 
-                  <p className="mt-1 text-2xl font-black tracking-tight text-[#18151F]">
+                  <p className="mt-1 text-2xl font-black tracking-tight text-[#1A1A2E]">
                     {formatPrix(Number(commande.total || 0))}
                   </p>
                 </div>
                 {/* SUIVI */}
-                <div className="mt-3 rounded-[14px] border border-[#E8E3EF] bg-[#F1ECFA]/70 p-4">
+                <div className="mt-3 rounded-[14px] border border-[#FAF9F6] bg-[#FAF9F6]/70 p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D]">
                       <Truck size={17} />
                     </div>
 
                     <div>
-                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#7654C6]">
+                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
                         Suivi de votre commande
                       </p>
-                      <p className="mt-1 text-xs font-bold text-[#6F687A]">
+                      <p className="mt-1 text-xs font-bold text-[#6B7280]">
                         Votre code vous permet de suivre son évolution à chaque étape.
                       </p>
                     </div>
@@ -615,14 +615,14 @@ export default function Confirmation() {
             </section>
 
             {/* CONFIANCE */}
-            <section className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-sm">
+            <section className="rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-sm">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-emerald-50 text-emerald-600">
                   <CheckCircle2 size={19} />
                 </div>
 
                 <div>
-                  <p className="text-sm font-black text-[#18151F]">
+                  <p className="text-sm font-black text-[#1A1A2E]">
                     Commande sécurisée
                   </p>
 

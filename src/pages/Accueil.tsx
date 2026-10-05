@@ -235,27 +235,45 @@ function BandeauPremium() {
 
 function HeroPremium() {
   const [recherche, setRecherche] = useState('')
+  const [texteAnimeIndex, setTexteAnimeIndex] = useState(0)
+  const textesAnimes = [
+    "Livraison express au Bénin.",
+    "Paiement Mobile Money sécurisé.",
+    "Import direct de Chine.",
+    "Suivi de commande en temps réel.",
+  ]
+  useEffect(() => {
+    const intervalle = setInterval(() => {
+      setTexteAnimeIndex((i) => (i + 1) % textesAnimes.length)
+    }, 3000)
+    return () => clearInterval(intervalle)
+  }, [])
   const heroReveal = useRevealOnScroll()
 
   return (
-    <section className="relative overflow-hidden bg-[#FAF9FC]">
-      <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#F1ECFA]/80 blur-3xl" />
-      <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#F1ECFA]/60 blur-3xl" />
+    <section className="relative overflow-hidden bg-[#FFFFFF]">
+      <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#FAF9F6]/80 blur-3xl" />
+      <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#FAF9F6]/60 blur-3xl" />
 
       <div
         ref={heroReveal}
         className="relative mx-auto grid max-w-7xl translate-y-0 items-center gap-12 px-4 py-14 opacity-100 transition-all duration-700 ease-out sm:px-6 md:py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-24"
       >
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E3EF] bg-white px-4 py-2 text-xs font-bold text-[#7654C6] shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-4 py-2 text-xs font-bold text-[#0F1B3D] shadow-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             ChinaShop-Bénin
           </div>
 
-          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-tight text-[#18151F] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
             Votre passerelle vers la Chine.
-            <span className="mt-2 block text-[#7654C6]">
-              Import direct, livraison express au Bénin.
+            <span className="mt-2 block text-[#0F1B3D]">
+              <span
+                key={texteAnimeIndex}
+                className="inline-block animate-fade-in-up"
+              >
+                {textesAnimes[texteAnimeIndex]}
+              </span>
             </span>
           </h1>
 
@@ -264,17 +282,17 @@ function HeroPremium() {
             Sélection rigoureuse, prix transparents, livraison express partout au Bénin — Cotonou en moins de 24 heures.
           </p>
 
-          <div className="mt-8 flex max-w-xl items-center rounded-[14px] border border-[#E8E3EF] bg-white p-1.5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+          <div className="mt-8 flex max-w-xl items-center rounded-[14px] border border-[#FAF9F6] bg-white p-1.5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
             <Search className="ml-3 shrink-0 text-slate-400" size={20} />
             <input
               value={recherche}
               onChange={(e) => setRecherche(e.target.value)}
               placeholder="Que recherchez-vous ?"
-              className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#18151F] outline-none placeholder:text-slate-400"
+              className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#1A1A2E] outline-none placeholder:text-slate-400"
             />
             <Link
               to={recherche.trim() ? `/catalogue?recherche=${encodeURIComponent(recherche)}` : '/catalogue'}
-              className="rounded-[10px] bg-[#7654C6] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#6544B3]"
+              className="rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-5 py-3 text-sm font-bold text-[#0F1B3D] transition hover:from-[#D97706] hover:to-[#F59E0B]"
             >
               Rechercher
             </Link>
@@ -283,7 +301,7 @@ function HeroPremium() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               to="/catalogue"
-              className="inline-flex items-center gap-2 rounded-[10px] bg-[#7654C6] px-6 py-3.5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition hover:bg-[#6544B3]"
+              className="inline-flex items-center gap-2 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-6 py-3.5 text-sm font-black text-[#0F1B3D] shadow-[0_4px_14px_rgba(201,162,75,0.25)] transition hover:from-[#D97706] hover:to-[#F59E0B]"
             >
               <ShoppingBag size={18} />
               Découvrir les produits
@@ -292,7 +310,7 @@ function HeroPremium() {
 
             <Link
               to="/infos"
-              className="inline-flex items-center gap-2 rounded-[10px] border border-[#E8E3EF] bg-white px-6 py-3.5 text-sm font-bold text-[#18151F] shadow-sm transition hover:border-[#D8CDED] hover:text-[#7654C6]"
+              className="inline-flex items-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-6 py-3.5 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#D8CDED] hover:text-[#0F1B3D]"
             >
               Comment ça marche
               <ChevronRight size={16} />
@@ -301,7 +319,7 @@ function HeroPremium() {
 
           <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-slate-500">
             <span className="flex items-center gap-2">
-              <ShieldCheck size={15} className="text-[#7654C6]" />
+              <ShieldCheck size={15} className="text-[#0F1B3D]" />
               Paiement sécurisé
             </span>
             <span className="flex items-center gap-2">
@@ -316,17 +334,17 @@ function HeroPremium() {
         </div>
 
         <div className="relative hidden min-h-[440px] lg:block">
-          <div className="absolute inset-8 rounded-[18px] border border-[#E8E3EF] bg-[#F1ECFA] shadow-[0_8px_24px_rgba(24,21,31,0.08)]" />
+          <div className="absolute inset-8 rounded-[18px] border border-[#FAF9F6] bg-[#FAF9F6] shadow-[0_8px_24px_rgba(24,21,31,0.08)]" />
 
-          <div className="absolute left-0 top-12 w-64 rounded-[18px] border border-[#E8E3EF] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
-            <div className="flex h-36 items-center justify-center rounded-[14px] bg-[#F1ECFA]">
-              <ShoppingBag size={64} className="text-[#7654C6]" strokeWidth={1.2} />
+          <div className="absolute left-0 top-12 w-64 rounded-[18px] border border-[#FAF9F6] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+            <div className="flex h-36 items-center justify-center rounded-[14px] bg-[#FAF9F6]">
+              <ShoppingBag size={64} className="text-[#0F1B3D]" strokeWidth={1.2} />
             </div>
             <div className="mt-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#7654C6]">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#0F1B3D]">
                 Sélection
               </p>
-              <p className="mt-1 text-lg font-black text-[#18151F]">
+              <p className="mt-1 text-lg font-black text-[#1A1A2E]">
                 Produits populaires
               </p>
               <p className="mt-1 text-xs text-slate-500">
@@ -335,13 +353,13 @@ function HeroPremium() {
             </div>
           </div>
 
-          <div className="absolute bottom-8 right-0 w-72 rounded-[18px] border border-[#E8E3EF] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+          <div className="absolute bottom-8 right-0 w-72 rounded-[18px] border border-[#FAF9F6] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#F1ECFA] text-[#7654C6]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#FAF9F6] text-[#0F1B3D]">
                 <BadgeCheck size={28} />
               </div>
               <div>
-                <p className="text-sm font-black text-[#18151F]">
+                <p className="text-sm font-black text-[#1A1A2E]">
                   Commande simplifiée
                 </p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -351,8 +369,8 @@ function HeroPremium() {
             </div>
           </div>
 
-          <div className="absolute right-8 top-0 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-4 text-[#18151F] shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7654C6]">
+          <div className="absolute right-8 top-0 rounded-[14px] border border-[#FAF9F6] bg-white px-5 py-4 text-[#1A1A2E] shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#0F1B3D]">
               ChinaShop
             </p>
             <p className="mt-1 text-xl font-black">Simple.</p>
@@ -375,19 +393,19 @@ function Categories() {
   ]
 
   return (
-    <section className="border-b border-[#E8E3EF] bg-white">
+    <section className="border-b border-[#FAF9F6] bg-white">
       <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
         <div className="flex gap-3 overflow-x-auto pb-1">
           {categories.map((categorie) => (
             <Link
               key={categorie.nom}
               to={`/catalogue?categorie=${encodeURIComponent(categorie.nom)}`}
-              className="group flex min-w-[150px] items-center gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] px-4 py-3 shadow-[0_2px_10px_rgba(24,21,31,0.04)] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA]"
+              className="group flex min-w-[150px] items-center gap-3 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-3 shadow-[0_2px_10px_rgba(24,21,31,0.04)] transition hover:border-[#D8CDED] hover:bg-[#FAF9F6]"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white text-[10px] font-black text-[#7654C6] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white text-[10px] font-black text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                 {categorie.symbole}
               </span>
-              <span className="text-xs font-bold text-[#18151F] group-hover:text-[#7654C6]">
+              <span className="text-xs font-bold text-[#1A1A2E] group-hover:text-[#0F1B3D]">
                 {categorie.nom}
               </span>
             </Link>
@@ -435,14 +453,14 @@ function ProduitsVedette() {
   }, [])
 
   return (
-    <section className="bg-[#FAF9FC] py-16 sm:py-20">
+    <section className="bg-[#FFFFFF] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
               Sélection ChinaShop
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
               Produits en vedette
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">
@@ -452,7 +470,7 @@ function ProduitsVedette() {
 
           <Link
             to="/catalogue"
-            className="inline-flex items-center gap-2 text-sm font-black text-[#7654C6] hover:text-[#6544B3]"
+            className="inline-flex items-center gap-2 text-sm font-black text-[#0F1B3D] hover:text-[#C9A24B]"
           >
             Voir tout le catalogue
             <ArrowRight size={16} />
@@ -462,7 +480,7 @@ function ProduitsVedette() {
         {chargement ? (
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="h-80 animate-pulse rounded-[18px] border border-[#E8E3EF] bg-[#F1ECFA]" />
+              <div key={item} className="h-80 animate-pulse rounded-[18px] border border-[#FAF9F6] bg-[#FAF9F6]" />
             ))}
           </div>
         ) : (
@@ -470,12 +488,12 @@ function ProduitsVedette() {
             {produits.filter((p) => p.stock > 0 || p.disponibilite === 'sur_commande').map((produit) => (
               <article
                 key={produit.id}
-                className="group overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                className="group overflow-hidden rounded-[18px] border border-[#FAF9F6] bg-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
                 style={{ animationDelay: `${Math.min(produits.indexOf(produit) * 70, 490)}ms` }}
               >
                 <Link
                   to={`/produit/${produit.id}`}
-                  className="relative block aspect-square overflow-hidden bg-[#F1ECFA]"
+                  className="relative block aspect-square overflow-hidden bg-[#FAF9F6]"
                 >
                   {produit.image_url ? (
                     <img
@@ -529,7 +547,7 @@ function ProduitsVedette() {
 
                   {obtenirEtatPromotion(produit) === 'programmee' && (
                     <>
-                      <span className="absolute right-3 top-3 rounded-full bg-[#7654C6] px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
+                      <span className="absolute right-3 top-3 rounded-full bg-[#0F1B3D] !text-white px-3 py-1.5 text-[10px] font-black text-white shadow-lg">
                         Promotion à venir
                       </span>
                       <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[2] flex justify-center">
@@ -562,24 +580,24 @@ function ProduitsVedette() {
                 </Link>
 
                 <div className="p-4 sm:p-5">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#7654C6]">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#0F1B3D]">
                     {produit.categorie || 'Produit'}
                   </p>
 
                   <Link to={`/produit/${produit.id}`}>
-                    <h3 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#18151F] transition group-hover:text-[#7654C6]">
+                    <h3 className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-[#1A1A2E] transition group-hover:text-[#0F1B3D]">
                       {produit.nom}
                     </h3>
                   </Link>
 
                   {produit.description?.trim() && (
-                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-[#6F687A]">
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-[#6B7280]">
                       {produit.description.trim()}
                     </p>
                   )}
 
                   <div className="mt-4 flex items-end justify-between gap-2">
-                    <p className="text-lg font-black tracking-tight text-[#18151F]">
+                    <p className="text-lg font-black tracking-tight text-[#1A1A2E]">
                       {formatPrix(produit.prix)}
                     </p>
                   </div>
@@ -604,7 +622,7 @@ function ProduitsVedette() {
                         })
                       }
                       aria-label="Ajouter au panier"
-                      className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-[#E8E3EF] bg-white px-3 text-[#18151F] shadow-none transition-colors duration-150 hover:border-[#D8CDED] hover:bg-[#F1ECFA]"
+                      className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-[#FAF9F6] bg-white px-3 text-[#1A1A2E] shadow-none transition-colors duration-150 hover:border-[#D8CDED] hover:bg-[#FAF9F6]"
                     >
                       <ShoppingBag size={17} aria-hidden="true" />
                     </button>
@@ -628,7 +646,7 @@ function ProduitsVedette() {
                         })
                         navigate('/commande')
                       }}
-                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-[#7654C6] px-4 text-xs font-bold text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition-colors duration-150 hover:bg-[#6544B3]"
+                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-4 text-xs font-bold text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition-colors duration-150 hover:from-[#D97706] hover:to-[#F59E0B]"
                     >
                       <Zap size={15} aria-hidden="true" />
                       <span>Commander</span>
@@ -670,10 +688,10 @@ function CommentCaMarche() {
     <section className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
             Simple du début à la fin
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
             Un processus clair, de la sélection à la réception.
           </h2>
         </div>
@@ -685,19 +703,19 @@ function CommentCaMarche() {
             return (
               <div
                 key={etape.numero}
-                className="relative rounded-[18px] border border-[#E8E3EF] bg-white p-6 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                className="relative rounded-[18px] border border-[#FAF9F6] bg-white p-6 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
                 style={{ animationDelay: `${(Number(etape.numero) - 1) * 100}ms` }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-[#7654C6]">
+                  <span className="text-xs font-black text-[#0F1B3D]">
                     {etape.numero}
                   </span>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
                     <Icon size={20} />
                   </div>
                 </div>
 
-                <h3 className="mt-7 text-lg font-black text-[#18151F]">
+                <h3 className="mt-7 text-lg font-black text-[#1A1A2E]">
                   {etape.titre}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -738,14 +756,14 @@ function BlocConfiance() {
 
 
   return (
-    <section className="bg-[#FAF9FC] py-16 sm:py-20">
+    <section className="bg-[#FFFFFF] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
               L'essentiel
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
               L'exigence d'un service pensé pour vous.
             </h2>
             <p className="mt-5 text-sm leading-7 text-slate-500">
@@ -755,7 +773,7 @@ function BlocConfiance() {
 
             <Link
               to="/infos"
-              className="mt-7 inline-flex items-center gap-2 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-3 text-sm font-black text-[#18151F] shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
+              className="mt-7 inline-flex items-center gap-2 rounded-[14px] border border-[#FAF9F6] bg-white px-5 py-3 text-sm font-black text-[#1A1A2E] shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition hover:border-[#D8CDED] hover:bg-[#FAF9F6] hover:text-[#0F1B3D]"
             >
               En savoir plus
               <ArrowRight size={16} />
@@ -769,13 +787,13 @@ function BlocConfiance() {
               return (
                 <div
                   key={avantage.titre}
-                  className="rounded-[18px] border border-[#E8E3EF] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+                  className="rounded-[18px] border border-[#FAF9F6] bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
                   style={{ animationDelay: `${avantages.indexOf(avantage) * 90}ms` }}
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D]">
                     <Icon size={20} />
                   </div>
-                  <h3 className="mt-4 font-black text-[#18151F]">
+                  <h3 className="mt-4 font-black text-[#1A1A2E]">
                     {avantage.titre}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -836,27 +854,27 @@ function TemoignagesPremium() {
     return null
   }
   return (
-    <section className="bg-[#FAF9FC] py-20">
+    <section className="bg-[#FFFFFF] py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <div className="text-center">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
             Expérience client
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
             La confiance de nos clients, notre meilleure référence.
           </h2>
         </div>
 
-        <div className="mt-10 rounded-[18px] border border-[#E8E3EF] bg-white p-7 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:p-10 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+        <div className="mt-10 rounded-[18px] border border-[#FAF9F6] bg-white p-7 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:p-10 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
           <div className="flex items-start justify-between gap-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#F1ECFA] font-black text-[#7654C6]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#FAF9F6] font-black text-[#0F1B3D]">
                 {temoignage.nom.slice(0, 2).toUpperCase()}
               </div>
 
               <div>
-                <p className="font-black text-[#18151F]">{temoignage.nom}</p>
-                <p className="mt-1 text-xs text-[#6F687A]">{temoignage.ville}</p>
+                <p className="font-black text-[#1A1A2E]">{temoignage.nom}</p>
+                <p className="mt-1 text-xs text-[#6B7280]">{temoignage.ville}</p>
               </div>
             </div>
 
@@ -869,11 +887,11 @@ function TemoignagesPremium() {
             </div>
           </div>
 
-          <p className="mt-8 text-lg font-medium leading-8 text-[#6F687A] sm:text-xl">
+          <p className="mt-8 text-lg font-medium leading-8 text-[#6B7280] sm:text-xl">
             “{temoignage.texte}”
           </p>
 
-          <div className="mt-8 h-1 overflow-hidden rounded-full bg-[#E8E3EF]">
+          <div className="mt-8 h-1 overflow-hidden rounded-full bg-[#FAF9F6]">
             <div
               key={index}
               className="h-full rounded-full bg-orange-400"
@@ -892,8 +910,8 @@ function TemoignagesPremium() {
                   aria-label={`Afficher le témoignage ${i + 1}`}
                   className={`h-2 rounded-full transition-all ${
                     i === index
-                      ? 'w-8 bg-[#7654C6]'
-                      : 'w-2 bg-[#E8E3EF]'
+                      ? 'w-8 bg-[#0F1B3D]'
+                      : 'w-2 bg-[#FAF9F6]'
                   }`}
                 />
               ))}
@@ -906,7 +924,7 @@ function TemoignagesPremium() {
                     (index - 1 + temoignages.length) % temoignages.length
                   )
                 }
-                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#E8E3EF] text-[#6F687A] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
+                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#FAF9F6] text-[#6B7280] transition hover:border-[#D8CDED] hover:bg-[#FAF9F6] hover:text-[#0F1B3D]"
                 aria-label="Témoignage précédent"
               >
                 <ChevronLeft size={17} />
@@ -914,7 +932,7 @@ function TemoignagesPremium() {
 
               <button
                 onClick={() => setIndex((index + 1) % temoignages.length)}
-                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#E8E3EF] text-[#6F687A] transition hover:border-[#D8CDED] hover:bg-[#F1ECFA] hover:text-[#7654C6]"
+                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#FAF9F6] text-[#6B7280] transition hover:border-[#D8CDED] hover:bg-[#FAF9F6] hover:text-[#0F1B3D]"
                 aria-label="Témoignage suivant"
               >
                 <ChevronRight size={17} />
@@ -937,23 +955,23 @@ function TemoignagesPremium() {
 function AppelAction() {
   return (
     <section className="bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[18px] border border-[#E8E3EF] bg-[#FAF9FC] px-6 py-12 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:px-10 sm:py-16 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)] sm:px-10 sm:py-16">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[18px] border border-[#FAF9F6] bg-[#FFFFFF] px-6 py-12 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-shadow duration-200 sm:px-10 sm:py-16 hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)] sm:px-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7654C6]">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
             Prêt à recevoir votre colis ?
           </p>
 
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-[#18151F] sm:text-4xl">
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
             Passez votre commande dès aujourd'hui.
           </h2>
 
-          <p className="mt-4 text-sm leading-6 text-[#6F687A]">
+          <p className="mt-4 text-sm leading-6 text-[#6B7280]">
             Parcourez notre catalogue, validez en quelques minutes et recevez votre colis en livraison express.
           </p>
 
           <Link
             to="/catalogue"
-            className="mt-8 inline-flex items-center gap-2 rounded-[14px] bg-[#7654C6] px-7 py-3.5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition hover:bg-[#6544B3] hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-[14px] bg-[#0F1B3D] !text-white px-7 py-3.5 text-sm font-black text-white shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] hover:shadow-[0_8px_24px_rgba(24,21,31,0.08)]"
           >
             Explorer le catalogue
             <ArrowRight size={17} />

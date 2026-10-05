@@ -105,7 +105,7 @@ function BadgeDisponibilite({ produit }: { produit: Produit }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-[#F1ECFA] px-3 py-1.5 text-xs font-black text-[#6F687A]">
+    <span className="inline-flex items-center gap-2 rounded-full bg-[#FAF9F6] px-3 py-1.5 text-xs font-black text-[#6B7280]">
       <X size={14} />
       Indisponible
     </span>
@@ -122,14 +122,14 @@ function BlocAvantage({
   texte: string
 }) {
   return (
-    <div className="flex gap-3 rounded-[14px] border border-[#E8E3EF] bg-white p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+    <div className="flex gap-3 rounded-[14px] border border-[#FAF9F6] bg-white p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
         <Icon size={19} />
       </div>
 
       <div>
-        <p className="text-sm font-black text-[#18151F]">{titre}</p>
-        <p className="mt-1 text-xs leading-5 text-[#6F687A]">{texte}</p>
+        <p className="text-sm font-black text-[#1A1A2E]">{titre}</p>
+        <p className="mt-1 text-xs leading-5 text-[#6B7280]">{texte}</p>
       </div>
     </div>
   )
@@ -137,18 +137,18 @@ function BlocAvantage({
 
 function SkeletonProduit() {
   return (
-    <main className="min-h-screen bg-[#FAF9FC]">
+    <main className="min-h-screen bg-[#FFFFFF]">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="h-5 w-36 animate-pulse rounded-full bg-[#E8E3EF]" />
+        <div className="h-5 w-36 animate-pulse rounded-full bg-[#FAF9F6]" />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_.95fr]">
-          <div className="aspect-square animate-pulse rounded-[18px] bg-[#E8E3EF]" />
+          <div className="aspect-square animate-pulse rounded-[18px] bg-[#FAF9F6]" />
 
           <div className="space-y-5">
-            <div className="h-8 w-2/3 animate-pulse rounded-xl bg-[#E8E3EF]" />
-            <div className="h-12 w-1/2 animate-pulse rounded-xl bg-[#E8E3EF]" />
-            <div className="h-24 animate-pulse rounded-2xl bg-[#E8E3EF]" />
-            <div className="h-14 animate-pulse rounded-2xl bg-[#E8E3EF]" />
+            <div className="h-8 w-2/3 animate-pulse rounded-xl bg-[#FAF9F6]" />
+            <div className="h-12 w-1/2 animate-pulse rounded-xl bg-[#FAF9F6]" />
+            <div className="h-24 animate-pulse rounded-2xl bg-[#FAF9F6]" />
+            <div className="h-14 animate-pulse rounded-2xl bg-[#FAF9F6]" />
           </div>
         </div>
       </div>
@@ -446,23 +446,23 @@ export default function Produit() {
 
   if (!produit) {
     return (
-      <main className="min-h-[70vh] bg-[#FAF9FC] px-4 py-16">
-        <div className="mx-auto max-w-lg rounded-[14px] border border-[#E8E3EF] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F1ECFA] text-[#9A93A5]">
+      <main className="min-h-[70vh] bg-[#FFFFFF] px-4 py-16">
+        <div className="mx-auto max-w-lg rounded-[14px] border border-[#FAF9F6] bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FAF9F6] text-[#9A93A5]">
             <Package size={28} />
           </div>
 
-          <h1 className="mt-5 text-2xl font-black text-[#18151F]">
+          <h1 className="mt-5 text-2xl font-black text-[#1A1A2E]">
             Produit introuvable
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-[#6F687A]">
+          <p className="mt-3 text-sm leading-6 text-[#6B7280]">
             Ce produit n'est plus disponible ou le lien utilisé est incorrect.
           </p>
 
           <Link
             to="/catalogue"
-            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#7654C6] px-5 py-3 text-sm font-black text-white transition hover:bg-[#6544B3]"
+            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#0F1B3D] !text-white px-5 py-3 text-sm font-black text-white transition hover:bg-[#C9A24B] hover:text-[#0F1B3D]"
           >
             Retour au catalogue
             <ArrowRight size={16} />
@@ -544,13 +544,13 @@ export default function Produit() {
   const categorie = produit.categorie || 'Sélection ChinaShop'
 
   return (
-    <main className="min-h-screen bg-[#FAF9FC] text-[#18151F]">
+    <main className="min-h-screen bg-[#FFFFFF] text-[#1A1A2E]">
       {/* Fil d’Ariane */}
-      <div className="border-b border-[#E8E3EF]/70 bg-white">
+      <div className="border-b border-[#FAF9F6]/70 bg-white">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:px-6 lg:px-8">
           <Link
             to="/catalogue"
-            className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-black text-[#6F687A] transition hover:bg-[#F1ECFA] hover:text-[#7654C6]"
+            className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-black text-[#6B7280] transition hover:bg-[#FAF9F6] hover:text-[#0F1B3D]"
           >
             <ArrowLeft size={14} />
             Catalogue
@@ -570,18 +570,18 @@ export default function Produit() {
 
           {/* VISUEL */}
           <section>
-            <div className="relative overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
+            <div className="relative overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-[0_8px_24px_rgba(24,21,31,0.06)]">
 
               {/* Badges */}
               <div className="absolute left-4 top-4 z-10 flex max-w-[75%] flex-wrap gap-2 sm:left-5 sm:top-5">
                 {produit.nouveau && (
-                  <span className="rounded-full bg-[#18151F] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-lg">
+                  <span className="rounded-full bg-[#1A1A2E] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-lg">
                     Nouveau
                   </span>
                 )}
 
                 {obtenirEtatPromotion(produit) === 'active' && (
-                  <span className="rounded-full bg-[#7654C6] px-3.5 py-2 text-[10px] font-black text-white shadow-lg">
+                  <span className="rounded-full bg-[#0F1B3D] !text-white px-3.5 py-2 text-[10px] font-black text-white shadow-lg">
                     -{produit.promo}% aujourd'hui
                   </span>
                 )}
@@ -596,7 +596,7 @@ export default function Produit() {
                 className={`absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg backdrop-blur transition sm:right-5 sm:top-5 ${
                   favori
                     ? 'border-red-100 bg-red-50 text-red-500'
-                    : 'border-white/80 bg-white/90 text-[#6F687A] hover:border-red-100 hover:bg-red-50 hover:text-red-500'
+                    : 'border-white/80 bg-white/90 text-[#6B7280] hover:border-red-100 hover:bg-red-50 hover:text-red-500'
                 }`}
               >
                 <Heart size={19} fill={favori ? 'currentColor' : 'none'} />
@@ -621,7 +621,7 @@ export default function Produit() {
 
                 return (
                   <>
-                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F1ECFA] via-white to-[#E8E3EF]">
+                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#FAF9F6] via-white to-[#FAF9F6]">
                       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.95),transparent_52%)]" />
 
                       {photoActuelle && !imageErreur ? (
@@ -652,7 +652,7 @@ export default function Produit() {
                               )
                             }
                             aria-label="Photo précédente"
-                            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#18151F] shadow-lg backdrop-blur transition hover:bg-white"
+                            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#1A1A2E] shadow-lg backdrop-blur transition hover:bg-white"
                           >
                             <ArrowLeft size={18} />
                           </button>
@@ -666,12 +666,12 @@ export default function Produit() {
                               )
                             }
                             aria-label="Photo suivante"
-                            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#18151F] shadow-lg backdrop-blur transition hover:bg-white"
+                            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#1A1A2E] shadow-lg backdrop-blur transition hover:bg-white"
                           >
                             <ArrowRight size={18} />
                           </button>
 
-                          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-[#18151F]/80 px-3 py-1 text-[10px] font-black text-white backdrop-blur">
+                          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-[#1A1A2E]/80 px-3 py-1 text-[10px] font-black text-white backdrop-blur">
                             {indexSecurise + 1} / {galerie.length}
                           </span>
                         </>
@@ -691,8 +691,8 @@ export default function Produit() {
                             aria-label={`Afficher la photo ${index + 1}`}
                             className={`aspect-square overflow-hidden rounded-xl border-2 bg-white transition ${
                               index === indexSecurise
-                                ? 'border-[#7654C6] ring-2 ring-[#E8E3EF]'
-                                : 'border-[#E8E3EF] hover:border-[#DCD5E8]'
+                                ? 'border-[#0F1B3D] ring-2 ring-[#FAF9F6]'
+                                : 'border-[#FAF9F6] hover:border-[#DCD5E8]'
                             }`}
                           >
                             <img
@@ -710,29 +710,29 @@ export default function Produit() {
             </div>
             {/* Réassurance */}
             <div className="mt-4 grid grid-cols-3 gap-2.5 sm:gap-3">
-              <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+              <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-3.5 text-center shadow-sm sm:p-4">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <ShieldCheck size={18} />
                 </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#18151F] sm:text-[11px]">
+                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#1A1A2E] sm:text-[11px]">
                   Achat sécurisé
                 </p>
               </div>
 
-              <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+              <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-3.5 text-center shadow-sm sm:p-4">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <Truck size={18} />
                 </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#18151F] sm:text-[11px]">
+                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#1A1A2E] sm:text-[11px]">
                   Livraison Bénin
                 </p>
               </div>
 
-              <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-3.5 text-center shadow-sm sm:p-4">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+              <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-3.5 text-center shadow-sm sm:p-4">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <BadgeCheck size={18} />
                 </div>
-                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#18151F] sm:text-[11px]">
+                <p className="mt-2.5 text-[10px] font-black leading-4 text-[#1A1A2E] sm:text-[11px]">
                   Sélection contrôlée
                 </p>
               </div>
@@ -741,11 +741,11 @@ export default function Produit() {
 
           {/* INFORMATIONS / ACHAT */}
           <section className="lg:sticky lg:top-5">
-            <div className="rounded-[14px] border border-[#E8E3EF] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.06)] sm:p-7">
+            <div className="rounded-[14px] border border-[#FAF9F6] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.06)] sm:p-7">
 
               {/* Catégorie */}
               <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-[#F1ECFA] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#7654C6]">
+                <span className="rounded-full bg-[#FAF9F6] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#0F1B3D]">
                   {categorie}
                 </span>
 
@@ -764,7 +764,7 @@ export default function Produit() {
               </div>
 
               {/* Nom */}
-              <h1 className="mt-5 text-[1.75rem] font-black leading-[1.12] tracking-[-0.025em] text-[#18151F] sm:text-3xl lg:text-[2.35rem]">
+              <h1 className="mt-5 text-[1.75rem] font-black leading-[1.12] tracking-[-0.025em] text-[#1A1A2E] sm:text-3xl lg:text-[2.35rem]">
                 {produit.nom}
               </h1>
 
@@ -774,9 +774,9 @@ export default function Produit() {
               </div>
 
               {/* Prix */}
-              <div className="mt-6 border-y border-[#E8E3EF] py-6">
+              <div className="mt-6 border-y border-[#FAF9F6] py-6">
                 <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-                  <span className="text-3xl font-black tracking-[-0.03em] text-[#18151F] sm:text-4xl">
+                  <span className="text-3xl font-black tracking-[-0.03em] text-[#1A1A2E] sm:text-4xl">
                     {formatPrix(prixActuel)}
                   </span>
 
@@ -797,14 +797,14 @@ export default function Produit() {
 
               {/* Promotion */}
               {obtenirEtatPromotion(produit) === 'active' && tempsPromo > 0 && (
-                <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-[#FAF9FC]">
+                <div className="mt-5 overflow-hidden rounded-2xl border border-orange-100 bg-[#FFFFFF]">
                   <div className="flex items-center gap-3 px-4 py-3.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F1B3D] !text-white shadow-sm">
                       <Zap size={18} />
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-[#6544B3]">
+                      <p className="text-xs font-black text-[#C9A24B]">
                         Offre promotionnelle
                       </p>
                       <p className="mt-0.5 text-[11px] font-semibold text-orange-700">
@@ -813,10 +813,10 @@ export default function Produit() {
                     </div>
                   </div>
 
-                  <div className="h-1 bg-[#F1ECFA]">
+                  <div className="h-1 bg-[#FAF9F6]">
                     <div
                       key={tempsPromo}
-                      className="h-full bg-[#7654C6]"
+                      className="h-full bg-[#0F1B3D]"
                       style={{
                         width: '100%',
                         animation: 'promoPulse 1s linear infinite',
@@ -828,7 +828,7 @@ export default function Produit() {
 
               {/* Variantes */}
               {variantesProduit.length > 0 && (
-                <div className="mt-6 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5">
+                <div className="mt-6 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-5">
                   {(estVetement || estChaussure) ? (
                     <>
                       <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
@@ -867,7 +867,7 @@ export default function Produit() {
                               }
                               className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition ${
                                 couleurActive
-                                  ? 'border-[#7654C6] ring-4 ring-[#E8E3EF]'
+                                  ? 'border-[#0F1B3D] ring-4 ring-[#FAF9F6]'
                                   : varianteCouleur
                                     ? 'border-white shadow-md hover:scale-105'
                                     : 'cursor-not-allowed border-[#DCD5E8] opacity-35 grayscale'
@@ -881,7 +881,7 @@ export default function Produit() {
                                 }}
                               />
                               {!varianteCouleur && (
-                                <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-[#6F687A]" />
+                                <span className="absolute h-0.5 w-10 rotate-45 rounded-full bg-[#6B7280]" />
                               )}
                             </button>
                           )
@@ -936,10 +936,10 @@ export default function Produit() {
                                   }}
                                   className={`min-w-[52px] rounded-xl border px-4 py-2.5 text-xs font-black transition ${
                                     selectionnee
-                                      ? 'border-[#7654C6] bg-[#F1ECFA] text-[#6544B3]'
+                                      ? 'border-[#0F1B3D] bg-[#FAF9F6] text-[#C9A24B]'
                                       : disponible
-                                        ? 'border-[#E8E3EF] bg-white text-[#18151F] hover:border-[#7654C6]'
-                                        : 'cursor-not-allowed border-[#E8E3EF] bg-[#F3F1F5] text-[#AAA4B1] line-through'
+                                        ? 'border-[#FAF9F6] bg-white text-[#1A1A2E] hover:border-[#0F1B3D]'
+                                        : 'cursor-not-allowed border-[#FAF9F6] bg-[#F3F1F5] text-[#AAA4B1] line-through'
                                   }`}
                                 >
                                   {valeur}
@@ -992,7 +992,7 @@ export default function Produit() {
                               <span
                                 className={`relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 transition ${
                                   selectionnee
-                                    ? 'border-[#7654C6] ring-4 ring-[#E8E3EF]'
+                                    ? 'border-[#0F1B3D] ring-4 ring-[#FAF9F6]'
                                     : 'border-white shadow-md group-hover:scale-105'
                                 }`}
                               >
@@ -1018,13 +1018,13 @@ export default function Produit() {
                                 )}
 
                                 {!disponible && (
-                                  <span className="absolute h-0.5 w-16 rotate-45 rounded-full bg-[#6F687A]" />
+                                  <span className="absolute h-0.5 w-16 rotate-45 rounded-full bg-[#6B7280]" />
                                 )}
                               </span>
 
                               <span
                                 className={`max-w-[80px] truncate text-[10px] font-bold leading-tight ${
-                                  selectionnee ? 'text-[#7654C6]' : 'text-[#6F687A]'
+                                  selectionnee ? 'text-[#0F1B3D]' : 'text-[#6B7280]'
                                 }`}
                               >
                                 {nomAffiche}
@@ -1040,12 +1040,12 @@ export default function Produit() {
 
               {/* Description */}
               {produit.description?.trim() && (
-                <div className="mt-6 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-5">
+                <div className="mt-6 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9A93A5]">
                     Description
                   </p>
 
-                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#6F687A]">
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#6B7280]">
                     {produit.description.trim()}
                   </p>
                 </div>
@@ -1065,18 +1065,18 @@ export default function Produit() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between rounded-2xl border border-[#E8E3EF] bg-[#FAF9FC] p-1.5">
+                <div className="flex items-center justify-between rounded-2xl border border-[#FAF9F6] bg-[#FFFFFF] p-1.5">
                   <button
                     type="button"
                     onClick={diminuerQuantite}
                     disabled={quantite <= 1}
                     aria-label="Diminuer la quantité"
-                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#18151F] shadow-sm transition hover:bg-[#F1ECFA] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#1A1A2E] shadow-sm transition hover:bg-[#FAF9F6] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Minus size={17} />
                   </button>
 
-                  <span className="text-base font-black text-[#18151F]">
+                  <span className="text-base font-black text-[#1A1A2E]">
                     {quantite}
                   </span>
 
@@ -1088,7 +1088,7 @@ export default function Produit() {
                       quantite >= stockProduit
                     }
                     aria-label="Augmenter la quantité"
-                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#7654C6] text-white shadow-sm transition hover:bg-[#6544B3] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0F1B3D] !text-white shadow-sm transition hover:bg-[#C9A24B] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Plus size={17} />
                   </button>
@@ -1123,7 +1123,7 @@ export default function Produit() {
                   type="button"
                   onClick={commanderMaintenant}
                   disabled={indisponible}
-                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] bg-[#7654C6] px-5 text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.16)] transition-all duration-150 hover:bg-[#6544B3] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#E8E3EF] disabled:shadow-none"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] bg-[#0F1B3D] !text-white px-5 text-sm font-bold text-white shadow-[0_4px_14px_rgba(118,84,198,0.16)] transition-all duration-150 hover:bg-[#C9A24B] hover:text-[#0F1B3D] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:shadow-none"
                 >
                   <Zap size={17} />
                   {indisponible ? 'Produit indisponible' : 'Commander maintenant'}
@@ -1137,7 +1137,7 @@ export default function Produit() {
                   type="button"
                   onClick={ajouterAuPanier}
                   disabled={indisponible}
-                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] border border-[#E8E3EF] bg-[#FFFEFC] px-5 text-sm font-bold text-[#18151F] shadow-none transition-all duration-150 hover:border-[#DCD5E8] hover:bg-white active:scale-[0.99] disabled:cursor-not-allowed disabled:border-[#E8E3EF] disabled:bg-[#F1ECFA] disabled:text-[#9A93A5]"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-[10px] border border-[#F59E0B] bg-[#F59E0B] px-5 text-sm font-bold text-[#0F1B3D] shadow-[0_4px_14px_rgba(245,158,11,0.25)] transition-all duration-150 hover:border-[#D97706] hover:bg-[#D97706] active:scale-[0.99] disabled:cursor-not-allowed disabled:border-[#FAF9F6] disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
                 >
                   <ShoppingCart size={17} />
                   Ajouter au panier
@@ -1167,25 +1167,25 @@ export default function Produit() {
             </div>
 
             {/* Informations */}
-            <div className="mt-4 rounded-[14px] border border-[#E8E3EF] bg-white px-5 py-4 shadow-sm">
+            <div className="mt-4 rounded-[14px] border border-[#FAF9F6] bg-white px-5 py-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <Package size={17} />
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#18151F]">
+                  <p className="text-xs font-black text-[#1A1A2E]">
                     Besoin d'informations ?
                   </p>
 
-                  <p className="mt-1 text-[11px] leading-5 text-[#6F687A]">
+                  <p className="mt-1 text-[11px] leading-5 text-[#6B7280]">
                     Consultez les conditions de livraison, retrait et commande
                     avant votre achat.
                   </p>
 
                   <Link
                     to="/infos"
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#7654C6] hover:text-[#6544B3]"
+                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#0F1B3D] hover:text-[#C9A24B]"
                   >
                     Voir les informations
                     <ArrowRight size={13} />
@@ -1198,22 +1198,22 @@ export default function Produit() {
 
         {/* PARCOURS CLIENT */}
         <section className="mt-10">
-          <div className="overflow-hidden rounded-[14px] border border-[#E8E3EF] bg-white shadow-sm">
-            <div className="border-b border-[#E8E3EF] px-6 py-6 sm:px-8">
+          <div className="overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-white shadow-sm">
+            <div className="border-b border-[#FAF9F6] px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#7654C6]">
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F1B3D]">
                     Votre commande
                   </p>
 
-                  <h2 className="mt-2 text-xl font-black tracking-tight text-[#18151F] sm:text-2xl">
+                  <h2 className="mt-2 text-xl font-black tracking-tight text-[#1A1A2E] sm:text-2xl">
                     Une expérience simple, du produit à la réception
                   </h2>
                 </div>
 
                 <Link
                   to="/catalogue"
-                  className="inline-flex items-center gap-2 text-xs font-black text-[#7654C6] hover:text-[#6544B3]"
+                  className="inline-flex items-center gap-2 text-xs font-black text-[#0F1B3D] hover:text-[#C9A24B]"
                 >
                   Continuer mes achats
                   <ArrowRight size={15} />
@@ -1222,12 +1222,12 @@ export default function Produit() {
             </div>
 
             <div className="grid md:grid-cols-3">
-              <div className="border-b border-[#E8E3EF] p-6 md:border-b-0 md:border-r sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+              <div className="border-b border-[#FAF9F6] p-6 md:border-b-0 md:border-r sm:p-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <ShoppingBag size={19} />
                 </div>
 
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                   Étape 01
                 </p>
 
@@ -1235,17 +1235,17 @@ export default function Produit() {
                   Choisissez
                 </h3>
 
-                <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
+                <p className="mt-1.5 text-xs leading-5 text-[#6B7280]">
                   Sélectionnez votre produit et la quantité souhaitée.
                 </p>
               </div>
 
-              <div className="border-b border-[#E8E3EF] p-6 md:border-b-0 md:border-r sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+              <div className="border-b border-[#FAF9F6] p-6 md:border-b-0 md:border-r sm:p-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <WalletCards size={19} />
                 </div>
 
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                   Étape 02
                 </p>
 
@@ -1253,17 +1253,17 @@ export default function Produit() {
                   Commandez
                 </h3>
 
-                <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
+                <p className="mt-1.5 text-xs leading-5 text-[#6B7280]">
                   Validez votre panier avec les informations nécessaires.
                 </p>
               </div>
 
               <div className="p-6 sm:p-7">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F1ECFA] text-[#7654C6]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#0F1B3D]">
                   <Truck size={19} />
                 </div>
 
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7654C6]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.12em] text-[#0F1B3D]">
                   Étape 03
                 </p>
 
@@ -1271,7 +1271,7 @@ export default function Produit() {
                   Recevez
                 </h3>
 
-                <p className="mt-1.5 text-xs leading-5 text-[#6F687A]">
+                <p className="mt-1.5 text-xs leading-5 text-[#6B7280]">
                   Choisissez la livraison ou le retrait selon votre commande.
                 </p>
               </div>

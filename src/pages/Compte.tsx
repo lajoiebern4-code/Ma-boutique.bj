@@ -104,10 +104,10 @@ function getStatutClass(statut?: string) {
     value === 'preparation' ||
     value === 'pret'
   ) {
-    return 'bg-[#F1ECFA] text-[#7654C6] dark:bg-[#7654C6]/10 dark:text-[#8B6DD1]'
+    return 'bg-[#FAF9F6] text-[#0F1B3D] dark:bg-[#0F1B3D]/10 dark:text-[#E8E4DC]'
   }
 
-  return 'bg-[#F1ECFA] text-[#6F687A] dark:bg-[#3A3344] dark:text-[#B8B0C3]'
+  return 'bg-[#FAF9F6] text-[#6B7280] dark:bg-[#3A3344] dark:text-[#B8B0C3]'
 }
 
 function formatDate(date?: string) {
@@ -288,7 +288,7 @@ export default function Compte() {
 
   if (chargement) {
     return (
-      <section className="min-h-[calc(100vh-180px)] bg-[#FAF9FC] px-4 py-10 dark:bg-[#17131D]">
+      <section className="min-h-[calc(100vh-180px)] bg-[#FFFFFF] px-4 py-10 dark:bg-[#17131D]">
         <div className="mx-auto max-w-6xl">
           <div className="animate-pulse space-y-5">
             <div className="h-44 rounded-[14px] bg-white dark:bg-[#211C29]" />
@@ -309,33 +309,33 @@ export default function Compte() {
 
   if (!utilisateur) {
     return (
-      <section className="flex min-h-[calc(100vh-180px)] items-center justify-center bg-[#FAF9FC] px-4 py-12 dark:bg-[#17131D]">
-        <div className="w-full max-w-md rounded-[14px] border border-[#E8E3EF] bg-white p-8 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344] dark:bg-[#211C29]">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] dark:bg-[#7654C6]/10 dark:text-[#7654C6]">
+      <section className="flex min-h-[calc(100vh-180px)] items-center justify-center bg-[#FFFFFF] px-4 py-12 dark:bg-[#17131D]">
+        <div className="w-full max-w-md rounded-[14px] border border-[#FAF9F6] bg-white p-8 text-center shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344] dark:bg-[#211C29]">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] dark:bg-[#0F1B3D]/10 dark:text-[#0F1B3D]">
             <UserRound size={30} />
           </div>
 
-          <h1 className="mt-6 text-2xl font-black text-[#18151F] dark:text-white">
+          <h1 className="mt-6 text-2xl font-black text-[#1A1A2E] dark:text-white">
             Votre espace client
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-[#6F687A] dark:text-[#9A93A5]">
+          <p className="mt-3 text-sm leading-6 text-[#6B7280] dark:text-[#9A93A5]">
             Connectez-vous pour suivre vos commandes, gérer vos favoris
             et accéder à vos paramètres.
           </p>
 
           <Link
             to="/connexion"
-            className="mt-7 flex h-12 items-center justify-center rounded-[10px] bg-[#7654C6] px-5 text-sm font-black text-white transition hover:bg-[#6544B3]"
+            className="mt-7 flex h-12 items-center justify-center rounded-[10px] bg-[#0F1B3D] !text-white px-5 text-sm font-black text-white transition hover:bg-[#C9A24B] hover:text-[#0F1B3D]"
           >
             Se connecter
           </Link>
 
-          <p className="mt-5 text-sm text-[#6F687A] dark:text-[#9A93A5]">
+          <p className="mt-5 text-sm text-[#6B7280] dark:text-[#9A93A5]">
             Pas encore de compte ?{' '}
             <Link
               to="/inscription"
-              className="font-black text-[#7654C6]"
+              className="font-black text-[#0F1B3D]"
             >
               Créer un compte
             </Link>
@@ -346,7 +346,7 @@ export default function Compte() {
   }
 
   return (
-    <section className="min-h-[calc(100vh-180px)] bg-[#FAF9FC] px-4 py-7 text-[#18151F] dark:bg-[#17131D] dark:text-white sm:px-6 sm:py-10 lg:py-12">
+    <section className="min-h-[calc(100vh-180px)] bg-[#FFFFFF] px-4 py-7 text-[#1A1A2E] dark:bg-[#17131D] dark:text-white sm:px-6 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-6xl">
         {erreur && (
           <div className="mb-5 flex items-center justify-between gap-4 rounded-[10px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
@@ -362,9 +362,9 @@ export default function Compte() {
         )}
 
         {/* HEADER PROFIL */}
-        <div className="group relative overflow-hidden rounded-[14px] border border-[#3A3344] bg-[#18151F] p-5 text-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-7 lg:p-8">
-          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[#F1ECFA]0/15 blur-3xl transition-transform duration-700 group-hover:scale-110" />
-          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#7654C6]/10 blur-3xl" />
+        <div className="group relative overflow-hidden rounded-[14px] border border-[#3A3344] bg-[#1A1A2E] p-5 text-white shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-7 lg:p-8">
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[#FAF9F6]0/15 blur-3xl transition-transform duration-700 group-hover:scale-110" />
+          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#0F1B3D]/10 blur-3xl" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.07),transparent_35%)]" />
 
           <div className="relative">
@@ -374,17 +374,17 @@ export default function Compte() {
                   <div className="flex h-[72px] w-[72px] items-center justify-center rounded-[14px] bg-gradient-to-br from-orange-400 to-orange-600 text-xl font-black text-white shadow-sm ring-4 ring-white/10 sm:h-20 sm:w-20 sm:text-2xl">
                     {initiales || 'CS'}
                   </div>
-                  <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-4 border-[#18151F] bg-emerald-500">
+                  <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-4 border-[#1A1A2E] bg-emerald-500">
                     <span className="h-2 w-2 rounded-full bg-white" />
                   </span>
                 </div>
 
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8B6DD1]">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#E8E4DC]">
                       Espace client
                     </p>
-                    <span className="h-1 w-1 rounded-full bg-[#FAF9FC]0" />
+                    <span className="h-1 w-1 rounded-full bg-[#FFFFFF]0" />
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9A93A5]">
                       ChinaShop-Bénin
                     </span>
@@ -403,7 +403,7 @@ export default function Compte() {
 
                     {profil?.telephone && (
                       <>
-                        <span className="hidden h-1 w-1 rounded-full bg-[#6F687A] sm:block" />
+                        <span className="hidden h-1 w-1 rounded-full bg-[#6B7280] sm:block" />
                         <span className="text-xs font-medium text-[#B8B0C3]">
                           {profil.telephone}
                         </span>
@@ -448,7 +448,7 @@ export default function Compte() {
                 </p>
               </div>
 
-              <div className="hidden items-center gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#6F687A] sm:flex">
+              <div className="hidden items-center gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#6B7280] sm:flex">
                 <ShieldCheck size={14} className="text-emerald-400" />
                 Compte sécurisé
               </div>
@@ -458,54 +458,54 @@ export default function Compte() {
 
         {/* STATISTIQUES */}
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
-            <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#F1ECFA]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
+          <div className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
+            <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#FAF9F6]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#9A93A5]">
                   Commandes
                 </p>
-                <p className="mt-2 text-2xl font-black tracking-tight text-[#18151F] dark:text-white">
+                <p className="mt-2 text-2xl font-black tracking-tight text-[#1A1A2E] dark:text-white">
                   {statistiques.total}
                 </p>
                 <p className="mt-1 text-[10px] font-semibold text-[#9A93A5]">
                   Total effectué
                 </p>
               </div>
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] ring-1 ring-orange-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#7654C6]/10 dark:text-[#7654C6] dark:ring-orange-900/30">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] ring-1 ring-orange-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#0F1B3D]/10 dark:text-[#0F1B3D] dark:ring-orange-900/30">
                 <ShoppingBag size={19} strokeWidth={2.2} />
               </div>
             </div>
           </div>
 
-          <div className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
-            <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#F1ECFA]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
+          <div className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
+            <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#FAF9F6]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#9A93A5]">
                   En cours
                 </p>
-                <p className="mt-2 text-2xl font-black tracking-tight text-[#18151F] dark:text-white">
+                <p className="mt-2 text-2xl font-black tracking-tight text-[#1A1A2E] dark:text-white">
                   {statistiques.enCours}
                 </p>
                 <p className="mt-1 text-[10px] font-semibold text-[#9A93A5]">
                   Commandes actives
                 </p>
               </div>
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] ring-1 ring-sky-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#7654C6]/10 dark:text-[#B8A4E8] dark:ring-[#7654C6]/20">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] ring-1 ring-sky-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#0F1B3D]/10 dark:text-[#B8A4E8] dark:ring-[#0F1B3D]/20">
                 <Truck size={19} strokeWidth={2.2} />
               </div>
             </div>
           </div>
 
-          <div className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#B7DEC4] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
+          <div className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#B7DEC4] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
             <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-emerald-500/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#9A93A5]">
                   Livrées
                 </p>
-                <p className="mt-2 text-2xl font-black tracking-tight text-[#18151F] dark:text-white">
+                <p className="mt-2 text-2xl font-black tracking-tight text-[#1A1A2E] dark:text-white">
                   {statistiques.livrees}
                 </p>
                 <p className="mt-1 text-[10px] font-semibold text-[#9A93A5]">
@@ -518,14 +518,14 @@ export default function Compte() {
             </div>
           </div>
 
-          <div className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-amber-200 hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
+          <div className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-amber-200 hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]">
             <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-amber-500/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#9A93A5]">
                   Acomptes restants
                 </p>
-                <p className="mt-2 truncate text-lg font-black tracking-tight text-[#18151F] dark:text-white">
+                <p className="mt-2 truncate text-lg font-black tracking-tight text-[#1A1A2E] dark:text-white">
                   {formatMoney(statistiques.acomptesRestants)}
                 </p>
                 <p className="mt-1 text-[10px] font-semibold text-[#9A93A5]">
@@ -543,15 +543,15 @@ export default function Compte() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             to="/mes-commandes"
-            className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
+            className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
           >
-            <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#F1ECFA]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
+            <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#FAF9F6]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] ring-1 ring-sky-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#7654C6]/10 dark:text-[#B8A4E8] dark:ring-[#7654C6]/20">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] ring-1 ring-sky-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#0F1B3D]/10 dark:text-[#B8A4E8] dark:ring-[#0F1B3D]/20">
                 <Truck size={20} strokeWidth={2.2} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#18151F] dark:text-white">
+                <p className="text-sm font-black text-[#1A1A2E] dark:text-white">
                   Suivre une commande
                 </p>
                 <p className="mt-1 text-[11px] font-medium text-[#9A93A5]">
@@ -561,22 +561,22 @@ export default function Compte() {
               <ChevronRight
                 size={17}
                 strokeWidth={2.2}
-                className="shrink-0 text-[#B8B0C3] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#7654C6]"
+                className="shrink-0 text-[#B8B0C3] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#0F1B3D]"
               />
             </div>
           </Link>
 
           <Link
             to="/catalogue"
-            className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
+            className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
           >
-            <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#F1ECFA]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
+            <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#FAF9F6]0/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] ring-1 ring-orange-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#7654C6]/10 dark:text-[#7654C6] dark:ring-orange-900/30">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] ring-1 ring-orange-100 transition-transform duration-300 group-hover:scale-105 dark:bg-[#0F1B3D]/10 dark:text-[#0F1B3D] dark:ring-orange-900/30">
                 <ShoppingBag size={20} strokeWidth={2.2} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#18151F] dark:text-white">
+                <p className="text-sm font-black text-[#1A1A2E] dark:text-white">
                   Continuer mes achats
                 </p>
                 <p className="mt-1 text-[11px] font-medium text-[#9A93A5]">
@@ -586,14 +586,14 @@ export default function Compte() {
               <ChevronRight
                 size={17}
                 strokeWidth={2.2}
-                className="shrink-0 text-[#B8B0C3] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#7654C6]"
+                className="shrink-0 text-[#B8B0C3] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#0F1B3D]"
               />
             </div>
           </Link>
 
           <Link
             to="/parrainage"
-            className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#B7DEC4] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
+            className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#B7DEC4] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
           >
             <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-emerald-500/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-center gap-3">
@@ -601,7 +601,7 @@ export default function Compte() {
                 <UserRound size={20} strokeWidth={2.2} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#18151F] dark:text-white">
+                <p className="text-sm font-black text-[#1A1A2E] dark:text-white">
                   Parrainage
                 </p>
                 <p className="mt-1 text-[11px] font-medium text-[#9A93A5]">
@@ -618,7 +618,7 @@ export default function Compte() {
 
           <Link
             to="/compte/parametres/notifications"
-            className="group relative overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
+            className="group relative overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29]"
           >
             <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl transition-transform duration-500 group-hover:scale-150" />
             <div className="relative flex items-center gap-3">
@@ -626,7 +626,7 @@ export default function Compte() {
                 <Bell size={20} strokeWidth={2.2} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#18151F] dark:text-white">
+                <p className="text-sm font-black text-[#1A1A2E] dark:text-white">
                   Notifications
                 </p>
                 <p className="mt-1 text-[11px] font-medium text-[#9A93A5]">
@@ -644,15 +644,15 @@ export default function Compte() {
 
         {/* COMMANDES + FAVORIS */}
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
-          <div className="rounded-[14px] border border-[#E8E3EF]/80 bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29] sm:p-6">
+          <div className="rounded-[14px] border border-[#FAF9F6]/80 bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29] sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F1ECFA] text-[#7654C6] ring-1 ring-orange-100 dark:bg-[#7654C6]/10 dark:text-[#7654C6] dark:ring-orange-900/30">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#FAF9F6] text-[#0F1B3D] ring-1 ring-orange-100 dark:bg-[#0F1B3D]/10 dark:text-[#0F1B3D] dark:ring-orange-900/30">
                   <Package size={21} strokeWidth={2.2} />
                 </div>
 
                 <div className="min-w-0">
-                  <h2 className="text-base font-black tracking-tight text-[#18151F] dark:text-white">
+                  <h2 className="text-base font-black tracking-tight text-[#1A1A2E] dark:text-white">
                     Mes commandes
                   </h2>
                   <p className="mt-0.5 text-xs font-medium text-[#9A93A5]">
@@ -663,7 +663,7 @@ export default function Compte() {
 
               <Link
                 to="/mes-commandes"
-                className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-black text-[#7654C6] transition-all hover:bg-[#F1ECFA] dark:hover:bg-[#7654C6]/10"
+                className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-black text-[#0F1B3D] transition-all hover:bg-[#FAF9F6] dark:hover:bg-[#0F1B3D]/10"
               >
                 Tout voir
                 <ArrowRight
@@ -678,29 +678,29 @@ export default function Compte() {
                 {[1, 2, 3].map((item) => (
                   <div
                     key={item}
-                    className="animate-pulse rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC] p-4 dark:border-[#3A3344] dark:bg-[#3A3344]/70"
+                    className="animate-pulse rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF] p-4 dark:border-[#3A3344] dark:bg-[#3A3344]/70"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="h-4 w-32 rounded bg-[#E8E3EF] dark:bg-[#3A3344]" />
-                        <div className="mt-3 h-3 w-24 rounded bg-[#E8E3EF] dark:bg-[#3A3344]" />
+                        <div className="h-4 w-32 rounded bg-[#FAF9F6] dark:bg-[#3A3344]" />
+                        <div className="mt-3 h-3 w-24 rounded bg-[#FAF9F6] dark:bg-[#3A3344]" />
                       </div>
-                      <div className="h-6 w-16 rounded-full bg-[#E8E3EF] dark:bg-[#3A3344]" />
+                      <div className="h-6 w-16 rounded-full bg-[#FAF9F6] dark:bg-[#3A3344]" />
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-3">
-                      <div className="h-10 rounded-lg bg-[#E8E3EF] dark:bg-[#3A3344]" />
-                      <div className="h-10 rounded-lg bg-[#E8E3EF] dark:bg-[#3A3344]" />
-                      <div className="h-10 rounded-lg bg-[#E8E3EF] dark:bg-[#3A3344]" />
+                      <div className="h-10 rounded-lg bg-[#FAF9F6] dark:bg-[#3A3344]" />
+                      <div className="h-10 rounded-lg bg-[#FAF9F6] dark:bg-[#3A3344]" />
+                      <div className="h-10 rounded-lg bg-[#FAF9F6] dark:bg-[#3A3344]" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : commandes.length === 0 ? (
-              <div className="mt-5 rounded-[14px] border border-dashed border-[#E8E3EF] bg-[#FAF9FC]/80 px-5 py-10 text-center dark:border-[#3A3344] dark:bg-[#3A3344]/60">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-white text-[#B8B0C3] shadow-sm dark:bg-[#211C29] dark:text-[#6F687A]">
+              <div className="mt-5 rounded-[14px] border border-dashed border-[#FAF9F6] bg-[#FFFFFF]/80 px-5 py-10 text-center dark:border-[#3A3344] dark:bg-[#3A3344]/60">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-white text-[#B8B0C3] shadow-sm dark:bg-[#211C29] dark:text-[#6B7280]">
                   <Package size={29} strokeWidth={1.8} />
                 </div>
-                <p className="mt-4 text-sm font-black text-[#18151F] dark:text-white">
+                <p className="mt-4 text-sm font-black text-[#1A1A2E] dark:text-white">
                   Aucune commande
                 </p>
                 <p className="mx-auto mt-1 max-w-xs text-xs leading-5 text-[#9A93A5]">
@@ -709,7 +709,7 @@ export default function Compte() {
 
                 <Link
                   to="/catalogue"
-                  className="mt-5 inline-flex h-10 items-center justify-center rounded-[10px] bg-[#18151F] px-4 text-xs font-black text-white shadow-sm transition-all  hover:bg-[#6544B3] hover:shadow-sm"
+                  className="mt-5 inline-flex h-10 items-center justify-center rounded-[10px] bg-[#1A1A2E] px-4 text-xs font-black text-white shadow-sm transition-all  hover:bg-[#C9A24B] hover:text-[#0F1B3D] hover:shadow-sm"
                 >
                   Découvrir les produits
                 </Link>
@@ -732,11 +732,11 @@ export default function Compte() {
                   return (
                     <div
                       key={commande.id || commande.numero}
-                      className="group rounded-[14px] border border-[#E8E3EF] bg-white p-4 transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344] dark:bg-[#211C29]/30 dark:hover:border-[#7654C6]/30 dark:hover:bg-[#3A3344]/60"
+                      className="group rounded-[14px] border border-[#FAF9F6] bg-white p-4 transition-all duration-300  hover:border-[#DCD2EE] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344] dark:bg-[#211C29]/30 dark:hover:border-[#0F1B3D]/30 dark:hover:bg-[#3A3344]/60"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black tracking-tight text-[#18151F] dark:text-white">
+                          <p className="truncate text-sm font-black tracking-tight text-[#1A1A2E] dark:text-white">
                             {commande.numero || 'Commande'}
                           </p>
                           <p className="mt-1 text-[10px] font-medium text-[#9A93A5]">
@@ -752,42 +752,42 @@ export default function Compte() {
                       </div>
 
                       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        <div className="rounded-[10px] bg-[#FAF9FC]/90 px-3 py-2.5 dark:bg-[#3A3344]/70">
+                        <div className="rounded-[10px] bg-[#FFFFFF]/90 px-3 py-2.5 dark:bg-[#3A3344]/70">
                           <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[#9A93A5]">
                             Total
                           </p>
-                          <p className="mt-1 text-sm font-black text-[#18151F] dark:text-white">
+                          <p className="mt-1 text-sm font-black text-[#1A1A2E] dark:text-white">
                             {formatMoney(total)}
                           </p>
                         </div>
 
-                        <div className="rounded-[10px] bg-[#FAF9FC]/90 px-3 py-2.5 dark:bg-[#3A3344]/70">
+                        <div className="rounded-[10px] bg-[#FFFFFF]/90 px-3 py-2.5 dark:bg-[#3A3344]/70">
                           <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[#9A93A5]">
                             Réception
                           </p>
-                          <p className="mt-1 text-sm font-bold text-[#18151F] dark:text-white">
+                          <p className="mt-1 text-sm font-bold text-[#1A1A2E] dark:text-white">
                             {commande.mode_reception === 'livraison'
                               ? 'Livraison'
                               : 'Retrait'}
                           </p>
                         </div>
 
-                        <div className="col-span-2 rounded-[10px] bg-[#FAF9FC]/90 px-3 py-2.5 dark:bg-[#3A3344]/70 sm:col-span-1">
+                        <div className="col-span-2 rounded-[10px] bg-[#FFFFFF]/90 px-3 py-2.5 dark:bg-[#3A3344]/70 sm:col-span-1">
                           <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[#9A93A5]">
                             Suivi
                           </p>
-                          <p className="mt-1 truncate text-sm font-bold text-[#18151F] dark:text-white">
+                          <p className="mt-1 truncate text-sm font-bold text-[#1A1A2E] dark:text-white">
                             {commande.code_suivi || 'En préparation'}
                           </p>
                         </div>
                       </div>
 
                       {resteAcompte > 0 && (
-                        <div className="mt-3 flex items-center justify-between gap-3 rounded-[10px] border border-[#E8E3EF] bg-[#F1ECFA]/70 px-3 py-2.5 dark:border-[#7654C6]/20 dark:bg-[#7654C6]/10">
-                          <span className="text-[11px] font-bold text-[#6F687A] dark:text-[#9A93A5]">
+                        <div className="mt-3 flex items-center justify-between gap-3 rounded-[10px] border border-[#FAF9F6] bg-[#FAF9F6]/70 px-3 py-2.5 dark:border-[#0F1B3D]/20 dark:bg-[#0F1B3D]/10">
+                          <span className="text-[11px] font-bold text-[#6B7280] dark:text-[#9A93A5]">
                             Acompte restant
                           </span>
-                          <span className="text-xs font-black text-[#7654C6] dark:text-[#7654C6]">
+                          <span className="text-xs font-black text-[#0F1B3D] dark:text-[#0F1B3D]">
                             {formatMoney(resteAcompte)}
                           </span>
                         </div>
@@ -796,7 +796,7 @@ export default function Compte() {
                       {commande.code_suivi && (
                         <Link
                           to={`/suivi?code=${encodeURIComponent(commande.code_suivi)}`}
-                          className="mt-3 flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-[#18151F] text-xs font-black text-white shadow-sm transition-all duration-200  hover:bg-[#6544B3] hover:shadow-sm"
+                          className="mt-3 flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-[#1A1A2E] text-xs font-black text-white shadow-sm transition-all duration-200  hover:bg-[#C9A24B] hover:text-[#0F1B3D] hover:shadow-sm"
                         >
                           Voir le suivi
                           <ArrowRight size={14} />
@@ -809,7 +809,7 @@ export default function Compte() {
             )}
           </div>
 
-          <div className="group rounded-[14px] border border-[#E8E3EF]/80 bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29] sm:p-6">
+          <div className="group rounded-[14px] border border-[#FAF9F6]/80 bg-white p-5 shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29] sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
                 <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-rose-50 text-rose-500 ring-1 ring-rose-100 dark:bg-rose-950/40 dark:text-rose-400 dark:ring-rose-900/30">
@@ -822,7 +822,7 @@ export default function Compte() {
                 </div>
 
                 <div className="min-w-0">
-                  <h2 className="text-base font-black tracking-tight text-[#18151F] dark:text-white">
+                  <h2 className="text-base font-black tracking-tight text-[#1A1A2E] dark:text-white">
                     Mes favoris
                   </h2>
                   <p className="mt-0.5 text-xs font-medium text-[#9A93A5]">
@@ -843,24 +843,24 @@ export default function Compte() {
                 {[1, 2, 3].map((item) => (
                   <div
                     key={item}
-                    className="flex items-center gap-3 rounded-[14px] border border-[#E8E3EF] bg-[#FAF9FC]/80 p-2.5 animate-pulse dark:border-[#3A3344] dark:bg-[#3A3344]/70"
+                    className="flex items-center gap-3 rounded-[14px] border border-[#FAF9F6] bg-[#FFFFFF]/80 p-2.5 animate-pulse dark:border-[#3A3344] dark:bg-[#3A3344]/70"
                   >
-                    <div className="h-16 w-16 shrink-0 rounded-[10px] bg-[#E8E3EF] dark:bg-[#3A3344]" />
+                    <div className="h-16 w-16 shrink-0 rounded-[10px] bg-[#FAF9F6] dark:bg-[#3A3344]" />
                     <div className="min-w-0 flex-1">
-                      <div className="h-3.5 w-3/4 rounded bg-[#E8E3EF] dark:bg-[#3A3344]" />
-                      <div className="mt-2 h-3 w-1/3 rounded bg-[#E8E3EF] dark:bg-[#3A3344]" />
+                      <div className="h-3.5 w-3/4 rounded bg-[#FAF9F6] dark:bg-[#3A3344]" />
+                      <div className="mt-2 h-3 w-1/3 rounded bg-[#FAF9F6] dark:bg-[#3A3344]" />
                     </div>
-                    <div className="h-9 w-9 rounded-full bg-[#E8E3EF] dark:bg-[#3A3344]" />
+                    <div className="h-9 w-9 rounded-full bg-[#FAF9F6] dark:bg-[#3A3344]" />
                   </div>
                 ))}
               </div>
             ) : favoris.length === 0 ? (
-              <div className="mt-5 rounded-[14px] border border-dashed border-[#E8E3EF] bg-[#FAF9FC]/80 px-5 py-10 text-center dark:border-[#3A3344] dark:bg-[#3A3344]/60">
+              <div className="mt-5 rounded-[14px] border border-dashed border-[#FAF9F6] bg-[#FFFFFF]/80 px-5 py-10 text-center dark:border-[#3A3344] dark:bg-[#3A3344]/60">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-white text-[#E8CACA] shadow-sm ring-1 ring-slate-100 dark:bg-[#211C29] dark:text-[#7F3A3A] dark:ring-slate-800">
                   <Heart size={29} strokeWidth={1.8} />
                 </div>
 
-                <p className="mt-4 text-sm font-black tracking-tight text-[#18151F] dark:text-white">
+                <p className="mt-4 text-sm font-black tracking-tight text-[#1A1A2E] dark:text-white">
                   Aucun favori pour le moment
                 </p>
 
@@ -870,7 +870,7 @@ export default function Compte() {
 
                 <Link
                   to="/catalogue"
-                  className="mt-5 inline-flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-[#18151F] px-4 text-xs font-black text-white shadow-sm transition-all duration-200  hover:bg-[#6544B3] hover:shadow-sm"
+                  className="mt-5 inline-flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-[#1A1A2E] px-4 text-xs font-black text-white shadow-sm transition-all duration-200  hover:bg-[#C9A24B] hover:text-[#0F1B3D] hover:shadow-sm"
                 >
                   Explorer le catalogue
                   <ArrowRight size={14} />
@@ -886,11 +886,11 @@ export default function Compte() {
                   return (
                     <div
                       key={favori.id}
-                      className="group/item flex items-center gap-3 rounded-[14px] border border-[#E8E3EF] bg-white p-2.5 transition-all duration-300  hover:border-[#E8CACA] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344] dark:bg-[#211C29]/30 dark:hover:border-[#7F3A3A]/60 dark:hover:bg-[#3A3344]/60"
+                      className="group/item flex items-center gap-3 rounded-[14px] border border-[#FAF9F6] bg-white p-2.5 transition-all duration-300  hover:border-[#E8CACA] hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344] dark:bg-[#211C29]/30 dark:hover:border-[#7F3A3A]/60 dark:hover:bg-[#3A3344]/60"
                     >
                       <Link
                         to={`/produit/${produit.id}`}
-                        className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[10px] bg-[#F1ECFA] ring-1 ring-slate-200/70 dark:bg-[#3A3344] dark:ring-slate-700"
+                        className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[10px] bg-[#FAF9F6] ring-1 ring-slate-200/70 dark:bg-[#3A3344] dark:ring-slate-700"
                       >
                         {produit.image_url ? (
                           <img
@@ -910,12 +910,12 @@ export default function Compte() {
                       <div className="min-w-0 flex-1">
                         <Link
                           to={`/produit/${produit.id}`}
-                          className="line-clamp-2 text-xs font-black leading-5 text-[#18151F] transition-colors hover:text-[#7654C6] dark:text-white dark:hover:text-[#7654C6]"
+                          className="line-clamp-2 text-xs font-black leading-5 text-[#1A1A2E] transition-colors hover:text-[#0F1B3D] dark:text-white dark:hover:text-[#0F1B3D]"
                         >
                           {produit.nom}
                         </Link>
 
-                        <p className="mt-1 text-sm font-black text-[#7654C6] dark:text-[#7654C6]">
+                        <p className="mt-1 text-sm font-black text-[#0F1B3D] dark:text-[#0F1B3D]">
                           {formatMoney(produit.prix)}
                         </p>
                       </div>
@@ -937,7 +937,7 @@ export default function Compte() {
                 {favoris.length > 5 && (
                   <Link
                     to="/catalogue"
-                    className="group flex h-10 items-center justify-center gap-1.5 rounded-[10px] border border-[#E8E3EF] bg-white text-xs font-black text-[#6F687A] transition-all duration-200  hover:border-[#DCD2EE] hover:text-[#7654C6] hover:shadow-sm dark:border-[#3A3344] dark:bg-[#211C29]/30 dark:text-[#B8B0C3] dark:hover:border-[#7654C6]/30 dark:hover:text-[#7654C6]"
+                    className="group flex h-10 items-center justify-center gap-1.5 rounded-[10px] border border-[#FAF9F6] bg-white text-xs font-black text-[#6B7280] transition-all duration-200  hover:border-[#DCD2EE] hover:text-[#0F1B3D] hover:shadow-sm dark:border-[#3A3344] dark:bg-[#211C29]/30 dark:text-[#B8B0C3] dark:hover:border-[#0F1B3D]/30 dark:hover:text-[#0F1B3D]"
                   >
                     Voir tous mes favoris
                     <ArrowRight
@@ -951,7 +951,7 @@ export default function Compte() {
           </div>        </div>
 
         {/* FOOTER COMPTE */}
-        <div className="group relative mt-5 overflow-hidden rounded-[14px] border border-[#E8E3EF]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300 hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29] sm:p-5">
+        <div className="group relative mt-5 overflow-hidden rounded-[14px] border border-[#FAF9F6]/80 bg-white p-4 shadow-[0_2px_10px_rgba(24,21,31,0.05)] transition-all duration-300 hover:shadow-[0_2px_10px_rgba(24,21,31,0.05)] dark:border-[#3A3344]/80 dark:bg-[#211C29] sm:p-5">
           <div className="pointer-events-none absolute -right-16 -top-20 h-40 w-40 rounded-full bg-emerald-400/5 blur-3xl transition-transform duration-700 group-hover:scale-125" />
 
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -962,7 +962,7 @@ export default function Compte() {
 
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-xs font-black tracking-tight text-[#18151F] dark:text-white">
+                  <p className="text-xs font-black tracking-tight text-[#1A1A2E] dark:text-white">
                     Votre espace est sécurisé
                   </p>
 
@@ -979,7 +979,7 @@ export default function Compte() {
 
             <Link
               to="/compte/parametres/confidentialite"
-              className="group/link inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-[10px] border border-[#E8E3EF] bg-[#FAF9FC] px-3.5 text-[11px] font-black text-[#18151F] transition-all duration-200  hover:border-[#DCD2EE] hover:bg-[#F1ECFA] hover:text-[#7654C6] hover:shadow-sm dark:border-[#3A3344] dark:bg-[#3A3344]/70 dark:text-[#CFC8D8] dark:hover:border-[#7654C6]/30 dark:hover:bg-[#7654C6]/10 dark:hover:text-[#7654C6]"
+              className="group/link inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-[10px] border border-[#FAF9F6] bg-[#FFFFFF] px-3.5 text-[11px] font-black text-[#1A1A2E] transition-all duration-200  hover:border-[#DCD2EE] hover:bg-[#FAF9F6] hover:text-[#0F1B3D] hover:shadow-sm dark:border-[#3A3344] dark:bg-[#3A3344]/70 dark:text-[#CFC8D8] dark:hover:border-[#0F1B3D]/30 dark:hover:bg-[#0F1B3D]/10 dark:hover:text-[#0F1B3D]"
             >
               Confidentialité
               <ArrowRight
@@ -994,7 +994,7 @@ export default function Compte() {
           <p className="text-[11px] font-black tracking-tight text-[#9A93A5]">
             ChinaShop-Benin · Votre espace client
           </p>
-          <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-[#B8B0C3] dark:text-[#6F687A]">
+          <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-[#B8B0C3] dark:text-[#6B7280]">
             Importation · Suivi · Livraison au Bénin
           </p>
         </div>
