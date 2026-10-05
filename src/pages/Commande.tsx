@@ -440,7 +440,8 @@ export default function Commande() {
     const lignesAvecVarianteManquante = items.filter(
       (item) =>
         !item.produit.variante_id &&
-        Object.prototype.hasOwnProperty.call(item.produit, 'variante_nom'),
+        item.produit.variante_nom &&
+        String(item.produit.variante_nom).trim() !== '',
     )
 
     if (lignesAvecVarianteManquante.length > 0) {
