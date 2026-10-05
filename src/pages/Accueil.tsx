@@ -634,7 +634,7 @@ function ProduitsVedette() {
                             produit.stock <= 0 &&
                             produit.disponibilite === 'sur_commande',
                         })
-                        navigate('/commande')
+                        navigate('/panier')
                       }}
                       className="inline-flex min-h-9 items-center justify-center gap-1 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-3 text-[11px] font-bold text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition-colors duration-150 hover:from-[#D97706] hover:to-[#F59E0B]"
                     >

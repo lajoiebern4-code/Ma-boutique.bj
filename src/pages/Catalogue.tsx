@@ -163,7 +163,7 @@ function CarteProduit({
   const commander = () => {
     if (indisponible) return
     onAjouter(produitPanier)
-    navigate('/commande')
+    navigate('/panier')
   }
 
   return (

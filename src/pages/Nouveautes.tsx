@@ -76,7 +76,7 @@ function CarteNouveaute({
   function commander() {
     if (indisponible) return
     onAjouter(produitPanier)
-    navigate('/commande')
+    navigate('/panier')
   }
 
   return (
