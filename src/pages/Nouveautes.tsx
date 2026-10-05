@@ -157,7 +157,7 @@ function CarteNouveaute({
             type="button"
             disabled={indisponible}
             onClick={commander}
-            className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-4 text-xs font-bold text-[#0F1B3D] shadow-[0_4px_14px_rgba(201,162,75,0.25)] transition-all duration-150 hover:from-[#D97706] hover:to-[#F59E0B] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
+            className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-3 text-[11px] font-bold text-[#0F1B3D] shadow-[0_4px_14px_rgba(201,162,75,0.25)] transition-all duration-150 hover:from-[#D97706] hover:to-[#F59E0B] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
           >
             Commander
           </button>

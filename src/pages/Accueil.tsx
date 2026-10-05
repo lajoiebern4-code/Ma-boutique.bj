@@ -636,7 +636,7 @@ function ProduitsVedette() {
                         })
                         navigate('/commande')
                       }}
-                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-4 text-xs font-bold text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition-colors duration-150 hover:from-[#D97706] hover:to-[#F59E0B]"
+                      className="inline-flex min-h-9 items-center justify-center gap-1 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-3 text-[11px] font-bold text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.08)] transition-colors duration-150 hover:from-[#D97706] hover:to-[#F59E0B]"
                     >
                       <Zap size={15} aria-hidden="true" />
                       <span>Commander</span>
