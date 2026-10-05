@@ -8,6 +8,8 @@ import {
   ShoppingBag,
   ShoppingCart,
   Trash2,
+  Plane,
+  Ship,
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 
@@ -74,6 +76,23 @@ export default function Panier() {
 
   const totalPanierAvecTransport =
     totalAvecReduction + transportChineSelectionne
+
+  // Détection du mode de transport utilisé
+  const aDesArticlesAvion = items.some((item) => {
+    if (item.produit.surCommande !== true) return false
+    const forceAvion =
+      item.produit.categorie === 'telephones' ||
+      item.produit.sous_categorie === 'ordinateur'
+    return forceAvion || item.produit.type_transport === 'avion'
+  })
+
+  const aDesArticlesBateau = items.some((item) => {
+    if (item.produit.surCommande !== true) return false
+    const forceAvion =
+      item.produit.categorie === 'telephones' ||
+      item.produit.sous_categorie === 'ordinateur'
+    return !forceAvion && item.produit.type_transport === 'bateau'
+  })
 
   if (items.length === 0) {
     return (
@@ -406,7 +425,13 @@ export default function Panier() {
 
                   {transportChineSelectionne > 0 && (
                     <div className="flex items-center justify-between gap-4 text-sm">
-                      <span className="text-[#6B7280]">
+                      <span className="flex items-center gap-1.5 text-[#6B7280]">
+                        {aDesArticlesAvion && (
+                          <Plane size={13} className="shrink-0 text-[#C9A24B]" />
+                        )}
+                        {aDesArticlesBateau && (
+                          <Ship size={13} className="shrink-0 text-[#0F1B3D]" />
+                        )}
                         Transport depuis la Chine
                       </span>
                       <span className="font-black text-[#1A1A2E]">
