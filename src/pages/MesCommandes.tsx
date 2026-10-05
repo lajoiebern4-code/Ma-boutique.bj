@@ -222,7 +222,7 @@ export default function MesCommandes() {
       <section className="relative overflow-hidden bg-[#1A1A2E]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,82,204,0.28),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(255,122,26,0.18),transparent_40%)]" />
 
-        <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6 sm:pb-14 sm:pt-10">
+        <div className="relative mx-auto max-w-6xl px-5 pb-12 pt-8 sm:px-6 sm:pb-14 sm:pt-10">
           <button
             type="button"
             onClick={() => navigate('/compte')}
@@ -250,7 +250,7 @@ export default function MesCommandes() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
+      <section className="mx-auto max-w-5xl px-5 py-7 sm:px-6 sm:py-10">
         {chargement ? (
           <div className="space-y-4">
             {[1, 2, 3].map((item) => (

@@ -524,7 +524,7 @@ export default function Catalogue() {
         <div className="absolute -right-32 -top-32 h-72 w-72 rounded-full bg-[#FAF9F6]/70 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-64 w-64 rounded-full bg-[#FAF9F6]/50 blur-3xl" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 sm:pb-10 lg:px-8 lg:pt-12">
+        <div className="relative mx-auto max-w-7xl px-5 pb-8 pt-10 sm:px-6 sm:pb-10 lg:px-8 lg:pt-12">
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-[#FAF9F6] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#0F1B3D]">
@@ -634,7 +634,7 @@ export default function Catalogue() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-5 pb-20 sm:px-6 lg:px-8">
         {/* CATEGORIES */}
         <section className="-mt-1">
           <div className="flex items-center justify-between gap-4">

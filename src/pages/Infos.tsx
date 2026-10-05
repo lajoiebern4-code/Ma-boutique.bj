@@ -169,7 +169,7 @@ function SectionHeader({
         {titre}
       </h2>
       {sousTitre && (
-        <p className="mt-5 text-base leading-8 text-[#6B7280]">{sousTitre}</p>
+        <p className="mt-5 text-lg leading-8 text-[#6B7280]">{sousTitre}</p>
       )}
     </div>
   )
@@ -186,7 +186,7 @@ export default function Infos() {
         <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:py-28">
+        <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:py-28">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white backdrop-blur-sm">
               <BadgeCheck size={14} className="text-[#FFB47A]" />
@@ -228,7 +228,7 @@ export default function Infos() {
 
       {/* AVANTAGES */}
       <section className="border-b border-[#FAF9F6] bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-16">
           <div className="grid gap-px overflow-hidden rounded-[14px] border border-[#FAF9F6] bg-[#FAF9F6] sm:grid-cols-2 lg:grid-cols-4">
             {avantages.map((item) => {
               const Icon = item.icon
@@ -254,7 +254,7 @@ export default function Infos() {
       </section>
 
       {/* COMMENT ÇA MARCHE */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           label="Le parcours"
           titre={<>Comment ça se passe, <span className="text-[#0F1B3D]">concrètement ?</span></>}
@@ -284,7 +284,7 @@ export default function Infos() {
                   </span>
                 </div>
 
-                <h3 className="mt-6 text-base font-black text-[#1A1A2E]">
+                <h3 className="mt-6 text-lg font-black text-[#1A1A2E]">
                   {item.titre}
                 </h3>
 
@@ -299,7 +299,7 @@ export default function Infos() {
 
       {/* STOCK / SUR COMMANDE */}
       <section className="bg-[#FAF9F6]/40">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
           <SectionHeader
             label="Disponibilité"
             titre={<>Deux situations, <span className="text-[#0F1B3D]">deux délais.</span></>}
@@ -374,7 +374,7 @@ export default function Infos() {
       </section>
 
       {/* LIVRAISON / RETRAIT */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           label="Réception"
           titre={<>Livraison <span className="text-[#0F1B3D]">ou retrait ?</span></>}
@@ -454,7 +454,7 @@ export default function Infos() {
 
       {/* PAIEMENT */}
       <section className="border-y border-[#FAF9F6] bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
           <SectionHeader
             label="Paiement"
             titre={<>Comment régler <span className="text-[#0F1B3D]">votre commande ?</span></>}
@@ -519,7 +519,7 @@ export default function Infos() {
 
       {/* DÉLAIS */}
       <section className="bg-[#FAF9F6]/40">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
           <SectionHeader
             label="Délais"
             titre={<>Combien de temps <span className="text-[#0F1B3D]">pour recevoir ?</span></>}
@@ -558,7 +558,7 @@ export default function Infos() {
       </section>
 
       {/* CODES */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           label="Vos codes"
           titre={<>Deux codes <span className="text-[#0F1B3D]">à garder précieusement.</span></>}
@@ -664,7 +664,7 @@ export default function Infos() {
 
       {/* CTA FINALE */}
       <section className="bg-[#FFFFFF]">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
           <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0F1B3D] via-[#E8E4DC] to-[#3B2D5F] px-6 py-14 text-center sm:px-12 sm:py-16">
             <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute -bottom-24 -left-20 h-48 w-48 rounded-full bg-white/10 blur-3xl" />

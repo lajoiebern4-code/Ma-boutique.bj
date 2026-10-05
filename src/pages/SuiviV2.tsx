@@ -1462,7 +1462,7 @@ function SuiviV2Page() {
             <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
 
-            <div className="relative mx-auto max-w-5xl px-4 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-6">
+            <div className="relative mx-auto max-w-5xl px-5 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-6">
               {/* BARRE DU HAUT */}
               <div className="flex items-center justify-between gap-4">
                 <button
@@ -1548,7 +1548,7 @@ function SuiviV2Page() {
             </div>
           </header>
 
-          <main className="mx-auto max-w-5xl px-4 pb-16 sm:px-8">
+          <main className="mx-auto max-w-5xl px-5 pb-16 sm:px-8">
 
 
               <section className="rounded-[14px] border border-[#FAF9F6] bg-white p-6 shadow-[0_2px_10px_rgba(24,21,31,0.05)] sm:p-8">

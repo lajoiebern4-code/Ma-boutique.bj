@@ -236,53 +236,88 @@ function BandeauPremium() {
 function HeroPremium() {
   const [recherche, setRecherche] = useState('')
   const [texteAnimeIndex, setTexteAnimeIndex] = useState(0)
+  const [texteAffiche, setTexteAffiche] = useState('')
+  const [indexLettre, setIndexLettre] = useState(0)
+  const [effacement, setEffacement] = useState(false)
   const textesAnimes = [
     "Livraison express au Bénin.",
     "Paiement Mobile Money sécurisé.",
     "Import direct de Chine.",
     "Suivi de commande en temps réel.",
   ]
+
   useEffect(() => {
-    const intervalle = setInterval(() => {
+    const texteComplet = textesAnimes[texteAnimeIndex]
+
+    if (!effacement && indexLettre < texteComplet.length) {
+      const timeout = setTimeout(() => {
+        setTexteAffiche(texteComplet.slice(0, indexLettre + 1))
+        setIndexLettre(indexLettre + 1)
+      }, 70)
+      return () => clearTimeout(timeout)
+    }
+
+    if (!effacement && indexLettre === texteComplet.length) {
+      const timeout = setTimeout(() => setEffacement(true), 2000)
+      return () => clearTimeout(timeout)
+    }
+
+    if (effacement && texteAffiche.length > 0) {
+      const timeout = setTimeout(() => {
+        setTexteAffiche(texteAffiche.slice(0, -1))
+      }, 30)
+      return () => clearTimeout(timeout)
+    }
+
+    if (effacement && texteAffiche.length === 0) {
+      setEffacement(false)
+      setIndexLettre(0)
       setTexteAnimeIndex((i) => (i + 1) % textesAnimes.length)
-    }, 3000)
-    return () => clearInterval(intervalle)
-  }, [])
+    }
+  }, [indexLettre, texteAffiche, effacement, texteAnimeIndex])
   const heroReveal = useRevealOnScroll()
 
   return (
-    <section className="relative overflow-hidden bg-[#FFFFFF]">
-      <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#FAF9F6]/80 blur-3xl" />
-      <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#FAF9F6]/60 blur-3xl" />
+    <section className="relative overflow-hidden bg-[#FAF9F6]">
+      {/* IMAGE EN FOND */}
+      <div className="absolute inset-0">
+        <img
+          src="/illustration-shopping.png"
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover object-right opacity-60 lg:opacity-100"
+        />
+        {/* DÉGRADÉ DE GAUCHE À DROITE (pour lisibilité du texte) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF9F6] via-[#FAF9F6]/95 to-[#FAF9F6]/30 lg:via-[#FAF9F6]/80 lg:to-transparent" />
+      </div>
 
+      {/* CONTENU PAR-DESSUS */}
       <div
         ref={heroReveal}
-        className="relative mx-auto grid max-w-7xl translate-y-0 items-center gap-12 px-4 py-14 opacity-100 transition-all duration-700 ease-out sm:px-6 md:py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-24"
+        className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-8 lg:py-28"
       >
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-4 py-2 text-xs font-bold text-[#0F1B3D] shadow-sm">
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#0F1B3D]/10 bg-white/80 px-4 py-2 text-xs font-bold text-[#0F1B3D] shadow-sm backdrop-blur-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             ChinaShop-Bénin
           </div>
 
-          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
             Votre passerelle vers la Chine.
             <span className="mt-2 block text-[#0F1B3D]">
-              <span
-                key={texteAnimeIndex}
-                className="inline-block animate-fade-in-up"
-              >
-                {textesAnimes[texteAnimeIndex]}
+              <span className="inline-block">
+                {texteAffiche}
+                <span className="ml-0.5 inline-block animate-pulse font-thin text-[#C9A24B]">|</span>
               </span>
             </span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
+          <p className="mt-6 max-w-lg text-base leading-7 text-[#6B7280] sm:text-lg">
             ChineShop-Bénin connecte directement le marché chinois à votre porte.
-            Sélection rigoureuse, prix transparents, livraison express partout au Bénin — Cotonou en moins de 24 heures.
+            Livraison express partout au Bénin — Cotonou en moins de 24 heures.
           </p>
 
-          <div className="mt-8 flex max-w-xl items-center rounded-[14px] border border-[#FAF9F6] bg-white p-1.5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
+          <div className="mt-8 flex max-w-lg items-center rounded-[14px] border border-[#E8E4DC] bg-white p-1.5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
             <Search className="ml-3 shrink-0 text-slate-400" size={20} />
             <input
               value={recherche}
@@ -310,71 +345,26 @@ function HeroPremium() {
 
             <Link
               to="/infos"
-              className="inline-flex items-center gap-2 rounded-[10px] border border-[#FAF9F6] bg-white px-6 py-3.5 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#D8CDED] hover:text-[#0F1B3D]"
+              className="inline-flex items-center gap-2 rounded-[10px] border border-[#E8E4DC] bg-white px-6 py-3.5 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#0F1B3D]/20 hover:text-[#0F1B3D]"
             >
               Comment ça marche
               <ChevronRight size={16} />
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-slate-500">
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-[#6B7280]">
             <span className="flex items-center gap-2">
               <ShieldCheck size={15} className="text-[#0F1B3D]" />
               Paiement sécurisé
             </span>
             <span className="flex items-center gap-2">
+              <Truck size={15} className="text-[#0F1B3D]" />
               Livraison express
-              Livraison au Bénin
             </span>
             <span className="flex items-center gap-2">
+              <Package size={15} className="text-[#0F1B3D]" />
               Suivi en temps réel
-              Retrait disponible
             </span>
-          </div>
-        </div>
-
-        <div className="relative hidden min-h-[440px] lg:block">
-          <div className="absolute inset-8 rounded-[18px] border border-[#FAF9F6] bg-[#FAF9F6] shadow-[0_8px_24px_rgba(24,21,31,0.08)]" />
-
-          <div className="absolute left-0 top-12 w-64 rounded-[18px] border border-[#FAF9F6] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
-            <div className="flex h-36 items-center justify-center rounded-[14px] bg-[#FAF9F6]">
-              <ShoppingBag size={64} className="text-[#0F1B3D]" strokeWidth={1.2} />
-            </div>
-            <div className="mt-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#0F1B3D]">
-                Sélection
-              </p>
-              <p className="mt-1 text-lg font-black text-[#1A1A2E]">
-                Produits populaires
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Stock ou commande sur demande
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute bottom-8 right-0 w-72 rounded-[18px] border border-[#FAF9F6] bg-white p-5 shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#FAF9F6] text-[#0F1B3D]">
-                <BadgeCheck size={28} />
-              </div>
-              <div>
-                <p className="text-sm font-black text-[#1A1A2E]">
-                  Commande simplifiée
-                </p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Livraison ou retrait selon votre besoin.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute right-8 top-0 rounded-[14px] border border-[#FAF9F6] bg-white px-5 py-4 text-[#1A1A2E] shadow-[0_8px_24px_rgba(24,21,31,0.08)]">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#0F1B3D]">
-              ChinaShop
-            </p>
-            <p className="mt-1 text-xl font-black">Simple.</p>
-            <p className="text-xl font-black">Pratique.</p>
           </div>
         </div>
       </div>
@@ -394,7 +384,7 @@ function Categories() {
 
   return (
     <section className="border-b border-[#FAF9F6] bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 py-7 sm:px-6 lg:px-8">
         <div className="flex gap-3 overflow-x-auto pb-1">
           {categories.map((categorie) => (
             <Link
@@ -454,7 +444,7 @@ function ProduitsVedette() {
 
   return (
     <section className="bg-[#FFFFFF] py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
@@ -686,7 +676,7 @@ function CommentCaMarche() {
 
   return (
     <section className="bg-white py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
             Simple du début à la fin
@@ -757,7 +747,7 @@ function BlocConfiance() {
 
   return (
     <section className="bg-[#FFFFFF] py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">

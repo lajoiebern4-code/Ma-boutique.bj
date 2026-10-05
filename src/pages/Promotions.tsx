@@ -264,7 +264,7 @@ export default function Promotions() {
         <div className="absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#0F1B3D]/10 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#0F1B3D]/10 blur-3xl" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20 lg:px-8 lg:py-24">
+        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 md:py-20 lg:px-8 lg:py-24">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-white px-4 py-2 text-xs font-bold text-[#0F1B3D] shadow-[0_2px_10px_rgba(24,21,31,0.05)]">
               <span className="h-2 w-2 rounded-full bg-[#0F1B3D]" />
@@ -329,7 +329,7 @@ export default function Promotions() {
       </section>
 
       <main className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">

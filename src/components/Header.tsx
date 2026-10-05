@@ -36,14 +36,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50">
       <div className="border-b border-[#FAF9F6]/80 bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
           <Link
             to="/"
             onClick={fermerMenu}
             className="shrink-0 transition-opacity hover:opacity-90"
           >
             <div className="flex items-baseline">
-              <span className="text-2xl font-black tracking-tight text-[#1A1A2E]">
+              <span className="animate-gradient-text bg-gradient-to-r from-[#0F1B3D] via-[#C9A24B] to-[#F59E0B] bg-clip-text text-2xl font-black tracking-tight text-transparent">
                 ChinaShop
               </span>
               <span className="text-2xl font-black tracking-tight text-[#0F1B3D]">
@@ -121,7 +121,7 @@ export default function Header() {
 
         {menuOuvert && (
           <div className="border-t border-[#FAF9F6] bg-white md:hidden">
-            <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
+            <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-3 sm:px-8">
               <NavLink
                 to="/"
                 onClick={fermerMenu}

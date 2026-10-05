@@ -12,7 +12,7 @@
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: Poppins, Inter, system-ui, sans-serif;
+  font-family: Poppins, Inter, system-ui, sans-serif !important;
 }
 
 /* ===============================
@@ -151,4 +151,18 @@ select {
 
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-text {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
 }

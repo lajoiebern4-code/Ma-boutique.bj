@@ -78,7 +78,7 @@ export default function Panier() {
   if (items.length === 0) {
     return (
       <main className="min-h-[70vh] bg-[#FFFFFF] text-[#1A1A2E]">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
+        <div className="mx-auto max-w-6xl px-5 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
           <Link
             to="/catalogue"
             className="group inline-flex items-center gap-2 text-sm font-bold text-[#6B7280] transition hover:text-[#0F1B3D]"
@@ -130,7 +130,7 @@ export default function Panier() {
 
   return (
     <main className="min-h-screen bg-[#FFFFFF] text-[#1A1A2E]">
-      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+      <div className="mx-auto max-w-7xl px-5 py-7 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <Link
           to="/catalogue"
           className="group inline-flex items-center gap-2 text-sm font-bold text-[#6B7280] transition hover:text-[#0F1B3D]"

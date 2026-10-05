@@ -138,7 +138,7 @@ function BlocAvantage({
 function SkeletonProduit() {
   return (
     <main className="min-h-screen bg-[#FFFFFF]">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-8">
         <div className="h-5 w-36 animate-pulse rounded-full bg-[#FAF9F6]" />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_.95fr]">
@@ -564,7 +564,7 @@ export default function Produit() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 py-6 sm:px-6 sm:py-10 lg:px-8">
         {/* PRODUIT */}
         <div className="grid gap-8 lg:grid-cols-[1.08fr_.92fr] lg:items-start">
 

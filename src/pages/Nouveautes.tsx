@@ -256,7 +256,7 @@ export default function Nouveautes() {
         <div className="absolute -bottom-40 left-1/3 h-[28rem] w-[28rem] rounded-full bg-[#0F1B3D]/5 blur-3xl" />
         <div className="absolute inset-0 " />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.7fr]">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#1A1A2E] backdrop-blur">
@@ -386,7 +386,7 @@ export default function Nouveautes() {
       </section>
 
       <main className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">

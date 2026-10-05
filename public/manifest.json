@@ -1,0 +1,32 @@
+{
+  "name": "ChinaShop-Bénin",
+  "short_name": "ChinaShop",
+  "description": "Votre passerelle vers la Chine. Livraison express au Bénin.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF9F6",
+  "theme_color": "#0F1B3D",
+  "lang": "fr",
+  "categories": ["shopping", "ecommerce"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
