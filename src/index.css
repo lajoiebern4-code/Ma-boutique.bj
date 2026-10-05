@@ -61,6 +61,7 @@ html.dark {
 
 html {
   scroll-behavior: smooth;
+  font-size: 14px;
   background: var(--cs-bg);
 }
 
