@@ -142,22 +142,21 @@ function CarteNouveaute({
           <BadgeDisponibilite produit={produit} />
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-4 flex items-center gap-2">
           <button
             type="button"
             disabled={indisponible}
             onClick={ajouterAuPanier}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[10px] border border-[#FAF9F6] px-2 text-xs font-black text-[#1A1A2E] transition hover:border-[#0F1B3D] hover:bg-[#FAF9F6] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:border-[#FAF9F6] disabled:text-[#9A93A5]"
+            className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-[#FAF9F6] bg-white px-3 shrink-0 text-[#1A1A2E] transition hover:border-[#0F1B3D] hover:bg-[#FAF9F6] hover:text-[#0F1B3D] disabled:cursor-not-allowed disabled:border-[#FAF9F6] disabled:text-[#9A93A5]"
           >
             <ShoppingBag size={15} />
-            Ajouter
           </button>
 
           <button
             type="button"
             disabled={indisponible}
             onClick={commander}
-            className="inline-flex min-h-9 items-center justify-center gap-1 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-3 text-[11px] font-bold text-[#0F1B3D] shadow-[0_4px_14px_rgba(201,162,75,0.25)] transition-all duration-150 hover:from-[#D97706] hover:to-[#F59E0B] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
+            className="inline-flex flex-1 min-h-9 items-center justify-center gap-1 rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-3 text-[11px] font-bold text-[#0F1B3D] shadow-[0_4px_14px_rgba(201,162,75,0.25)] transition-all duration-150 hover:from-[#D97706] hover:to-[#F59E0B] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#FAF9F6] disabled:text-[#9A93A5]"
           >
             Commander
           </button>
