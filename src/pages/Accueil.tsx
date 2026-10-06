@@ -326,8 +326,17 @@ function HeroPremium() {
               className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm font-medium text-[#1A1A2E] outline-none placeholder:text-slate-400"
             />
             <Link
-              to={recherche.trim() ? `/catalogue?recherche=${encodeURIComponent(recherche)}` : '/catalogue'}
-              className="rounded-[10px] bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] px-5 py-3 text-sm font-bold text-[#0F1B3D] transition hover:from-[#D97706] hover:to-[#F59E0B]"
+              to={recherche.trim() ? `/catalogue?recherche=${encodeURIComponent(recherche)}` : '#'}
+              onClick={(e) => {
+                if (!recherche.trim()) {
+                  e.preventDefault()
+                }
+              }}
+              className={`rounded-[10px] px-5 py-3 text-sm font-bold transition ${
+                recherche.trim()
+                  ? 'bg-gradient-to-r from-[#C9A24B] to-[#F59E0B] text-[#0F1B3D] hover:from-[#D97706] hover:to-[#F59E0B]'
+                  : 'cursor-not-allowed bg-[#E8E4DC] text-[#9A93A5]'
+              }`}
             >
               Rechercher
             </Link>
