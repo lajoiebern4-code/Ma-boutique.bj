@@ -230,7 +230,7 @@ export default function Layout() {
 
               <div className="min-w-0">
                 <div className="truncate text-[15px] font-black tracking-tight">
-                  ChinaShop<span className="text-orange-500">-Benin</span>
+                  AndyShop<span className="text-orange-500">-Benin</span>
                 </div>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
                   Administration
@@ -325,7 +325,7 @@ export default function Layout() {
                       className="hidden text-slate-300 sm:block"
                     />
                     <span className="hidden text-xs font-semibold text-slate-400 sm:block">
-                      ChinaShop-Benin
+                      AndyShop-Benin
                     </span>
                   </div>
 
@@ -392,7 +392,7 @@ export default function Layout() {
 
                 <div>
                   <div className="text-sm font-black">
-                    ChinaShop<span className="text-orange-500">-Benin</span>
+                    AndyShop<span className="text-orange-500">-Benin</span>
                   </div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
                     Administration

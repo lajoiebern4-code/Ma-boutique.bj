@@ -127,7 +127,7 @@ export default function Connexion() {
                 <Sparkles size={20} strokeWidth={2.4} />
               </div>
               <div>
-                <p className="text-sm font-black tracking-tight text-white">ChinaShop-Bénin</p>
+                <p className="text-sm font-black tracking-tight text-white">AndyShop-Bénin</p>
                 <p className="text-[11px] font-medium text-white/60">Chine · Bénin</p>
               </div>
             </Link>
@@ -185,7 +185,7 @@ export default function Connexion() {
                 <Sparkles size={18} strokeWidth={2.4} />
               </div>
               <div>
-                <p className="text-sm font-black tracking-tight text-[#1A1A2E]">ChinaShop-Bénin</p>
+                <p className="text-sm font-black tracking-tight text-[#1A1A2E]">AndyShop-Bénin</p>
                 <p className="text-[10px] font-semibold text-[#9A93A5]">Chine · Bénin</p>
               </div>
             </Link>

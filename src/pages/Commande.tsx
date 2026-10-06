@@ -657,7 +657,7 @@ export default function Commande() {
             </div>
             <div>
               <p className="mb-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#FFB47A]">
-                ChinaShop-Bénin
+                AndyShop-Bénin
               </p>
               <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
                 Finaliser ma commande
@@ -1680,7 +1680,7 @@ export default function Commande() {
                       <div className="mt-4 rounded-[14px] border border-amber-100 bg-amber-50 p-4">
                         <p className="text-xs font-bold leading-5 text-amber-800">
                           Votre paiement restera en attente de confirmation jusqu’à
-                          la vérification de la référence et de la preuve par ChinaShop.
+                          la vérification de la référence et de la preuve par AndyShop.
                         </p>
                       </div>
                     </div>

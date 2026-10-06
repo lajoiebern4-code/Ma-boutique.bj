@@ -285,7 +285,7 @@ function CarteProduit({
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <p className="truncate text-[10px] font-black uppercase tracking-[0.15em] text-[#0F1B3D]">
-          {produit.categorie || 'Sélection ChinaShop'}
+          {produit.categorie || 'Sélection AndyShop'}
         </p>
 
         <Link to={`/produit/${produit.id}`}>
@@ -530,7 +530,7 @@ export default function Catalogue() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#FAF9F6] bg-[#FAF9F6] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#0F1B3D]">
                 <Sparkles size={13} />
-                Catalogue ChinaShop-Bénin
+                Catalogue AndyShop-Bénin
               </div>
 
               <h1 className="mt-4 max-w-3xl text-3xl font-black tracking-[-0.03em] text-[#1A1A2E] sm:text-4xl lg:text-5xl">

@@ -274,7 +274,7 @@ export default function Promotions() {
             <h1 className="mt-6 text-4xl font-black leading-[1.04] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
               Profitez des bonnes affaires.
               <span className="mt-2 block text-[#0F1B3D]">
-                Les promotions ChinaShop.
+                Les promotions AndyShop.
               </span>
             </h1>
 
@@ -340,7 +340,7 @@ export default function Promotions() {
               </h2>
 
               <p className="mt-3 max-w-xl text-sm leading-6 text-[#6B7280]">
-                Les offres actuellement disponibles sur ChinaShop-Bénin.
+                Les offres actuellement disponibles sur AndyShop-Bénin.
               </p>
             </div>
 

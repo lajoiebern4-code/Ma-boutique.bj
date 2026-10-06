@@ -643,7 +643,7 @@ function PaiementSolde({
 
                 <div className="mt-4 rounded-[10px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-3.5">
                     <p className="text-[8px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
-                      Numéro ChinaShop
+                      Numéro AndyShop
                     </p>
                     <p className="mt-1 text-lg font-black tracking-tight text-[#1A1A2E]">
                       {moyens.find((m: any) => m.code === provider)?.numero || 'Numéro indisponible'}
@@ -730,7 +730,7 @@ function PaiementSolde({
 
                   <div className="rounded-[10px] border border-[#FAF9F6] bg-[#FFFFFF] px-4 py-3.5">
                     <p className="text-[8px] font-black uppercase tracking-[0.15em] text-[#9A93A5]">
-                      Numéro ChinaShop
+                      Numéro AndyShop
                     </p>
                     <p className="mt-1 text-base font-black tracking-tight text-[#1A1A2E]">
                       {moyens.find((m: any) => m.code === provider)?.numero || 'Numéro indisponible'}
@@ -1476,7 +1476,7 @@ function SuiviV2Page() {
 
                 <div className="rounded-[10px] border border-white/20 bg-white/10 px-4 py-2.5 text-right backdrop-blur-sm">
                   <div className="text-[10px] font-black uppercase tracking-[0.24em] text-white/90">
-                    ChinaShop
+                    AndyShop
                   </div>
                   <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[9px] font-semibold text-white/70">
                     <ShieldCheck size={10} strokeWidth={2.5} />
@@ -2836,7 +2836,7 @@ function SuiviV2Page() {
 
 
             <div className="mt-10 text-center text-[9px] font-bold uppercase tracking-[0.22em] text-[#9A93A5]">
-              ChinaShop Bénin · Suivi sécurisé
+              AndyShop Bénin · Suivi sécurisé
               </div>
             </main>
           </div>

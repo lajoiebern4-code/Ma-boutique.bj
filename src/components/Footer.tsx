@@ -25,11 +25,11 @@ export default function Footer() {
           <div>
             <Link
               to="/"
-              aria-label="ChinaShop Bénin - Accueil"
+              aria-label="AndyShop Bénin - Accueil"
               className="inline-flex items-baseline"
             >
               <span className="text-xl font-black tracking-[-0.04em] text-[#1A1A2E]">
-                ChinaShop
+                AndyShop
               </span>
               <span className="text-xl font-black tracking-[-0.04em] text-[#0F1B3D]">
                 -Benin
@@ -106,7 +106,7 @@ export default function Footer() {
 
         <div className="mt-9 flex flex-col gap-2 border-t border-[#FAF9F6] pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[11px] leading-5 text-[#9A93A5]">
-            © {new Date().getFullYear()} ChinaShop Bénin. Tous droits réservés.
+            © {new Date().getFullYear()} AndyShop Bénin. Tous droits réservés.
           </p>
 
           <p className="text-[11px] leading-5 text-[#9A93A5]">

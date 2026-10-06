@@ -397,7 +397,7 @@ export default function Dashboard() {
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                Vue opérationnelle de ChinaShop-Bénin : commandes,
+                Vue opérationnelle de AndyShop-Bénin : commandes,
                 préparation, retraits, livraisons et activité commerciale.
               </p>
             </div>

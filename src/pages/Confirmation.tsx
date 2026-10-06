@@ -254,7 +254,7 @@ export default function Confirmation() {
 
             <span className="hidden text-left sm:block">
               <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-[#9A93A5]">
-                ChinaShop
+                AndyShop
               </span>
               <span className="block text-sm font-black text-[#1A1A2E]">
                 Bénin
@@ -638,7 +638,7 @@ export default function Confirmation() {
 
         {/* FOOTER */}
         <p className="px-3 py-6 text-center text-[9px] font-bold uppercase tracking-[0.15em] text-[#9A93A5]">
-          ChinaShop-Bénin · Merci pour votre confiance
+          AndyShop-Bénin · Merci pour votre confiance
         </p>
       </div>
     </main>

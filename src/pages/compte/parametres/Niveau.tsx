@@ -111,7 +111,7 @@ export default function Niveau() {
 
         <div className="mt-6">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-600">
-            Fidélité ChinaShop
+            Fidélité AndyShop
           </p>
 
           <h1 className="mt-2 text-3xl font-black tracking-tight text-[#0B1E3D] sm:text-4xl">

@@ -541,7 +541,7 @@ export default function Produit() {
     })
   }
 
-  const categorie = produit.categorie || 'Sélection ChinaShop'
+  const categorie = produit.categorie || 'Sélection AndyShop'
 
   return (
     <main className="min-h-screen bg-[#FFFFFF] text-[#1A1A2E]">

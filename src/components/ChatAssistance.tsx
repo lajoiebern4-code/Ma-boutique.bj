@@ -205,7 +205,7 @@ export default function ChatAssistance({ ouvert, onFermer }: Props) {
             <Sparkles size={20} />
           </div>
           <div className="flex-1">
-            <p className="text-[15px] font-black">Assistant ChinaShop</p>
+            <p className="text-[15px] font-black">Assistant AndyShop</p>
             <p className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-300">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               En ligne · Réponse instantanée

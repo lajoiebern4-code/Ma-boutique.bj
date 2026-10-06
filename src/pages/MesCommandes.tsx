@@ -235,7 +235,7 @@ export default function MesCommandes() {
           <div className="mt-8 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/70">
               <Package size={14} className="text-[#FF7A1A]" />
-              ChinaShop-Bénin
+              AndyShop-Bénin
             </div>
 
             <h1 className="mt-5 text-3xl font-black tracking-[-0.03em] text-white sm:text-5xl">

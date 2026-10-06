@@ -67,7 +67,7 @@ function SplashScreen() {
       <div className="flex w-full flex-col items-center justify-center text-center">
           <img
             src="/logo-splash.png"
-            alt="ChinaShop-Bénin"
+            alt="AndyShop-Bénin"
             className="h-auto w-[65vw] max-w-[420px] object-contain"
           />
 

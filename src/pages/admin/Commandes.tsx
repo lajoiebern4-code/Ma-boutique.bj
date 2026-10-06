@@ -380,7 +380,7 @@ export default function Commandes() {
 
         const pointA = String(
 
-          commande.point_depart || 'ChinaShop-Benin',
+          commande.point_depart || 'AndyShop-Benin',
 
         ).trim()
 

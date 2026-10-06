@@ -178,7 +178,7 @@ export default function Notifications() {
             <NotificationOption
               icon={<Megaphone size={21} />}
               titre="Promotions"
-              description="Recevoir les nouveautés, offres et promotions ChinaShop."
+              description="Recevoir les nouveautés, offres et promotions AndyShop."
               active={preferences.notifications_promotions}
               onClick={() => modifier('notifications_promotions')}
               disabled={sauvegarde}

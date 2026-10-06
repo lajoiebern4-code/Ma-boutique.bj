@@ -59,7 +59,7 @@ export default function Login() {
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Connectez-vous pour accéder à votre espace ChinaShop-Benin.
+            Connectez-vous pour accéder à votre espace AndyShop-Benin.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export default function Login() {
         </form>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          ChinaShop-Benin · Espace sécurisé
+          AndyShop-Benin · Espace sécurisé
         </p>
       </section>
     </main>

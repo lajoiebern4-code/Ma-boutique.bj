@@ -128,7 +128,7 @@ function ouvrirWhatsApp(commande: Commande) {
     commande.code_suivi ? `Code de suivi : ${commande.code_suivi}.` : '',
     '',
     'Merci pour votre confiance.',
-    'ChinaShop-Bénin',
+    'AndyShop-Bénin',
   ]
     .filter(Boolean)
     .join('\n')
@@ -449,7 +449,7 @@ export default function Livraison() {
 
         await programmerTrajetLivraison(
           numeroCommande,
-          'ChinaShop-Bénin',
+          'AndyShop-Bénin',
           commande.adresse_livraison || 'Adresse client',
           depart.toISOString(),
           arrivee.toISOString(),

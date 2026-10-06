@@ -23,13 +23,13 @@ const themes: {
   {
     value: 'light',
     titre: 'Clair',
-    description: 'Utiliser l’apparence claire de ChinaShop.',
+    description: 'Utiliser l’apparence claire de AndyShop.',
     icon: Sun,
   },
   {
     value: 'dark',
     titre: 'Sombre',
-    description: 'Utiliser l’apparence sombre de ChinaShop.',
+    description: 'Utiliser l’apparence sombre de AndyShop.',
     icon: Moon,
   },
 ]
@@ -60,7 +60,7 @@ export default function Preferences() {
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Personnalisez l’apparence de votre expérience ChinaShop-Benin.
+            Personnalisez l’apparence de votre expérience AndyShop-Benin.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function Preferences() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Choisissez comment ChinaShop doit s’afficher.
+              Choisissez comment AndyShop doit s’afficher.
             </p>
           </div>
 

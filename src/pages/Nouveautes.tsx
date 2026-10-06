@@ -261,7 +261,7 @@ export default function Nouveautes() {
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#1A1A2E] backdrop-blur">
                 <span className="h-2 w-2 rounded-full bg-[#0F1B3D]" />
                 <Sparkles size={14} />
-                Nouveautés ChinaShop-Bénin
+                Nouveautés AndyShop-Bénin
               </div>
 
               <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
@@ -272,7 +272,7 @@ export default function Nouveautes() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-sm leading-7 text-[#6B7280] sm:text-base">
-                Les derniers produits ajoutés à ChinaShop-Bénin,
+                Les derniers produits ajoutés à AndyShop-Bénin,
                 sélectionnés pour vous permettre de découvrir rapidement
                 les nouveaux arrivages disponibles en stock ou sur commande.
               </p>
@@ -373,7 +373,7 @@ export default function Nouveautes() {
 
               <div className="absolute -bottom-4 -right-3 hidden rounded-[10px] border border-[#FAF9F6] bg-white px-4 py-3 text-[#1A1A2E] shadow-sm sm:block">
                 <p className="text-[10px] font-black uppercase tracking-wider text-[#6B7280]">
-                  ChinaShop-Bénin
+                  AndyShop-Bénin
                 </p>
                 <p className="mt-1 text-sm font-black">
                   Arrivages réguliers

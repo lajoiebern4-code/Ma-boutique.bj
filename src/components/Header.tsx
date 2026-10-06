@@ -44,7 +44,7 @@ export default function Header() {
           >
             <div className="flex items-baseline">
               <span className="animate-gradient-text bg-gradient-to-r from-[#0F1B3D] via-[#C9A24B] to-[#F59E0B] bg-clip-text text-2xl font-black tracking-tight text-transparent">
-                ChinaShop
+                AndyShop
               </span>
               <span className="text-2xl font-black tracking-tight text-[#0F1B3D]">
                 -Bénin

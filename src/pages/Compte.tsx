@@ -250,7 +250,7 @@ export default function Compte() {
   const nomClient =
     profil?.nom ||
     utilisateur?.user_metadata?.nom ||
-    'Client ChinaShop'
+    'Client AndyShop'
 
   const initiales = nomClient
     .trim()
@@ -386,7 +386,7 @@ export default function Compte() {
                     </p>
                     <span className="h-1 w-1 rounded-full bg-[#FFFFFF]0" />
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9A93A5]">
-                      ChinaShop-Bénin
+                      AndyShop-Bénin
                     </span>
                   </div>
 
@@ -992,7 +992,7 @@ export default function Compte() {
 
         <div className="mt-5 flex flex-col items-center justify-center gap-1 text-center">
           <p className="text-[11px] font-black tracking-tight text-[#9A93A5]">
-            ChinaShop-Benin · Votre espace client
+            AndyShop-Benin · Votre espace client
           </p>
           <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-[#B8B0C3] dark:text-[#6B7280]">
             Importation · Suivi · Livraison au Bénin

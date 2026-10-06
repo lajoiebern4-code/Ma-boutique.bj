@@ -334,7 +334,7 @@ export default function Securite() {
         </div>
 
         <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-          Votre mot de passe n’est jamais enregistré dans ChinaShop-Benin.
+          Votre mot de passe n’est jamais enregistré dans AndyShop-Benin.
         </p>
       </div>
     </section>

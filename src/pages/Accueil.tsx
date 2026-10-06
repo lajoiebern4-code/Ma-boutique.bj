@@ -299,7 +299,7 @@ function HeroPremium() {
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#0F1B3D]/10 bg-white/80 px-4 py-2 text-xs font-bold text-[#0F1B3D] shadow-sm backdrop-blur-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            ChinaShop-Bénin
+            AndyShop-Bénin
           </div>
 
           <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-6xl">
@@ -313,7 +313,7 @@ function HeroPremium() {
           </h1>
 
           <p className="mt-6 max-w-lg text-base leading-7 text-[#6B7280] sm:text-lg">
-            ChineShop-Bénin connecte directement le marché chinois à votre porte.
+            AndyShop-Bénin connecte directement le marché chinois à votre porte.
             Livraison express partout au Bénin — Cotonou en moins de 24 heures.
           </p>
 
@@ -457,7 +457,7 @@ function ProduitsVedette() {
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0F1B3D]">
-              Sélection ChinaShop
+              Sélection AndyShop
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-[#1A1A2E] sm:text-4xl">
               Produits en vedette
@@ -766,7 +766,7 @@ function BlocConfiance() {
               L'exigence d'un service pensé pour vous.
             </h2>
             <p className="mt-5 text-sm leading-7 text-slate-500">
-              ChinaShop-Bénin vous permet de découvrir, commander et recevoir
+              AndyShop-Bénin vous permet de découvrir, commander et recevoir
               vos produits avec un parcours clair, du catalogue jusqu'au suivi.
             </p>
 

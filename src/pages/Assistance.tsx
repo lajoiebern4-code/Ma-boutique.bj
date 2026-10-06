@@ -54,7 +54,7 @@ export default function Assistance() {
                 <Headphones size={20} strokeWidth={2.4} />
               </div>
               <div>
-                <p className="text-sm font-black tracking-tight text-white">ChinaShop-Bénin</p>
+                <p className="text-sm font-black tracking-tight text-white">AndyShop-Bénin</p>
                 <p className="text-[11px] font-medium text-white/60">Chine · Bénin</p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function Assistance() {
 
             {/* Bloc WhatsApp */}
             <a
-              href="https://wa.me/22951517876?text=Bonjour%20ChinaShop-B%C3%A9nin%2C%20j%27ai%20une%20question"
+              href="https://wa.me/22951517876?text=Bonjour%20AndyShop-B%C3%A9nin%2C%20j%27ai%20une%20question"
               target="_blank"
               rel="noopener noreferrer"
               className="block rounded-2xl border border-[#FAF9F6] bg-white p-5 shadow-sm transition-all hover:border-[#25D366]/40 hover:shadow-md"

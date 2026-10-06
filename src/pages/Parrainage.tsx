@@ -99,7 +99,7 @@ export default function Parrainage() {
     if (!lien) return
 
     const texte = encodeURIComponent(
-      `Rejoins ChinaShop-Benin avec mon lien de parrainage : ${lien}`,
+      `Rejoins AndyShop-Benin avec mon lien de parrainage : ${lien}`,
     )
 
     window.open(
@@ -138,7 +138,7 @@ export default function Parrainage() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[#6B7280] sm:text-base dark:text-[#9A93A5]">
-              Faites découvrir ChinaShop-Benin à votre entourage grâce à votre
+              Faites découvrir AndyShop-Benin à votre entourage grâce à votre
               lien personnel de parrainage.
             </p>
           </div>

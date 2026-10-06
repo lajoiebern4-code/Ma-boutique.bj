@@ -34,7 +34,7 @@ const options = [
     to: '/compte/parametres/preferences',
     icon: Palette,
     titre: 'Préférences',
-    sousTitre: 'Personnalisez votre expérience ChinaShop',
+    sousTitre: 'Personnalisez votre expérience AndyShop',
   },
   {
     to: '/compte/parametres/confidentialite',
@@ -46,7 +46,7 @@ const options = [
     to: '/parrainage',
     icon: Gift,
     titre: 'Parrainage',
-    sousTitre: 'Invitez vos proches et gagnez des crédits ChinaShop',
+    sousTitre: 'Invitez vos proches et gagnez des crédits AndyShop',
   },
   {
     to: '/compte/parametres/niveau',
@@ -81,7 +81,7 @@ export default function Parametres() {
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
             Gérez les informations, la sécurité et les préférences de votre
-            compte ChinaShop-Benin.
+            compte AndyShop-Benin.
           </p>
         </div>
 

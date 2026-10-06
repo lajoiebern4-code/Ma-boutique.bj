@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 export default function Parametres() {
-  const [nom, setNom] = useState('ChinaShop-Benin')
+  const [nom, setNom] = useState('AndyShop-Benin')
   const [sousTitre, setSousTitre] = useState(
     'Sourcer en Chine. Vous livrer au Bénin.',
   )
@@ -39,7 +39,7 @@ export default function Parametres() {
     recupererParametresCommerciaux()
       .then((data) => {
         if (!actif || !data) return
-        setNom(data.nom_boutique ?? 'ChinaShop-Benin')
+        setNom(data.nom_boutique ?? 'AndyShop-Benin')
         setSousTitre(data.sous_titre ?? 'Sourcer en Chine. Vous livrer au Bénin.')
         setRemise(String(data.remise_pourcentage ?? 1.5))
         setSeuilRemise(String(data.seuil_remise_articles ?? 3))
@@ -174,7 +174,7 @@ export default function Parametres() {
   }
 
   const reinitialiser = () => {
-    setNom('ChinaShop-Benin')
+    setNom('AndyShop-Benin')
     setSousTitre('Sourcer en Chine. Vous livrer au Bénin.')
     setRemise('1.5')
     setSeuilRemise('3')
@@ -196,7 +196,7 @@ export default function Parametres() {
                   Paramètres
                 </h1>
                 <p className="mt-1 text-sm text-slate-500">
-                  Configuration de ChinaShop-Benin
+                  Configuration de AndyShop-Benin
                 </p>
               </div>
             </div>

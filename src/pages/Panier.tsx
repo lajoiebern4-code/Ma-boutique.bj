@@ -227,7 +227,7 @@ export default function Panier() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="mb-1 text-[9px] font-black uppercase tracking-[0.16em] text-[#9A93A5]">
-                              Article ChinaShop
+                              Article AndyShop
                             </p>
 
                             <h2 className="line-clamp-2 text-sm font-black leading-5 text-[#1A1A2E] sm:text-base">

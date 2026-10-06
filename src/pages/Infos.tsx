@@ -107,8 +107,8 @@ const avantages = [
 
 const faq = [
   {
-    q: "Qu'est-ce que ChinaShop-Bénin ?",
-    a: "ChinaShop-Bénin est une boutique en ligne qui propose des articles variés aux clients au Bénin. Certains articles sont déjà en stock, d'autres viennent directement de Chine sur commande.",
+    q: "Qu'est-ce que AndyShop-Bénin ?",
+    a: "AndyShop-Bénin est une boutique en ligne qui propose des articles variés aux clients au Bénin. Certains articles sont déjà en stock, d'autres viennent directement de Chine sur commande.",
   },
   {
     q: "Quelle est la différence entre un article en stock et un article sur commande ?",

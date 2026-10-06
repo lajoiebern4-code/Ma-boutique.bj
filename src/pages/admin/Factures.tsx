@@ -463,7 +463,7 @@ export default function Factures() {
               <div className="flex items-start justify-between border-b-2 border-[#0B1E3D] pb-6">
                 <div>
                   <p className="text-2xl font-black tracking-tight text-[#0B1E3D]">
-                    ChinaShop-Benin
+                    AndyShop-Benin
                   </p>
                   <p className="mt-1 text-xs font-semibold text-slate-500">
                     Sourcer en Chine. Vous livrer au Bénin.
@@ -471,7 +471,7 @@ export default function Factures() {
                   <p className="mt-4 text-[11px] leading-5 text-slate-500">
                     Facture commerciale
                     <br />
-                    Document généré depuis l'administration ChinaShop-Bénin
+                    Document généré depuis l'administration AndyShop-Bénin
                   </p>
                 </div>
 
@@ -832,11 +832,11 @@ export default function Factures() {
 
                 <p className="mt-1 text-[10px] leading-5 text-slate-400">
                   Cette facture est générée électroniquement par
-                  ChinaShop-Bénin.
+                  AndyShop-Bénin.
                 </p>
 
                 <p className="mt-3 text-[9px] font-semibold uppercase tracking-widest text-slate-300">
-                  ChinaShop-Bénin • Facture {facture.numero}
+                  AndyShop-Bénin • Facture {facture.numero}
                 </p>
               </div>
             </div>

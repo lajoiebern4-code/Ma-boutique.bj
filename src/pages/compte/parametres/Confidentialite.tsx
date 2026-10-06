@@ -31,7 +31,7 @@ export default function Confidentialite() {
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
             Comprenez quelles informations sont utilisées dans votre espace
-            client et comment elles servent au fonctionnement de ChinaShop-Benin.
+            client et comment elles servent au fonctionnement de AndyShop-Benin.
           </p>
         </div>
 
