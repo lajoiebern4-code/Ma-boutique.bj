@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   ArrowDownUp,
   ArrowRight,
@@ -372,7 +372,8 @@ export default function Catalogue() {
   const [produits, setProduits] = useState<Produit[]>([])
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState('')
-  const [recherche, setRecherche] = useState('')
+  const [searchParams] = useSearchParams()
+  const [recherche, setRecherche] = useState(searchParams.get('recherche') || '')
   const [categorie, setCategorie] = useState('tous')
   const [sousCategorie, setSousCategorie] = useState('tous')
   const [disponibilite, setDisponibilite] = useState('tous')
