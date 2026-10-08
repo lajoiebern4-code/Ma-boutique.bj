@@ -47,3 +47,4 @@ backup-*.tar.gz
 *.backup-*
 *.bak
 *.before-*
+index.html.bak
