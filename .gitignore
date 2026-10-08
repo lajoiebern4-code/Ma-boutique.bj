@@ -48,3 +48,6 @@ backup-*.tar.gz
 *.bak
 *.before-*
 index.html.bak
+chinashop-prod.env
+*.env.prod
+*.env.local
