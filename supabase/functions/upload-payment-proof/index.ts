@@ -6,7 +6,20 @@ const SUPABASE_URL=Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase=createClient(SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY);
 function json(body:Record<string,unknown>,status=200){return new Response(JSON.stringify(body),{status,headers:{...corsHeaders,"Content-Type":"application/json"}})}
-function extensionFor(contentType:string){if(contentType==="image/jpeg")return"jpg";if(contentType==="image/png")return"png";if(contentType==="image/webp")return"webp";return null}
+function extensionFor(contentType:string,fileName?:string){
+  if(contentType==="image/jpeg"||contentType==="image/jpg")return"jpg";
+  if(contentType==="image/png")return"png";
+  if(contentType==="image/webp")return"webp";
+  if(contentType==="image/heic"||contentType==="image/heif")return"jpg";
+  if(contentType==="application/octet-stream"&&fileName){
+    const ext=fileName.toLowerCase().split(".").pop();
+    if(ext==="jpg"||ext==="jpeg")return"jpg";
+    if(ext==="png")return"png";
+    if(ext==="webp")return"webp";
+    if(ext==="heic"||ext==="heif")return"jpg";
+  }
+  return null;
+}
 function normalizePhone(value:string){return value.replace(/[^0-9]/g,"")}
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders});
@@ -20,8 +33,8 @@ Deno.serve(async(req)=>{
   const paiementId=String(form.get("paiement_id")??"").trim();
   const file=form.get("file");
   if((!numeroCommande&&!codeSuivi)||!paiementId||!(file instanceof File))return json({success:false,error:"Commande, paiement et fichier sont obligatoires."},400);
-  if(file.size<=0||file.size>5*1024*1024)return json({success:false,error:"La preuve doit faire au maximum 5 Mo."},400);
-  const extension=extensionFor(file.type);if(!extension)return json({success:false,error:"Format accepté : JPG, PNG ou WebP."},400);
+  if(file.size<=0||file.size>15*1024*1024)return json({success:false,error:"La preuve doit faire au maximum 15 Mo."},400);
+  const extension=extensionFor(file.type,file.name);if(!extension)return json({success:false,error:"Format accepté : JPG, PNG ou WebP (reçu: "+file.type+"/"+file.name+")."},400);
   const authorization=req.headers.get("Authorization")??"";
   const bearer=authorization.match(/^Bearer\s+(.+)$/i)?.[1]?.trim()??"";
   let clientUserId:string|null=null;
