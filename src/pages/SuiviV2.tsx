@@ -517,7 +517,7 @@ function PaiementSolde({
             pid,
             referenceSaisie,
           )
-        } else if (modeSuivi && estCommandeStock && user?.id) {
+        } else if (modeSuivi && estCommandeStock && userId) {
           await enregistrerReferenceTransactionNormal(
             commande.numero,
             pid,
