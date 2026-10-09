@@ -2946,6 +2946,44 @@ export async function enregistrerReferenceTransactionAcompteParSuivi(
   return data
 }
 
+export async function enregistrerReferenceTransactionParSuivi(
+  codeSuivi: string,
+  paiementId: string,
+  referenceTransaction: string,
+) {
+  if (!supabase) {
+    return {
+      success: false,
+      error: 'Supabase non configuré',
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc(
+      'cs_enregistrer_reference_transaction_par_suivi',
+      {
+        p_code_suivi: codeSuivi,
+        p_paiement_id: paiementId,
+        p_reference_transaction: referenceTransaction,
+      },
+    )
+
+    if (error) throw error
+
+    return data
+  } catch (err) {
+    console.error('Erreur enregistrement référence par suivi:', err)
+
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : 'Impossible d\'enregistrer la référence.',
+    }
+  }
+}
+
 export async function enregistrerReferenceTransactionParSuiviV2(
   codeSuivi: string,
   paiementId: string,

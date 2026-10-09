@@ -35,6 +35,7 @@ import {
   enregistrerReferenceTransaction,
   enregistrerReferenceTransactionNormal,
   enregistrerReferenceTransactionParSuiviV2,
+  enregistrerReferenceTransactionParSuivi,
   enregistrerReferenceTransactionAcompteParSuivi,
   envoyerPreuvePaiement,
   envoyerPreuvePaiementConnecte,
@@ -528,7 +529,7 @@ function PaiementSolde({
             referenceSaisie,
           )
         } else {
-          await enregistrerReferenceTransactionParSuiviV2(
+          await enregistrerReferenceTransactionParSuivi(
             commande.code_suivi,
             paiementId,
             referenceSaisie,
