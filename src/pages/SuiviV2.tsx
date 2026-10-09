@@ -571,7 +571,7 @@ function PaiementSolde({
             commande.paiement!.id,
             fichier
           )
-        } else if (modeSuivi && estCommandeStock) {
+        } else if (modeSuivi && estCommandeStock && userId) {
           await envoyerPreuvePaiementConnecte(
             commande.numero,
             paiementIdGaranti,
