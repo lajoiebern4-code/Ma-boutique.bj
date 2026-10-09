@@ -312,7 +312,7 @@ function PaiementSolde({
     commande.statut !== 'solde_requis'
 
   useEffect(() => {
-    if (!modeSuivi || !commande.paiement?.id) return
+    if (!commande.paiement?.id) return
 
     const paiementRefuseNormal =
       String(commande.paiement.statut || '').toLowerCase() === 'echec' &&
@@ -495,7 +495,8 @@ function PaiementSolde({
     }, [commande.numero, commande.code_suivi, token, isInvite, modeSuivi, provider, telephone, onRefresh])
 
     const gererEnregistrementReferenceTransaction = useCallback(async () => {
-      if (!commande.code_suivi || !paiementId) return
+      const pid = paiementId || commande.paiement?.id
+      if (!commande.code_suivi || !pid) return
 
       const referenceSaisie = referenceTransaction.trim()
 
@@ -513,25 +514,25 @@ function PaiementSolde({
           await enregistrerReferenceTransaction(
             commande.numero,
             token,
-            paiementId,
+            pid,
             referenceSaisie,
           )
         } else if (modeSuivi && estCommandeStock) {
           await enregistrerReferenceTransactionNormal(
             commande.numero,
-            paiementId,
+            pid,
             referenceSaisie,
           )
         } else if (commande.acompte_requis > commande.acompte_paye) {
           await enregistrerReferenceTransactionAcompteParSuivi(
             commande.code_suivi,
-            paiementId,
+            pid,
             referenceSaisie,
           )
         } else {
           await enregistrerReferenceTransactionParSuivi(
             commande.code_suivi,
-            paiementId,
+            pid,
             referenceSaisie,
           )
         }
