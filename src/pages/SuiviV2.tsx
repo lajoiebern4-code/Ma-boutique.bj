@@ -31,6 +31,7 @@ import {
   initierPaiementSoldeInvite,
   initierPaiementSoldeParSuiviV2,
   reinitierPaiementNormal,
+  reinitierPaiementParSuivi,
   enregistrerReferenceTransaction,
   enregistrerReferenceTransactionNormal,
   enregistrerReferenceTransactionParSuiviV2,
@@ -452,16 +453,24 @@ function PaiementSolde({
           String(commande.paiement?.statut || '').toLowerCase() === 'echec' &&
           commande.statut !== 'solde_requis'
         ) {
-          res = commande.acompte_requis > commande.acompte_paye
-            ? await initierPaiementAcompte(
-                commande.numero,
-                telephone,
-                provider
-              )
-            : await reinitierPaiementNormal(
-                commande.numero,
-                provider
-              )
+          if (commande.acompte_requis > commande.acompte_paye) {
+            res = await initierPaiementAcompte(
+              commande.numero,
+              telephone,
+              provider
+            )
+          } else if (!commande.client_user_id) {
+            // Commande invité : utiliser le code_suivi
+            res = await reinitierPaiementParSuivi(
+              commande.code_suivi,
+              provider
+            )
+          } else {
+            res = await reinitierPaiementNormal(
+              commande.numero,
+              provider
+            )
+          }
         } else {
           res = await initierPaiementSolde(
             commande.numero,

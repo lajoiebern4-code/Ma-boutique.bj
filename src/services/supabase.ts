@@ -434,6 +434,42 @@ export async function reinitierPaiementNormal(
   }
 }
 
+export async function reinitierPaiementParSuivi(
+  codeSuivi: string,
+  provider: string,
+) {
+  if (!supabase) {
+    return {
+      success: false,
+      error: 'Supabase non configuré',
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc(
+      'cs_reinitier_paiement_solde_par_suivi',
+      {
+        p_code_suivi: codeSuivi,
+        p_provider: provider,
+      },
+    )
+
+    if (error) throw error
+
+    return data
+  } catch (err) {
+    console.error('Erreur réinitialisation paiement par suivi:', err)
+
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : 'Impossible de réinitialiser le paiement.',
+    }
+  }
+}
+
 export async function initierPaiementSolde(
   numeroCommande: string,
   telephone: string,
