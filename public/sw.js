@@ -1,4 +1,4 @@
-const CACHE_NAME = 'andyshop-v2';
+const CACHE_NAME = 'andyshop-v3';
 const CACHE_STATIQUE = [
   '/manifest.json',
   '/icon-192.png',

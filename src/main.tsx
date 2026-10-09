@@ -19,9 +19,17 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// Enregistrement du service worker (PWA)
+// Enregistrement du service worker (PWA) + auto-update
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+
+  // Recharger automatiquement quand un nouveau SW prend le contrôle
+  let refreshing = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return
+    refreshing = true
+    window.location.reload()
   })
 }
