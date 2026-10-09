@@ -1,4 +1,69 @@
 import { supabase } from "../lib/supabase"
+
+// ============================================================
+// Compression d'image côté client (canvas)
+// Réduit la taille à ~500 Ko max, convertit HEIC en JPEG
+// ============================================================
+async function compresserImage(file: File, maxWidth = 1600, quality = 0.8): Promise<File> {
+  // Si ce n'est pas une image, on renvoie tel quel
+  if (!file.type.startsWith('image/') && file.type !== 'application/octet-stream') {
+    return file
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+
+      // Calculer les nouvelles dimensions
+      let { width, height } = img
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width)
+        width = maxWidth
+      }
+
+      // Dessiner sur canvas
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return resolve(file)
+
+      // Fond blanc pour éviter les transparences sur JPEG
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fillRect(0, 0, width, height)
+      ctx.drawImage(img, 0, 0, width, height)
+
+      // Convertir en JPEG compressé
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return resolve(file)
+          const compressed = new File(
+            [blob],
+            file.name.replace(/\.[^.]+$/, '') + '.jpg',
+            { type: 'image/jpeg' },
+          )
+          console.log(
+            `📸 Compression: ${(file.size / 1024).toFixed(0)} Ko → ${(compressed.size / 1024).toFixed(0)} Ko`,
+          )
+          resolve(compressed)
+        },
+        'image/jpeg',
+        quality,
+      )
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      resolve(file)
+    }
+
+    img.src = url
+  })
+}
+
 export { supabase } from "../lib/supabase"
 type ProduitAdminInput = {
   nom?: string
@@ -330,13 +395,11 @@ export async function envoyerPreuvePaiementParSuiviV2(
   if (!supabase) throw new Error('Supabase non configuré')
   if (!(fichier instanceof File)) throw new Error('Fichier de preuve invalide.')
 
-  if (fichier.size <= 0 || fichier.size > 5 * 1024 * 1024) {
-    throw new Error('La preuve doit faire au maximum 5 Mo.')
-  }
+  // Compresser l'image avant envoi (résout taille, HEIC, timeout)
+  fichier = await compresserImage(fichier)
 
-  const formatsAcceptes = ['image/jpeg', 'image/png', 'image/webp']
-  if (!formatsAcceptes.includes(fichier.type)) {
-    throw new Error('Format accepté : JPG, PNG ou WebP.')
+  if (fichier.size <= 0 || fichier.size > 15 * 1024 * 1024) {
+    throw new Error('La preuve doit faire au maximum 15 Mo.')
   }
 
   const formData = new FormData()
